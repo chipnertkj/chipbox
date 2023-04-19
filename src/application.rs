@@ -88,7 +88,7 @@ impl Chipbox {
                 }
                 wgpu::SurfaceError::Lost => self
                     .renderer
-                    .reconfigure_surface(),
+                    .reconfigure_main_surface(),
                 _ => tracing::warn!("Redraw error: '{e}'"),
             },
         }

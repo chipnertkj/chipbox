@@ -137,7 +137,7 @@ impl Renderer {
         }
     }
 
-    pub fn reconfigure_surface(&self) {
+    pub fn reconfigure_main_surface(&self) {
         self.main_surface
             .configure(&self.device, &self.main_surface_config);
     }
