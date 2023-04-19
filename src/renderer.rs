@@ -32,9 +32,8 @@ impl Renderer {
         );
         main_surface.configure(&device, &main_surface_config);
 
-        let default_shader = device.create_shader_module(wgpu::include_wgsl!(
-            "../shaders/default.wgsl"
-        ));
+        let default_shader = device
+            .create_shader_module(wgpu::include_wgsl!("shaders/default.wgsl"));
 
         let render_pipeline = Self::create_render_pipeline(
             &device,
