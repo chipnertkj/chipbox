@@ -9,7 +9,7 @@ edition = "2021"
 anyhow = "1.0.70"
 async-std = "1.12.0"
 bytemuck = { version = "1.13.1", features = ["derive"] }
-cpal = { version = "0.15.0", features = ["asio"] }
+cpal = "0.15.0"
 home = "0.5.4"
 itertools = "0.10.5"
 nalgebra = { version = "0.32.2", features = ["serde-serialize"] }

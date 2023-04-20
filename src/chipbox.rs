@@ -1,29 +1,22 @@
 use winit::{dpi, event, event_loop, window};
 
-use crate::renderer;
-use crate::settings::{self, SettingsTrait as _};
+mod audio_engine;
+mod renderer;
+mod settings;
+
+use settings::SettingsTrait as _;
 
 pub struct Chipbox {
     window: window::Window,
     window_settings: settings::WindowSettings,
     renderer: renderer::Renderer,
+    audio_engine: audio_engine::AudioEngine,
 }
 
 impl Chipbox {
     pub fn new<T>(event_loop: &event_loop::EventLoop<T>) -> Self {
-        let window_settings = match settings::WindowSettings::load() {
-            Ok(settings) => {
-                tracing::info!("Successfully loaded window settings.");
-                settings
-            }
-            Err(e) => {
-                tracing::warn!(
-                    "Unable to load window settings, using default config: {e}"
-                );
-                Default::default()
-            }
-        };
-
+        let window_settings =
+            settings::WindowSettings::load_or_default_tracing();
         let window = window::WindowBuilder::new()
             .with_inner_size(window_settings.logical_size_unmaximized)
             .with_title(Self::construct_title())
@@ -32,10 +25,16 @@ impl Chipbox {
 
         let renderer = renderer::Renderer::new(&window);
 
+        let audio_engine_settings =
+            settings::AudioEngineSettings::load_or_default_tracing();
+        let audio_engine =
+            audio_engine::AudioEngine::new(audio_engine_settings);
+
         Self {
             window,
             window_settings,
             renderer,
+            audio_engine,
         }
     }
 
@@ -65,14 +64,8 @@ impl Chipbox {
     }
 
     fn on_exit(&mut self) {
-        match self.window_settings.save() {
-            Ok(_) => {
-                tracing::info!("Successfully saved window settings.")
-            }
-            Err(e) => {
-                tracing::error!("Unable to save window settings: {e}")
-            }
-        }
+        self.window_settings
+            .save_tracing()
     }
 
     fn on_redraw_requested(
