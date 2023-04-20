@@ -1,9 +1,14 @@
+use std::collections::HashMap;
+
 use super::config::{self, ConfigTrait as _, StringSerializedTrait as _};
-use cpal::traits::DeviceTrait as _;
+
+mod output;
+pub use output::Output;
 
 pub struct AudioEngine {
     host_opt: Option<cpal::Host>,
     config: config::AudioEngineConfig,
+    pub outputs: HashMap<String, Output>,
 }
 
 impl AudioEngine {
@@ -14,7 +19,7 @@ impl AudioEngine {
             .host_id_opt_serialized
             .to_owned();
         let host_id_opt = host_id_opt_serialized
-            .deserialize()
+            .deserialize(())
             .unwrap_or_else(|e| {
                 tracing::error!(
                     "Using default host due to invalid host config: {e}"
@@ -40,7 +45,15 @@ impl AudioEngine {
             ),
         };
 
-        Self { host_opt, config }
+        Self {
+            host_opt,
+            config,
+            outputs: Default::default(),
+        }
+    }
+
+    pub fn host_opt(&self) -> &Option<cpal::Host> {
+        &self.host_opt
     }
 
     /// Changes the underlying `cpal::Host` and reaccesses audio resources.

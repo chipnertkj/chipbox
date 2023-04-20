@@ -14,11 +14,11 @@ impl From<Option<cpal::HostId>> for HostIdOptSerialized {
 impl TryFrom<HostIdOptSerialized> for Option<cpal::HostId> {
     type Error = HostIdDeserializationError;
     fn try_from(value: HostIdOptSerialized) -> Result<Self, Self::Error> {
-        value.deserialize()
+        value.deserialize(())
     }
 }
 
-impl config::StringSerializedTrait<Option<cpal::HostId>>
+impl config::StringSerializedTrait<Option<cpal::HostId>, ()>
     for HostIdOptSerialized
 {
     type DeserializationError = HostIdDeserializationError;
@@ -31,6 +31,7 @@ impl config::StringSerializedTrait<Option<cpal::HostId>>
 
     fn deserialize(
         self,
+        _: (),
     ) -> Result<Option<cpal::HostId>, Self::DeserializationError> {
         match &self.host_name_opt {
             Some(host_name) => {

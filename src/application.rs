@@ -6,6 +6,8 @@ mod renderer;
 
 use config::ConfigTrait as _;
 
+use self::audio_engine::Output;
+
 pub struct Chipbox {
     window: window::Window,
     window_config: config::WindowConfig,
@@ -26,8 +28,28 @@ impl Chipbox {
 
         let audio_engine_settings =
             config::AudioEngineConfig::load_or_default_tracing();
-        let audio_engine =
+        let mut audio_engine =
             audio_engine::AudioEngine::new(audio_engine_settings);
+
+        if !audio_engine
+            .outputs
+            .contains_key("default")
+        {
+            match audio_engine.host_opt() {
+                Some(host) => {
+                    let output = audio_engine::Output::default(host);
+                    audio_engine
+                        .outputs
+                        .insert("default".to_string(), output);
+                    audio_engine
+                        .outputs
+                        .get("default")
+                        .unwrap()
+                        .play();
+                }
+                None => {}
+            }
+        }
 
         Self {
             window,
