@@ -3,12 +3,10 @@ use std::collections::HashMap;
 use super::config::{self, ConfigTrait as _, StringSerializedTrait as _};
 
 mod output;
-pub use output::Output;
 
 pub struct AudioEngine {
     host_opt: Option<cpal::Host>,
     config: config::AudioEngineConfig,
-    pub outputs: HashMap<String, Output>,
 }
 
 impl AudioEngine {
@@ -45,11 +43,7 @@ impl AudioEngine {
             ),
         };
 
-        Self {
-            host_opt,
-            config,
-            outputs: Default::default(),
-        }
+        Self { host_opt, config }
     }
 
     pub fn host_opt(&self) -> &Option<cpal::Host> {
