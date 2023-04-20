@@ -1,6 +1,6 @@
 use std::{fs, path};
 
-pub trait SettingsTrait:
+pub trait ConfigTrait:
     serde::Serialize + serde::de::DeserializeOwned + Default
 {
     fn config_file_name() -> &'static str;

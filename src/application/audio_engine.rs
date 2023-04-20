@@ -1,18 +1,19 @@
-use super::settings::{self, SettingsTrait};
+use super::config::{self, ConfigTrait as _, StringSerializedTrait as _};
+use cpal::traits::DeviceTrait as _;
 
 pub struct AudioEngine {
     host_opt: Option<cpal::Host>,
-    settings: settings::AudioEngineSettings,
+    config: config::AudioEngineConfig,
 }
 
 impl AudioEngine {
     /// Constructs an `AudioEngine` according to the supplied config.
-    pub fn new(mut settings: settings::AudioEngineSettings) -> Self {
+    pub fn new(mut config: config::AudioEngineConfig) -> Self {
         // attempt to deserialize host id
-        let host_id_serialized = settings
-            .host_id_serialized
+        let host_id_opt_serialized = config
+            .host_id_opt_serialized
             .to_owned();
-        let host_id_opt = host_id_serialized
+        let host_id_opt = host_id_opt_serialized
             .deserialize()
             .unwrap_or_else(|e| {
                 tracing::error!(
@@ -22,7 +23,7 @@ impl AudioEngine {
             });
 
         // update config in case host_id was changed
-        settings.host_id_serialized = host_id_opt.into();
+        config.host_id_opt_serialized = host_id_opt.into();
 
         // initialize host or leave as None based on config
         let host_opt = host_id_opt
@@ -39,7 +40,7 @@ impl AudioEngine {
             ),
         };
 
-        Self { host_opt, settings }
+        Self { host_opt, config }
     }
 
     /// Changes the underlying `cpal::Host` and reaccesses audio resources.
@@ -60,8 +61,8 @@ impl AudioEngine {
         self.host_opt = host_id_opt.map(|host_id| {
             cpal::host_from_id(host_id).expect("host is unavailable")
         });
-        self.settings
-            .host_id_serialized = host_id_opt.into();
+        self.config
+            .host_id_opt_serialized = host_id_opt.into();
 
         // log
         let self_host_name_opt = self
@@ -78,6 +79,6 @@ impl AudioEngine {
 impl Drop for AudioEngine {
     /// Save config and log on drop.
     fn drop(&mut self) {
-        self.settings.save_tracing()
+        self.config.save_tracing()
     }
 }

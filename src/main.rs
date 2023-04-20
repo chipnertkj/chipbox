@@ -1,16 +1,12 @@
 use tracing_subscriber::util::SubscriberInitExt as _;
 use winit::event_loop;
 
-mod chipbox;
+mod application;
 
 fn main() {
-    todo!("remove (refactor) module chipbox. redundant: `chipbox::chipbox`");
-    todo!("rename settings to config");
-    let subscriber = tracing_subscriber::FmtSubscriber::builder().finish();
+    let subscriber = tracing_subscriber::FmtSubscriber::default();
     subscriber.init();
 
     let event_loop = event_loop::EventLoop::default();
-
-    let chipbox = chipbox::Chipbox::new(&event_loop);
-    chipbox.run(event_loop);
+    application::Chipbox::new(&event_loop).run(event_loop)
 }

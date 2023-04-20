@@ -1,22 +1,21 @@
 use winit::{dpi, event, event_loop, window};
 
 mod audio_engine;
+mod config;
 mod renderer;
-mod settings;
 
-use settings::SettingsTrait as _;
+use config::ConfigTrait as _;
 
 pub struct Chipbox {
     window: window::Window,
-    window_settings: settings::WindowSettings,
+    window_config: config::WindowConfig,
     renderer: renderer::Renderer,
     audio_engine: audio_engine::AudioEngine,
 }
 
 impl Chipbox {
     pub fn new<T>(event_loop: &event_loop::EventLoop<T>) -> Self {
-        let window_settings =
-            settings::WindowSettings::load_or_default_tracing();
+        let window_settings = config::WindowConfig::load_or_default_tracing();
         let window = window::WindowBuilder::new()
             .with_inner_size(window_settings.logical_size_unmaximized)
             .with_title(Self::construct_title())
@@ -26,13 +25,13 @@ impl Chipbox {
         let renderer = renderer::Renderer::new(&window);
 
         let audio_engine_settings =
-            settings::AudioEngineSettings::load_or_default_tracing();
+            config::AudioEngineConfig::load_or_default_tracing();
         let audio_engine =
             audio_engine::AudioEngine::new(audio_engine_settings);
 
         Self {
             window,
-            window_settings,
+            window_config: window_settings,
             renderer,
             audio_engine,
         }
@@ -64,7 +63,7 @@ impl Chipbox {
     }
 
     fn on_exit(&mut self) {
-        self.window_settings
+        self.window_config
             .save_tracing()
     }
 
@@ -91,7 +90,7 @@ impl Chipbox {
         self.renderer
             .resize_main_surface(&physical_size);
         if !self.window.is_maximized() {
-            self.window_settings
+            self.window_config
                 .logical_size_unmaximized =
                 physical_size.to_logical(self.window.scale_factor())
         }
