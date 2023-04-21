@@ -15,23 +15,23 @@ pub struct Chipbox {
 
 impl Chipbox {
     pub fn new<T>(event_loop: &event_loop::EventLoop<T>) -> Self {
-        let window_settings = config::WindowConfig::load_or_default_tracing();
+        let window_config = config::WindowConfig::load_or_default_tracing();
         let window = window::WindowBuilder::new()
-            .with_inner_size(window_settings.logical_size_unmaximized)
+            .with_inner_size(window_config.logical_size_unmaximized)
             .with_title(Self::construct_title())
             .build(event_loop)
             .expect("program should be able to create a window");
 
         let renderer = renderer::Renderer::new(&window);
 
-        let audio_engine_settings =
+        let audio_engine_config =
             config::AudioEngineConfig::load_or_default_tracing();
         let audio_engine =
-            audio_engine::AudioEngine::new(audio_engine_settings);
+            audio_engine::AudioEngine::with_config(audio_engine_config);
 
         Self {
             window,
-            window_config: window_settings,
+            window_config,
             renderer,
             audio_engine,
         }

@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use super::config::{self, ConfigTrait as _, StringSerializedTrait as _};
 
 mod output;
@@ -10,8 +8,14 @@ pub struct AudioEngine {
 }
 
 impl AudioEngine {
+    /// Returns the default `cpal::HostId` as defined by `cpal`.
+    pub fn default_host_id() -> &'static cpal::HostId {
+        // last host is the same as default in cpal impl
+        cpal::ALL_HOSTS.last().expect("expected at least one audio backend to be availabe on this platform")
+    }
+
     /// Constructs an `AudioEngine` according to the supplied config.
-    pub fn new(mut config: config::AudioEngineConfig) -> Self {
+    pub fn with_config(mut config: config::AudioEngineConfig) -> Self {
         // attempt to deserialize host id
         let host_id_opt_serialized = config
             .host_id_opt_serialized
@@ -22,7 +26,7 @@ impl AudioEngine {
                 tracing::error!(
                     "Using default host due to invalid host config: {e}"
                 );
-                Some(cpal::default_host().id())
+                Some(*Self::default_host_id())
             });
 
         // update config in case host_id was changed
@@ -46,6 +50,7 @@ impl AudioEngine {
         Self { host_opt, config }
     }
 
+    /// Returns the currently used host.
     pub fn host_opt(&self) -> &Option<cpal::Host> {
         &self.host_opt
     }

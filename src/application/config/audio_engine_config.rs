@@ -1,3 +1,5 @@
+use crate::application::audio_engine;
+
 mod host_id_opt_serialized;
 
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -8,7 +10,10 @@ pub struct AudioEngineConfig {
 impl Default for AudioEngineConfig {
     fn default() -> Self {
         Self {
-            host_id_opt_serialized: Some(cpal::default_host().id()).into(),
+            host_id_opt_serialized: Some(
+                *audio_engine::AudioEngine::default_host_id(),
+            )
+            .into(),
         }
     }
 }
