@@ -1,5 +1,6 @@
 use winit::{dpi, event, event_loop, window};
 
+mod application_config;
 mod audio_engine;
 mod config;
 mod renderer;
@@ -8,30 +9,27 @@ use config::ConfigTrait as _;
 
 pub struct Chipbox {
     window: window::Window,
-    window_config: config::WindowConfig,
+    application_config: application_config::ApplicationConfig,
     renderer: renderer::Renderer,
     audio_engine: audio_engine::AudioEngine,
 }
 
 impl Chipbox {
-    pub fn new<T>(event_loop: &event_loop::EventLoop<T>) -> Self {
-        let window_config = config::WindowConfig::load_or_default_tracing();
+    pub fn load_from_config<T>(event_loop: &event_loop::EventLoop<T>) -> Self {
+        let application_config =
+            application_config::ApplicationConfig::load_or_default_tracing();
         let window = window::WindowBuilder::new()
-            .with_inner_size(window_config.logical_size_unmaximized)
+            .with_inner_size(application_config.logical_size_unmaximized)
             .with_title(Self::construct_title())
             .build(event_loop)
             .expect("program should be able to create a window");
 
         let renderer = renderer::Renderer::new(&window);
-
-        let audio_engine_config =
-            config::AudioEngineConfig::load_or_default_tracing();
-        let audio_engine =
-            audio_engine::AudioEngine::with_config(audio_engine_config);
+        let audio_engine = audio_engine::AudioEngine::load_from_config();
 
         Self {
             window,
-            window_config,
+            application_config,
             renderer,
             audio_engine,
         }
@@ -63,7 +61,7 @@ impl Chipbox {
     }
 
     fn on_exit(&mut self) {
-        self.window_config
+        self.application_config
             .save_tracing()
     }
 
@@ -90,7 +88,7 @@ impl Chipbox {
         self.renderer
             .resize_main_surface(&physical_size);
         if !self.window.is_maximized() {
-            self.window_config
+            self.application_config
                 .logical_size_unmaximized =
                 physical_size.to_logical(self.window.scale_factor())
         }

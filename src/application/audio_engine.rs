@@ -1,96 +1,75 @@
-use super::config::{self, ConfigTrait as _, StringSerializedTrait as _};
+use super::config::{ConfigTrait as _, StringSerializedTrait as _};
 
+mod audio_engine_config;
 mod output;
 
-pub struct AudioEngine {
-    host_opt: Option<cpal::Host>,
-    config: config::AudioEngineConfig,
+pub enum AudioEngine {
+    Disabled {
+        config: audio_engine_config::AudioEngineConfig,
+    },
+    Enabled {
+        host: cpal::Host,
+        config: audio_engine_config::AudioEngineConfig,
+    },
 }
 
 impl AudioEngine {
-    /// Returns the default `cpal::HostId` as defined by `cpal`.
-    pub fn default_host_id() -> &'static cpal::HostId {
-        // last host is the same as default in cpal impl
-        cpal::ALL_HOSTS.last().expect("expected at least one audio backend to be availabe on this platform")
+    /// Returns a disabled `AudioEngine` with a loaded config.
+    pub fn disabled() -> Self {
+        let config =
+            audio_engine_config::AudioEngineConfig::load_or_default_tracing();
+        Self::Disabled { config }
     }
 
-    /// Constructs an `AudioEngine` according to the supplied config.
-    pub fn with_config(mut config: config::AudioEngineConfig) -> Self {
-        // attempt to deserialize host id
-        let host_id_opt_serialized = config
-            .host_id_opt_serialized
-            .to_owned();
-        let host_id_opt = host_id_opt_serialized
-            .deserialize(())
-            .unwrap_or_else(|e| {
-                tracing::error!(
-                    "Using default host due to invalid host config: {e}"
-                );
-                Some(*Self::default_host_id())
-            });
-
-        // update config in case host_id was changed
-        config.host_id_opt_serialized = host_id_opt.into();
-
-        // initialize host or leave as None based on config
-        let host_opt = host_id_opt
-            .map(|x| cpal::host_from_id(x).expect("host is unavailable"));
-
-        // log
-        let host_name_opt = host_opt
-            .as_ref()
-            .map(|x| x.id().name());
-        match host_name_opt {
-            Some(host_name) => tracing::info!("Selected host: {host_name}"),
-            None => tracing::info!(
-                "Did not select a host (as per audio engine config)"
-            ),
-        };
-
-        Self { host_opt, config }
+    /// Loads the `AudioEngineConfig` and constructs an enabled `AudioEngine` based on it.
+    /// Overrides the audio backend to `cpal::HostId`.
+    pub fn with_host(host_id: cpal::HostId) -> Self {
+        let mut config =
+            audio_engine_config::AudioEngineConfig::load_or_default_tracing();
+        config.host_id_serialized =
+            audio_engine_config::HostIdSerialized::serialize(host_id);
+        Self::with_config(config)
     }
 
-    /// Returns the currently used host.
-    pub fn host_opt(&self) -> &Option<cpal::Host> {
-        &self.host_opt
-    }
+    /// Constructs an enabled `AudioEngine` based on an `AudioEngineConfig`.
+    fn with_config(mut config: audio_engine_config::AudioEngineConfig) -> Self {
+        let host_id_result = config
+            .host_id_serialized
+            .deserialize(());
 
-    /// Changes the underlying `cpal::Host` and reaccesses audio resources.
-    pub fn set_host(&mut self, host_id_opt: Option<cpal::HostId>) {
-        let self_host_id_opt = self
-            .host_opt
-            .as_ref()
-            .map(|x| x.id());
-
-        // reaccess audio resources on host change
-        let cleanup = || todo!("add host change cleanup code");
-        let is_different = self_host_id_opt != host_id_opt;
-        if is_different {
-            cleanup();
+        match host_id_result {
+            Ok(host_id) => {
+                let host = cpal::host_from_id(host_id)
+                    .expect("expected host_id to be valid");
+                tracing::info!("Selected host: {}", host_id.name());
+                Self::Enabled { host, config }
+            }
+            Err(e) => {
+                tracing::error!("Unable to select host: {e}");
+                tracing::warn!("Reverting to default host.");
+                let host_id =
+                    *audio_engine_config::AudioEngineConfig::default_host_id();
+                config.host_id_serialized =
+                    audio_engine_config::HostIdSerialized::serialize(host_id);
+                // It's ok to call this recursively, as `config.host_id_serialized` should be valid.
+                Self::with_config(config)
+            }
         }
+    }
 
-        // change host and update config
-        self.host_opt = host_id_opt.map(|host_id| {
-            cpal::host_from_id(host_id).expect("host is unavailable")
-        });
-        self.config
-            .host_id_opt_serialized = host_id_opt.into();
-
-        // log
-        let self_host_name_opt = self
-            .host_opt
-            .as_ref()
-            .map(|x| x.id().name());
-        match self_host_name_opt {
-            Some(host_name) => tracing::info!("Selected host: {host_name}"),
-            None => tracing::info!("Selected host: None"),
-        };
+    /// Loads the `AudioEngineConfig` and constructs an enabled `AudioEngine` based on it.
+    pub fn load_from_config() -> Self {
+        let config =
+            audio_engine_config::AudioEngineConfig::load_or_default_tracing();
+        Self::with_config(config)
     }
 }
 
 impl Drop for AudioEngine {
     /// Save config and log on drop.
     fn drop(&mut self) {
-        self.config.save_tracing()
+        if let Self::Enabled { config, .. } = self {
+            config.save_tracing()
+        }
     }
 }

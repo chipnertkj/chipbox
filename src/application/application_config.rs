@@ -1,11 +1,13 @@
 use winit::dpi;
 
+use super::config;
+
 #[derive(serde::Serialize, serde::Deserialize)]
-pub struct WindowConfig {
+pub struct ApplicationConfig {
     pub logical_size_unmaximized: dpi::LogicalSize<f32>,
 }
 
-impl Default for WindowConfig {
+impl Default for ApplicationConfig {
     fn default() -> Self {
         Self {
             logical_size_unmaximized: dpi::LogicalSize::new(800., 600.),
@@ -13,8 +15,8 @@ impl Default for WindowConfig {
     }
 }
 
-impl super::ConfigTrait for WindowConfig {
+impl config::ConfigTrait for ApplicationConfig {
     fn config_file_name() -> &'static str {
-        "window_config.toml"
+        "application_config.toml"
     }
 }

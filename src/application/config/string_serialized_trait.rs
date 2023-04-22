@@ -3,5 +3,5 @@ pub trait StringSerializedTrait<T, D>:
 {
     type DeserializationError;
     fn serialize(value: T) -> Self;
-    fn deserialize(self, data: D) -> Result<T, Self::DeserializationError>;
+    fn deserialize(&self, data: D) -> Result<T, Self::DeserializationError>;
 }

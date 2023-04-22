@@ -8,5 +8,6 @@ fn main() {
     subscriber.init();
 
     let event_loop = event_loop::EventLoop::default();
-    application::Chipbox::new(&event_loop).run(event_loop)
+    let chipbox = application::Chipbox::load_from_config(&event_loop);
+    chipbox.run(event_loop)
 }
