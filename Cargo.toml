@@ -1,36 +1,50 @@
 [package]
 name = "chipbox"
-version = "0.1.0"
+version = "0.0.0"
+authors = ["chipnertkj <domekaij@gmail.com>"]
+exclude = ["./target", "./.github"]
+readme = "./README.md"
 edition = "2021"
+license = "GPL-3.0-or-later"
+repository = "https://github.com/chipnertkj/chipbox"
+categories = ["multimedia::audio"]
+keywords = ["daw", "music", "vst", "clap", "audio"]
+description = "Open-source DAW with a node graph system."
+
+[badges]
+maintenance = { status = "actively-developed" }
 
 [dependencies]
-anyhow = "1.0.70"
-async-std = "1.12.0"
-bytemuck = { version = "1.13.1", features = ["derive"] }
-cpal = "0.15.0"
-home = "0.5.4"
-itertools = "0.10.5"
-nalgebra = { version = "0.32.2", features = ["serde-serialize"] }
-petgraph = "0.6.3"
-rand = "0.8.5"
-rb = "0.4.1"
-serde = { version = "1.0.155", features = ["derive"] }
-toml = "0.7.2"
-tracing = "0.1.37"
-tracing-subscriber = { version = "0.3.16", features = [
+anyhow = "1.0.*"
+async-std = "1.12.*"
+bytemuck = { version = "1.13.*", features = ["derive"] }
+cpal = "0.15.*"
+home = "0.5.*"
+itertools = "0.10.*"
+nalgebra = { version = "0.32.*", features = ["serde-serialize"] }
+petgraph = "0.6.*"
+rand = "0.8.*"
+rb = "0.4.*"
+serde = { version = "1.0.*", features = ["derive"] }
+toml = "0.7.*"
+tracing = "0.1.*"
+tracing-subscriber = { version = "0.3.*", features = [
     "tracing-log",
     "env-filter",
 ] }
-wgpu = "0.15.1"
-winit = { version = "0.28.2", features = ["serde"] }
+wgpu = "0.15.*"
+winit = { version = "0.28.*", features = ["serde"] }
 
 [profile.dev]
+lto = false
 opt-level = 1
 incremental = true
 [profile.dev.package."*"]
 opt-level = 3
+incremental = false
 
 [profile.release]
-lto = "thin"
+lto = "fat"
 opt-level = 3
-debug = true
+incremental = false
+debug = 2

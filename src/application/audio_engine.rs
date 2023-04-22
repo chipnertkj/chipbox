@@ -48,7 +48,7 @@ impl AudioEngine {
                 let host_id = *config::AudioEngineConfig::default_host_id();
                 config.host_id_serialized =
                     config::HostIdSerialized::serialize(host_id);
-                // It's ok to call this recursively, as `config.host_id_serialized` should be valid.
+                // It's ok to call this recursively here, as `config.host_id_serialized` should be valid.
                 Self::with_config(config)
             }
         }
