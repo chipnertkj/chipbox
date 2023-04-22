@@ -1,4 +1,4 @@
-use crate::application::config;
+use crate::config;
 
 #[derive(Debug, serde::Serialize, serde::Deserialize, Clone)]
 pub struct HostIdSerialized {

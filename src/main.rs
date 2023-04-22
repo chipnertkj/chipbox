@@ -2,6 +2,7 @@ use tracing_subscriber::util::SubscriberInitExt as _;
 use winit::event_loop;
 
 mod application;
+mod config;
 
 fn main() {
     let subscriber = tracing_subscriber::FmtSubscriber::default();

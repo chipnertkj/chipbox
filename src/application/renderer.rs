@@ -1,8 +1,8 @@
-mod index;
-mod vertex;
-
 use async_std::task;
 use winit::window;
+
+mod index;
+mod vertex;
 
 pub struct Renderer {
     instance: wgpu::Instance,

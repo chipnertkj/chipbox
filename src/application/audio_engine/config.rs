@@ -1,8 +1,7 @@
-use crate::application::config;
+use crate::config;
 use config::StringSerializedTrait as _;
 
 mod host_id_serialized;
-
 pub use host_id_serialized::{HostIdDeserializationError, HostIdSerialized};
 
 #[derive(serde::Serialize, serde::Deserialize)]

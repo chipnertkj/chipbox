@@ -1,25 +1,22 @@
+use crate::config::ConfigTrait as _;
 use winit::{dpi, event, event_loop, window};
 
-mod application_config;
 mod audio_engine;
 mod config;
 mod renderer;
 
-use config::ConfigTrait as _;
-
 pub struct Chipbox {
     window: window::Window,
-    application_config: application_config::ApplicationConfig,
+    config: config::ApplicationConfig,
     renderer: renderer::Renderer,
     audio_engine: audio_engine::AudioEngine,
 }
 
 impl Chipbox {
     pub fn load_from_config<T>(event_loop: &event_loop::EventLoop<T>) -> Self {
-        let application_config =
-            application_config::ApplicationConfig::load_or_default_tracing();
+        let config = config::ApplicationConfig::load_or_default_tracing();
         let window = window::WindowBuilder::new()
-            .with_inner_size(application_config.logical_size_unmaximized)
+            .with_inner_size(config.logical_size_unmaximized)
             .with_title(Self::construct_title())
             .build(event_loop)
             .expect("program should be able to create a window");
@@ -29,7 +26,7 @@ impl Chipbox {
 
         Self {
             window,
-            application_config,
+            config,
             renderer,
             audio_engine,
         }
@@ -61,8 +58,7 @@ impl Chipbox {
     }
 
     fn on_exit(&mut self) {
-        self.application_config
-            .save_tracing()
+        self.config.save_tracing()
     }
 
     fn on_redraw_requested(
@@ -88,7 +84,7 @@ impl Chipbox {
         self.renderer
             .resize_main_surface(&physical_size);
         if !self.window.is_maximized() {
-            self.application_config
+            self.config
                 .logical_size_unmaximized =
                 physical_size.to_logical(self.window.scale_factor())
         }
