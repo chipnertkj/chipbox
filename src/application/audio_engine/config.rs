@@ -12,7 +12,7 @@ pub struct AudioEngineConfig {
 impl AudioEngineConfig {
     /// Returns the default `cpal::HostId` as defined by `cpal`.
     pub fn default_host_id() -> &'static cpal::HostId {
-        // last host is the same as default in cpal impl
+        // Last host should be the same as default.
         cpal::ALL_HOSTS.last().expect("expected at least one audio backend to be availabe on this platform")
     }
 }

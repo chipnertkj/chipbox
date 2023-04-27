@@ -1,8 +1,8 @@
 #[repr(C)]
-#[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
+#[derive(Default, Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct Vertex {
-    position: [f32; 3],
-    color: [f32; 4],
+    pub position: nalgebra::Vector3<f32>,
+    pub color_srgba: palette::Srgba<f32>,
 }
 
 impl Vertex {

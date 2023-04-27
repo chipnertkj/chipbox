@@ -1,6 +1,6 @@
 #[repr(C)]
-#[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
-pub struct Index(u16);
+#[derive(Default, Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
+pub struct Index(pub u16);
 
 impl Index {
     pub const fn describe() -> wgpu::IndexFormat {

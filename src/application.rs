@@ -4,7 +4,9 @@ use winit::{dpi, event, event_loop, window};
 mod audio_engine;
 mod config;
 mod renderer;
+mod ui;
 
+#[allow(unused)]
 pub struct Chipbox {
     window: window::Window,
     config: config::ApplicationConfig,
@@ -22,7 +24,7 @@ impl Chipbox {
             .expect("program should be able to create a window");
 
         let renderer = renderer::Renderer::new(&window);
-        let audio_engine = audio_engine::AudioEngine::load_from_config();
+        let audio_engine = audio_engine::AudioEngine::enabled_load_config();
 
         Self {
             window,

@@ -4,6 +4,10 @@ use winit::window;
 mod index;
 mod vertex;
 
+pub use index::Index;
+pub use vertex::Vertex;
+
+#[allow(unused)]
 pub struct Renderer {
     instance: wgpu::Instance,
     main_surface: wgpu::Surface,
@@ -98,7 +102,7 @@ impl Renderer {
                     Some(index_buffer) => {
                         render_pass.set_index_buffer(
                             index_buffer.slice(..),
-                            index::Index::describe(),
+                            Index::describe(),
                         );
                         render_pass.draw_indexed(
                             0..self.index_buffer_length,
@@ -114,7 +118,7 @@ impl Renderer {
             None => {}
         }
 
-        // Drop 'render_pass' to remove mutable borrow on 'encoder'.
+        // Drop `render_pass` to remove mutable borrow on `encoder`.
         drop(render_pass);
 
         self.queue
@@ -177,7 +181,7 @@ impl Renderer {
         let device_desc = wgpu::DeviceDescriptor {
             features: wgpu::Features::empty(),
             limits: wgpu::Limits::default(),
-            label: Some("main"),
+            label: Some("chipbox_renderer_device_main"),
         };
         task::block_on(adapter.request_device(&device_desc, None))
             .expect("unable to find a suitable wgpu device")
@@ -235,7 +239,7 @@ impl Renderer {
             vertex: wgpu::VertexState {
                 module: shader,
                 entry_point: "vs_main",
-                buffers: &[vertex::Vertex::describe()],
+                buffers: &[Vertex::describe()],
             },
             fragment: Some(wgpu::FragmentState {
                 module: shader,
