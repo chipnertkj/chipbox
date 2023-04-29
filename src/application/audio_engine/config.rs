@@ -30,3 +30,16 @@ impl config::ConfigTrait for AudioEngineConfig {
         "audio_engine_config.toml"
     }
 }
+
+#[cfg(test)]
+mod test {
+    #[test]
+    /// Assert that `AudioEngineConfig::default_host_id()` matches the actual default host used by `cpal`.
+    fn default_host_id() {
+        let id_from_default_host = cpal::default_host().id();
+        assert_eq!(
+            *super::AudioEngineConfig::default_host_id(),
+            id_from_default_host
+        );
+    }
+}
