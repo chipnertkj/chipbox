@@ -5,13 +5,16 @@ pub struct HostIdSerialized {
     host_name: String,
 }
 
-impl config::StringSerializedTrait<cpal::HostId, ()> for HostIdSerialized {
+impl config::SerializedItemTrait<cpal::HostId, ()> for HostIdSerialized {
+    type SerializationError = !;
     type DeserializationError = HostIdDeserializationError;
 
-    fn serialize(value: cpal::HostId) -> Self {
-        Self {
+    fn serialize(
+        value: cpal::HostId,
+    ) -> Result<Self, Self::SerializationError> {
+        Ok(Self {
             host_name: value.name().to_string(),
-        }
+        })
     }
 
     fn deserialize(

@@ -1,8 +1,8 @@
 use crate::config;
-use config::StringSerializedTrait as _;
+use config::SerializedItemTrait as _;
 
 mod host_id_serialized;
-pub use host_id_serialized::{HostIdDeserializationError, HostIdSerialized};
+pub use host_id_serialized::HostIdSerialized;
 
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct AudioEngineConfig {
@@ -20,14 +20,21 @@ impl AudioEngineConfig {
 impl Default for AudioEngineConfig {
     fn default() -> Self {
         let host_id = *Self::default_host_id();
-        let host_id_serialized = HostIdSerialized::serialize(host_id);
+        let host_id_serialized = HostIdSerialized::serialize(host_id).unwrap();
         Self { host_id_serialized }
     }
 }
 
-impl config::ConfigTrait for AudioEngineConfig {
+impl config::TomlConfigTrait for AudioEngineConfig {
     fn config_file_name() -> &'static str {
         "audio_engine_config.toml"
+    }
+
+    fn validate_and_fix(
+        &mut self,
+        _validation_type: config::ValidationType,
+    ) -> bool {
+        true
     }
 }
 

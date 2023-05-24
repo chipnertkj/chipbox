@@ -16,11 +16,13 @@ maintenance = { status = "actively-developed" }
 
 [dependencies]
 anyhow = "1.0.*"
-async-std = "1.12.*"
+async-trait = "0.1.*"
 bytemuck = { version = "1.13.*", features = ["derive"] }
 cpal = "0.15.*"
+enum-map = { version = "2.5.0", features = ["serde"] }
 home = "0.5.*"
 itertools = "0.10.*"
+lyon = { version = "1.0.*", features = ["serialization"] }
 nalgebra = { version = "0.32.*", features = [
     "serde-serialize",
     "rand",
@@ -29,21 +31,26 @@ nalgebra = { version = "0.32.*", features = [
 palette = { version = "0.7.*", features = ["serde", "bytemuck", "rand"] }
 petgraph = "0.6.*"
 rand = "0.8.*"
+raw-window-handle = "0.5.2"
 rb = "0.4.*"
 serde = { version = "1.0.*", features = ["derive"] }
+strum = { version = "0.24.1", features = ["derive"] }
+strum_macros = "0.24.3"
+tokio = { version = "1.28.1", features = ["macros", "rt-multi-thread", "fs"] }
 toml = "0.7.*"
 tracing = "0.1.*"
 tracing-subscriber = { version = "0.3.*", features = [
     "tracing-log",
     "env-filter",
 ] }
-wgpu = "0.15.*"
+vello = { git = "https://github.com/linebender/vello", version = "0.0.1" }
+wgpu = { version = "0.16.0", features = ["serde"] }
 winit = { version = "0.28.*", features = ["serde"] }
 
 [profile.dev]
 lto = false
 opt-level = 1
-incremental = true
+incremental = false
 [profile.dev.package."*"]
 opt-level = 3
 incremental = false

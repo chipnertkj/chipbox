@@ -1,4 +1,5 @@
-use crate::config::{ConfigTrait as _, StringSerializedTrait as _};
+use crate::config::{ConfigTrait as _, SerializedItemTrait as _};
+use async_std::task;
 
 mod config;
 mod output;
@@ -30,10 +31,12 @@ impl AudioEngine {
     /// Loads the `AudioEngineConfig` and constructs an enabled `AudioEngine` based on it.
     /// Overrides the audio backend to `cpal::HostId`.
     pub fn enabled_with_host(host_id: cpal::HostId) -> Self {
-        let mut config = config::AudioEngineConfig::load_or_default_tracing();
+        let mut config = task::block_on(
+            config::AudioEngineConfig::load_or_default_tracing(),
+        );
         // Modify config before passing it to the constructor.
         config.host_id_serialized =
-            config::HostIdSerialized::serialize(host_id);
+            config::HostIdSerialized::serialize(host_id).unwrap();
         Self::enabled_with_config(config)
     }
 
@@ -47,7 +50,7 @@ impl AudioEngine {
             Ok(host_id) => {
                 let host = cpal::host_from_id(host_id)
                     .expect("expected host_id to be valid");
-                tracing::info!("Selected host: {}", host_id.name());
+                tracing::info!("Selected host: {}.", host_id.name());
                 Self::Enabled { host, config }
             }
             Err(e) => {
@@ -57,25 +60,27 @@ impl AudioEngine {
                 let host_id = *config::AudioEngineConfig::default_host_id();
                 // Remember to update config.
                 config.host_id_serialized =
-                    config::HostIdSerialized::serialize(host_id);
+                    config::HostIdSerialized::serialize(host_id).unwrap();
                 // It's ok to call this recursively here, as `config.host_id_serialized` should be valid.
                 Self::enabled_with_config(config)
             }
         }
     }
 
-    /// Loads the confiig and constructs an enabled `AudioEngine` based on it.
-    pub fn enabled_load_config() -> Self {
-        let config = config::AudioEngineConfig::load_or_default_tracing();
+    /// Loads the config and constructs an enabled `AudioEngine` based on it.
+    pub async fn enabled_load_config() -> Self {
+        let config = config::AudioEngineConfig::load_or_default_tracing().await;
         Self::enabled_with_config(config)
     }
-}
 
-impl Drop for AudioEngine {
-    /// Save config and log on drop.
-    fn drop(&mut self) {
+    /// Saves the config, as long as the `AudioEngine` is in its `Enabled` state.
+    /// Returns `false` if it isn't.
+    pub async fn save_config(&mut self) -> bool {
         if let Self::Enabled { config, .. } = self {
-            config.save_tracing()
+            config.save_tracing().await;
+            true
+        } else {
+            false
         }
     }
 }
