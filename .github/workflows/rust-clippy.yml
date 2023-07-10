@@ -12,7 +12,7 @@ on:
 name: rust-clippy
 jobs:
   rust-clippy:
-    name: Run rust-clippy analyzis
+    name: Run rust-clippy analysis
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
