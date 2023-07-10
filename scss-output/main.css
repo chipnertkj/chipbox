@@ -1,0 +1,116 @@
+@import "https://fonts.googleapis.com/css?family=Lato:300,400,600,700";
+@import "https://fonts.googleapis.com/css?family=IBM Plex Mono:300,400,600,700";
+.text, .text-tertiary, .text-secondary, .card-title, *, .text-primary, .card-msg-text {
+  user-select: none;
+}
+
+.text-primary, .card-msg-text {
+  color: hsl(0deg, 0%, 90%);
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.5em;
+}
+
+.text-secondary, .card-title, * {
+  color: hsl(0deg, 0%, 80%);
+  font-size: 1.25rem;
+  font-weight: 400;
+  line-height: 1.25em;
+}
+
+.text-tertiary {
+  color: hsl(0deg, 0%, 50%);
+  font-weight: 400;
+}
+
+.font-sans, .card-title {
+  font-family: "Lato", sans-serif;
+}
+
+.font-mono, .card-msg-text {
+  font-family: "IBM Plex Mono", monospace;
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
+  background-color: hsl(0deg, 0%, 10%);
+  margin: 0;
+}
+
+:root {
+  font-size: 16px;
+}
+
+.grid-list, .grid-list-center {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.grid-list-center {
+  justify-items: center;
+  align-content: center;
+}
+
+.drop-shadow, .card {
+  filter: drop-shadow(0rem 0.25rem 0.25rem hsla(0deg, 0%, 0%, 0.5));
+}
+
+.drop-shadow-light, .card-msg {
+  filter: drop-shadow(0rem 0.25rem 0.25rem hsla(0deg, 0%, 0%, 0.25));
+}
+
+.spinner {
+  position: relative;
+  width: 3rem;
+  height: 3rem;
+}
+
+.spinner-bg {
+  fill: hsl(0deg, 0%, 25%);
+}
+
+.spinner-arc {
+  fill: hsl(0deg, 0%, 70%);
+  transform-origin: center;
+  animation: spinner-animation 0.75s infinite cubic-bezier(0.25, 0.35, 0.75, 0.35);
+}
+
+@keyframes spinner-animation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.card {
+  background-color: hsl(0deg, 50%, 40%);
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  margin: 1rem;
+  padding: 0.5rem;
+}
+
+.card-title {
+  color: hsl(0deg, 50%, 80%);
+  margin: 0;
+  padding: 1rem;
+  text-align: center;
+}
+
+.card-msg {
+  background-color: hsl(0deg, 50%, 20%);
+  border-radius: 0.5rem;
+  padding: 2rem;
+  margin: 0.5rem;
+}
+
+.card-msg-text {
+  margin: 0;
+  color: hsl(0deg, 50%, 90%);
+  user-select: text;
+  max-width: 35em;
+  word-wrap: break-word;
+}

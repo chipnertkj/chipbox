@@ -1,0 +1,25 @@
+[build]
+target = "./index.html"
+
+[watch]
+# ignore these files/folders when watching for frontend rebuild:
+ignore = [
+    "src-backend/",
+    ".github/",
+    ".vscode/",
+    "dist/",
+    "scss-input/",
+    "target/",
+    ".gitignore",
+    "LICENSE.txt",
+    "README.md",
+    "rust-toolchain.toml",
+    "rustfmt.toml",
+    ".taurignore",
+    "Trunk.toml",
+]
+
+[serve]
+address = "127.0.0.1"
+port = 1420
+open = false

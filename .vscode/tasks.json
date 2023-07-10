@@ -1,0 +1,85 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "shell",
+            "command": "cargo tauri dev",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": false,
+                "focus": false,
+                "reveal": "silent",
+                "group": "dev background tasks"
+            },
+            "label": "tauri dev"
+        },
+        {
+            "type": "shell",
+            "command": "sass --watch scss-input/:scss-output/ --no-source-map",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": false,
+                "focus": false,
+                "reveal": "silent",
+                "group": "dev background tasks"
+            },
+            "label": "sass watch"
+        },
+        {
+            "label": "dev background tasks",
+            "dependsOn": [
+                "tauri dev",
+                "sass watch"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "type": "shell",
+            "command": "bacon clippy",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": false,
+                "focus": true,
+                "panel": "dedicated",
+                "reveal": "always",
+                "group": "bacon"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "label": "bacon (chipbox)"
+        },
+        {
+            "type": "shell",
+            "command": "bacon clippy",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": false,
+                "focus": true,
+                "panel": "dedicated",
+                "reveal": "always",
+                "group": "bacon"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/src-backend"
+            },
+            "label": "bacon (chipbox-backend)"
+        },
+        {
+            "type": "shell",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": false,
+                "focus": true,
+                "panel": "dedicated",
+                "reveal": "always",
+                "group": "bacon"
+            },
+            "dependsOn": [
+                "bacon (chipbox)",
+                "bacon (chipbox-backend)"
+            ],
+            "label": "bacon (all)"
+        }
+    ]
+}

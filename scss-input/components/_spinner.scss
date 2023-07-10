@@ -1,0 +1,24 @@
+.spinner {
+    position: relative;
+    width: 3rem;
+    height: 3rem;
+}
+
+.spinner-bg {
+    fill: hsl(0, 0%, 25%);
+}
+
+.spinner-arc {
+    fill: hsl(0, 0%, 70%);
+    transform-origin: center;
+    animation: spinner-animation 0.75s infinite cubic-bezier(0.25, 0.35, 0.75, 0.35);
+}
+
+@keyframes spinner-animation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

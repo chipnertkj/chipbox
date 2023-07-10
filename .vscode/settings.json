@@ -1,0 +1,6 @@
+{
+  "tailwindCSS.includeLanguages": {
+    "rust": "html"
+  },
+  "terminal.integrated.scrollback": 1000000000
+}

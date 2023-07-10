@@ -1,0 +1,35 @@
+.text {
+    user-select: none;
+}
+
+.text-primary {
+    @extend .text;
+    color: hsl(0, 0%, 90%);
+    font-size: 1.25rem;
+    font-weight: 500;
+    line-height: 1.5em;
+}
+
+.text-secondary {
+    @extend .text;
+    color: hsl(0, 0%, 80%);
+    font-size: 1.25rem;
+    font-weight: 400;
+    line-height: 1.25em;
+}
+
+.text-tertiary {
+    @extend .text;
+    color: hsl(0 0% 50%);
+    font-weight: 400;
+}
+
+@import "https://fonts.googleapis.com/css?family=Lato:300,400,600,700";
+.font-sans {
+    font-family: "Lato", sans-serif;
+}
+
+@import "https://fonts.googleapis.com/css?family=IBM Plex Mono:300,400,600,700";
+.font-mono {
+    font-family: "IBM Plex Mono", monospace;
+}

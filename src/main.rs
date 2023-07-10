@@ -1,21 +1,35 @@
-#![deny(unsafe_op_in_unsafe_fn)]
+#![feature(never_type)]
 
-mod app;
-mod renderer;
-mod ui;
+mod commands;
+mod components;
 
+use tracing_subscriber::layer::SubscriberExt as _;
 use tracing_subscriber::util::SubscriberInitExt as _;
-use winit::event_loop;
 
-#[tokio::main(flavor = "multi_thread", worker_threads = 4)]
-async fn main() {
-    // This value will never be dropped due to `app::App::run` taking over the thread.
-    // This is, as far as I'm aware, perfectly ok.
-    tracing_subscriber::FmtSubscriber::default().init();
+/// `console_error_panic_hook` forwards Rust panic traces to the console.
+fn panic_console_hook() {
+    if cfg!(debug_assertions) {
+        console_error_panic_hook::set_once();
+    }
+}
 
-    let event_loop = event_loop::EventLoop::default();
-    app::App::new(&event_loop)
-        .await
-        .run(event_loop)
-        .await;
+fn tracing_subscriber_init() {
+    let fmt_layer = tracing_subscriber::fmt::layer()
+        // WebViews do not support time.
+        .without_time()
+        .with_writer(tracing_web::MakeConsoleWriter);
+    let performance_layer = tracing_web::performance_layer()
+        .with_details_from_fields(
+            tracing_subscriber::fmt::format::Pretty::default(),
+        );
+    tracing_subscriber::registry()
+        .with(fmt_layer)
+        .with(performance_layer)
+        .init();
+}
+
+fn main() {
+    panic_console_hook();
+    tracing_subscriber_init();
+    yew::Renderer::<components::App>::new().render();
 }

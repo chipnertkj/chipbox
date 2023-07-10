@@ -14,38 +14,25 @@ description = "Open-source DAW with a node graph system."
 [badges]
 maintenance = { status = "actively-developed" }
 
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-anyhow = "1.0.*"
-async-trait = "0.1.*"
-bytemuck = { version = "1.13.*", features = ["derive"] }
-cpal = "0.15.*"
-enum-map = { version = "2.5.0", features = ["serde"] }
-home = "0.5.*"
-itertools = "0.10.*"
-lyon = { version = "1.0.*", features = ["serialization"] }
-nalgebra = { version = "0.32.*", features = [
-    "serde-serialize",
-    "rand",
-    "bytemuck",
-] }
-palette = { version = "0.7.*", features = ["serde", "bytemuck", "rand"] }
-petgraph = "0.6.*"
-rand = "0.8.*"
-raw-window-handle = "0.5.2"
-rb = "0.4.*"
-serde = { version = "1.0.*", features = ["derive"] }
-strum = { version = "0.24.1", features = ["derive"] }
-strum_macros = "0.24.3"
-tokio = { version = "1.28.1", features = ["macros", "rt-multi-thread", "fs"] }
-toml = "0.7.*"
-tracing = "0.1.*"
-tracing-subscriber = { version = "0.3.*", features = [
-    "tracing-log",
-    "env-filter",
-] }
-vello = { git = "https://github.com/linebender/vello", version = "0.0.1" }
-wgpu = { version = "0.16.0", features = ["serde"] }
-winit = { version = "0.28.*", features = ["serde"] }
+yew = { version = "0.20", features = ["csr"] }
+serde = { version = "1.0", features = ["derive"] }
+serde-wasm-bindgen = "0.5"
+wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
+wasm-bindgen-futures = "0.4"
+web-sys = { version = "0.3.64", features = ["Performance"] }
+js-sys = "0.3"
+chipbox-common = { path = "src-common" }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3.17" }
+console_error_panic_hook = "0.1.7"
+tracing-web = "0.1.2"
+yew-macro = "0.20.0"
+gloo = { version = "0.8.1", features = ["futures"] }
+
+[workspace]
+members = ["src-backend", "src-common"]
 
 [profile.dev]
 lto = false

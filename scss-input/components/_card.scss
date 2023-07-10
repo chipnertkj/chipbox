@@ -1,0 +1,37 @@
+@use "../utils";
+@use "../text";
+
+.card {
+    @extend .drop-shadow;
+    background-color: hsl(0, 50%, 40%);
+    border-radius: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    margin: 1rem;
+    padding: 0.5rem;
+}
+
+.card-title {
+    @extend .text-secondary, .font-sans;
+    color: hsl(0, 50%, 80%);
+    margin: 0;
+    padding: 1rem;
+    text-align: center;
+}
+
+.card-msg {
+    @extend .drop-shadow-light;
+    background-color: hsl(0, 50%, 20%);
+    border-radius: 0.5rem;
+    padding: 2rem;
+    margin: 0.5rem;
+}
+
+.card-msg-text {
+    @extend .text-primary, .font-mono;
+    margin: 0;
+    color: hsl(0, 50%, 90%);
+    user-select: text;
+    max-width: 35em;
+    word-wrap: break-word;
+}

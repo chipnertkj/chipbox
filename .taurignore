@@ -1,0 +1,17 @@
+# ignore these files/folders when watching for backend rebuild:
+public/
+.vscode/
+.github/
+dist/
+scss-input/
+scss-output/
+target/
+Cargo.toml
+Cargo.lock
+LICENSE.txt
+README.md
+rust-toolchain.toml
+rustfmt.toml
+Trunk.toml
+.taurinore
+index.html
