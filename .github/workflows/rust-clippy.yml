@@ -1,8 +1,14 @@
 # Adapted from the example at https://github.com/actions-rs/clippy
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
   schedule:
-    - cron: '38 14 * * 2'
+    - cron: "38 14 * * 2"
 name: rust-clippy
 jobs:
   rust-clippy:
@@ -12,9 +18,9 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-            toolchain: nightly
-            components: clippy
-            override: true
+          toolchain: nightly
+          components: clippy
+          override: true
       # Note that there is no release tag available yet
       # and the following code will use master branch HEAD
       # all the time.
