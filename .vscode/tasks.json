@@ -1,85 +1,59 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "type": "shell",
-            "command": "cargo tauri dev",
-            "problemMatcher": [],
-            "presentation": {
-                "echo": false,
-                "focus": false,
-                "reveal": "silent",
-                "group": "dev background tasks"
-            },
-            "label": "tauri dev"
-        },
-        {
-            "type": "shell",
-            "command": "sass --watch scss-input/:scss-output/ --no-source-map",
-            "problemMatcher": [],
-            "presentation": {
-                "echo": false,
-                "focus": false,
-                "reveal": "silent",
-                "group": "dev background tasks"
-            },
-            "label": "sass watch"
-        },
-        {
-            "label": "dev background tasks",
-            "dependsOn": [
-                "tauri dev",
-                "sass watch"
-            ],
-            "problemMatcher": []
-        },
-        {
-            "type": "shell",
-            "command": "bacon clippy",
-            "problemMatcher": [],
-            "presentation": {
-                "echo": false,
-                "focus": true,
-                "panel": "dedicated",
-                "reveal": "always",
-                "group": "bacon"
-            },
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "label": "bacon (chipbox)"
-        },
-        {
-            "type": "shell",
-            "command": "bacon clippy",
-            "problemMatcher": [],
-            "presentation": {
-                "echo": false,
-                "focus": true,
-                "panel": "dedicated",
-                "reveal": "always",
-                "group": "bacon"
-            },
-            "options": {
-                "cwd": "${workspaceFolder}/src-backend"
-            },
-            "label": "bacon (chipbox-backend)"
-        },
-        {
-            "type": "shell",
-            "problemMatcher": [],
-            "presentation": {
-                "echo": false,
-                "focus": true,
-                "panel": "dedicated",
-                "reveal": "always",
-                "group": "bacon"
-            },
-            "dependsOn": [
-                "bacon (chipbox)",
-                "bacon (chipbox-backend)"
-            ],
-            "label": "bacon (all)"
-        }
-    ]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "tauri dev",
+      "type": "shell",
+      "command": "cargo tauri dev",
+      "problemMatcher": [],
+      "presentation": {
+        "group": "dev background tasks",
+        "reveal": "silent",
+        "echo": false,
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": false,
+        "close": true
+      }
+    },
+    {
+      "label": "sass watch",
+      "type": "shell",
+      "command": "sass --watch scss-input/:scss-output/ --no-source-map",
+      "problemMatcher": [],
+      "presentation": {
+        "group": "dev background tasks",
+        "reveal": "silent",
+        "echo": false,
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": false
+      }
+    },
+    {
+      "label": "dev background tasks",
+      "dependsOn": ["tauri dev", "sass watch"]
+    },
+    {
+      "label": "PS bacon clippy (backend)",
+      "type": "shell",
+      "command": "Start-Process bacon clippy",
+      "problemMatcher": [],
+      "options": {
+        "cwd": "${workspaceFolder}/backend",
+        "shell": { "executable": "powershell" }
+      },
+      "presentation": {
+        "reveal": "always",
+        "echo": false,
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": false,
+        "close": true
+      }
+    }
+  ]
 }

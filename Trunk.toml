@@ -4,7 +4,7 @@ target = "./index.html"
 [watch]
 # ignore these files/folders when watching for frontend rebuild:
 ignore = [
-    "src-backend/",
+    "backend/",
     ".github/",
     ".vscode/",
     "dist/",

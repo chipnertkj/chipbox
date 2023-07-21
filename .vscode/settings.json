@@ -1,6 +1,8 @@
 {
-  "tailwindCSS.includeLanguages": {
-    "rust": "html"
+  "workbench.colorCustomizations": {
+    "statusBar.background": "#333333",
+    "minimap.background": "#00000000",
+    "scrollbar.shadow": "#00000000"
   },
-  "terminal.integrated.scrollback": 1000000000
+  "rust-analyzer.showUnlinkedFileNotification": false
 }

@@ -1,4 +1,6 @@
 #![feature(never_type)]
+// Lints disabled for development purposes:
+#![allow(dead_code)]
 
 mod commands;
 mod components;

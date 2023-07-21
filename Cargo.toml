@@ -14,7 +14,6 @@ description = "Open-source DAW with a node graph system."
 [badges]
 maintenance = { status = "actively-developed" }
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
 yew = { version = "0.20", features = ["csr"] }
 serde = { version = "1.0", features = ["derive"] }
@@ -23,7 +22,6 @@ wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
 wasm-bindgen-futures = "0.4"
 web-sys = { version = "0.3.64", features = ["Performance"] }
 js-sys = "0.3"
-chipbox-common = { path = "src-common" }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3.17" }
 console_error_panic_hook = "0.1.7"
@@ -32,12 +30,12 @@ yew-macro = "0.20.0"
 gloo = { version = "0.8.1", features = ["futures"] }
 
 [workspace]
-members = ["src-backend", "src-common"]
+members = ["backend"]
 
 [profile.dev]
 lto = false
 opt-level = 1
-incremental = false
+incremental = true
 [profile.dev.package."*"]
 opt-level = 3
 incremental = false

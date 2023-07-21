@@ -34,15 +34,15 @@
 use yew::prelude::*;
 
 #[derive(Properties, Clone, PartialEq)]
-pub struct SpinnerProps {
+pub(crate) struct SpinnerProps {
     #[prop_or_default]
-    pub style: AttrValue,
+    style: AttrValue,
     #[prop_or_default]
-    pub class: AttrValue,
+    class: AttrValue,
 }
 
 #[function_component]
-pub fn Spinner(props: &SpinnerProps) -> Html {
+pub(crate) fn Spinner(props: &SpinnerProps) -> Html {
     let SpinnerProps { style, class } = props;
     html! {
         <svg style={format!("{style}")} class={format!("spinner {class}")} viewBox={"0 0 24 24"} xmlns={"http://www.w3.org/2000/svg"}>

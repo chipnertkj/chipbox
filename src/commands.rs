@@ -1,6 +1,6 @@
 use std::time::{Duration, SystemTime};
 
-pub use wasm_bindgen::prelude::*;
+use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 extern "C" {
@@ -23,7 +23,7 @@ fn system_time() -> SystemTime {
     perf_to_system(performance_now)
 }
 
-pub async fn invoke_query<
+pub(crate) async fn invoke_query<
     T: for<'de> serde::Deserialize<'de> + std::fmt::Debug,
     E: for<'de> serde::Deserialize<'de> + std::fmt::Debug,
     Args: serde::Serialize + std::fmt::Debug,
@@ -52,8 +52,4 @@ pub async fn invoke_query<
             Err(value)
         }
     }
-}
-
-pub async fn query_app_state() -> Result<chipbox_common::AppState, !> {
-    invoke_query("query_app_state", &()).await
 }

@@ -1,7 +1,7 @@
-mod app;
-mod card;
-mod spinner;
+pub(crate) mod app;
+pub(crate) mod card;
+pub(crate) mod spinner;
 
-pub use app::App;
-pub use card::{Card, CardType};
-pub use spinner::Spinner;
+pub(crate) use app::App;
+pub(crate) use card::Card;
+pub(crate) use spinner::Spinner;

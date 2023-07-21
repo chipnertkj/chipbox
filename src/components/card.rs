@@ -1,19 +1,19 @@
 use yew::prelude::*;
 
 #[derive(PartialEq)]
-pub enum CardType {
+pub(crate) enum Type {
     Error,
 }
 
 #[derive(PartialEq, Properties)]
-pub struct CardProps {
-    pub title: AttrValue,
-    pub msg: AttrValue,
-    pub card_type: CardType,
+pub(crate) struct CardProps {
+    pub(crate) title: AttrValue,
+    pub(crate) msg: AttrValue,
+    pub(crate) card_type: Type,
 }
 
 #[function_component]
-pub fn Card(props: &CardProps) -> Html {
+pub(crate) fn Card(props: &CardProps) -> Html {
     let CardProps {
         title,
         msg,
