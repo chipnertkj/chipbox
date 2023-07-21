@@ -1,3 +1,6 @@
+//! Defines `settings.json` and its deserialized counterpart, `Settings`,
+//! as well as some underlying deserializable setting types.
+
 pub(crate) mod project_tree_location; // ok
 pub(crate) use self::project_tree_location::ProjectTreeLocation;
 
@@ -12,8 +15,11 @@ pub(crate) type Result<T> = std::result::Result<T, Error>;
 /// Errors encountered during `Settings` loading.
 #[derive(Debug)]
 pub(crate) enum Error {
+    /// See inner type for more information.
     IO(io::Error),
+    /// See inner type for more information.
     Path(path::Error),
+    /// See inner type for more information.
     Serde(serde_json::Error),
 }
 

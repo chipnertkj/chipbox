@@ -1,3 +1,5 @@
+//! Defines the possible application states in chipbox as an enumeration.
+
 pub(crate) mod app_home; // ok
 pub(crate) mod editor; // ok
 pub(crate) mod first_time_setup; // ok

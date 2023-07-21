@@ -85,6 +85,8 @@ use std::sync::{OnceLock, Weak};
 use tempfile::TempDir;
 
 #[cfg(test)]
+/// Shared state between the utility functions `create_temp_dir` and `temp_path`.
+/// See their documentation for more information.
 static TEMP_DIR_WEAK: OnceLock<Weak<TempDir>> = OnceLock::new();
 
 /// Utility function for filesystem-dependent unit tests.
@@ -122,6 +124,8 @@ pub(crate) fn create_temp_dir() -> std::result::Result<Arc<TempDir>, io::Error>
     }
 }
 
+/// Attempt to retrieve a filesystem path of the temporary directory.
+/// See `create_temp_dir` for more information.
 #[cfg(test)]
 fn temp_path() -> PathBuf {
     TEMP_DIR_WEAK
