@@ -36,9 +36,9 @@ use yew::prelude::*;
 #[derive(Properties, Clone, PartialEq)]
 pub(crate) struct SpinnerProps {
     #[prop_or_default]
-    style: AttrValue,
+    pub style: AttrValue,
     #[prop_or_default]
-    class: AttrValue,
+    pub class: AttrValue,
 }
 
 #[function_component]

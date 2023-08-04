@@ -8,11 +8,11 @@ use std::str::FromStr;
 use std::{error, fmt, io};
 
 /// Result type alias for this module's `Error` type.
-pub(crate) type Result<T> = std::result::Result<T, Error>;
+pub type Result<T> = std::result::Result<T, Error>;
 
 /// Errors encountered while generating a filesystem path from the `ProjectTreeLocation` setting.
 #[derive(Debug)]
-pub(crate) enum Error {
+pub enum Error {
     /// Selected `ProjectTreeLocation` variant is `MainFolderRelative`,
     /// but the inner `PathBuf` is absolute.
     NotRelative(PathBuf),
@@ -56,7 +56,7 @@ impl error::Error for Error {}
 
 /// Location of a user's project `Tree` in the filesystem.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub(crate) enum ProjectTreeLocation {
+pub enum TreeLocation {
     /// The inner `PathBuf` should be an absolute path.
     ///
     /// The value returned by `Self::path` will be the inner `PathBuf`.
@@ -68,7 +68,7 @@ pub(crate) enum ProjectTreeLocation {
     MainFolderRelative(PathBuf),
 }
 
-impl ProjectTreeLocation {
+impl TreeLocation {
     /// Attempt to convert the virtual representation of an absolute path
     /// to an absolute, canonical filesystem path.
     fn absolute_to_path_buf(inner: &Path) -> Result<PathBuf> {
@@ -98,7 +98,7 @@ impl ProjectTreeLocation {
     }
 
     /// Construct an absolute, canonical filesystem path based on the variant of `self`.
-    pub(crate) fn path(&self) -> Result<PathBuf> {
+    pub fn path(&self) -> Result<PathBuf> {
         match self {
             Self::Absolute(p) => Self::absolute_to_path_buf(p),
             Self::MainFolderRelative(p) => Self::relative_to_path_buf(p),
@@ -106,7 +106,7 @@ impl ProjectTreeLocation {
     }
 }
 
-impl Default for ProjectTreeLocation {
+impl Default for TreeLocation {
     /// Constructs a `Self::MainFolderRelative` using `path::DEFAULT_PROJECTS_FOLDER`.
     fn default() -> Self {
         Self::MainFolderRelative(

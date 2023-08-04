@@ -1,47 +1,113 @@
+mod setup;
+
+use self::setup::Setup;
+use chipbox_glue as glue;
 use yew::prelude::*;
 
-#[function_component]
-pub(crate) fn App() -> Html {
-    html! {<main>{"home"}</main>}
+pub(crate) enum Msg {
+    Update(App),
 }
 
-// fn html_home() -> Html {
-//     html! {<span>{"home"}</span>}
-// }
-//
-// fn html_state_query(error_msg_opt: Option<&str>) -> Html {
-//     html! {
-//         <span style="height: 100%; display: flex; flex-direction: column;">
-//             <main class="grid-list-center" style="flex: 1 1 0%;">
-//                 {if let Some(error_msg) = error_msg_opt {
-//                     html_backend_error(AttrValue::Rc(error_msg.into()))
-//                 }
-//                 else {
-//                     html_waiting_for_backend()
-//                 }}
-//             </main>
-//             <footer>
-//                 <h2 class="drop-shadow text-tertiary font-sans" style="text-align: center;">
-//                     {format!("chipbox {version}", version = env!("CARGO_PKG_VERSION"))}
-//                 </h2>
-//             </footer>
-//         </span>
-//     }
-// }
-//
-// fn html_backend_error(error_msg: AttrValue) -> Html {
-//     html! {
-//         <Card title="Backend error" msg={error_msg} card_type={CardType::Error}/>
-//     }
-// }
-//
-// fn html_waiting_for_backend() -> Html {
-//     html! {
-//         <span class="grid-list-center">
-//             <Spinner class="drop-shadow"/>
-//             <h1 class="drop-shadow text-primary font-sans">
-//                 {"Waiting for backend."}
-//             </h1>
-//         </span>
-//     }
-// }
+#[derive(Default)]
+pub(crate) enum App {
+    #[default]
+    Querying,
+    Error(AttrValue),
+    LoadingSettings,
+    Setup,
+}
+
+impl yew::Component for App {
+    type Message = Msg;
+    type Properties = ();
+
+    /// Create default `App` and query backend state.
+    fn create(ctx: &Context<Self>) -> Self {
+        Self::emit_state_query(ctx);
+        Default::default()
+    }
+
+    fn view(&self, _ctx: &Context<Self>) -> Html {
+        match self {
+            Self::Querying => Self::view_querying(),
+            Self::Error(e) => Self::view_error(e),
+            Self::LoadingSettings => Self::view_loading_settings(),
+            Self::Setup => Self::view_setup(),
+        }
+    }
+
+    fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
+        match msg {
+            Msg::Update(app) => {
+                *self = app;
+                true
+            }
+        }
+    }
+}
+
+impl App {
+    fn emit_state_query(ctx: &Context<Self>) {
+        ctx.link()
+            .callback_future(|_: ()| async {
+                let query = glue::state::query().await;
+                let state = query.into();
+                Msg::Update(state)
+            })
+            .emit(());
+    }
+
+    fn view_querying() -> Html {
+        html! {
+            <h1>{"waiting for app state"}</h1>
+        }
+    }
+
+    fn view_error(e: &AttrValue) -> Html {
+        html! {
+            <main>
+                <h1>{"encountered an error while querying app state: "}</h1>
+                <ul>
+                    {
+                        e.split(": ").enumerate().map(|(n, x)| html! {
+                            <li key={n}>{format!("{n}: {x}")}</li>
+                        }).collect::<Html>()
+                    }
+                </ul>
+            </main>
+        }
+    }
+
+    fn view_loading_settings() -> Html {
+        html! {
+            <h1>{"loading settings"}</h1>
+        }
+    }
+
+    fn view_setup() -> Html {
+        html! {
+            <Setup/>
+        }
+    }
+}
+
+/// Convert backend state query into frontend state.
+impl From<glue::state::Query> for App {
+    fn from(query: glue::state::Query) -> Self {
+        match query.result {
+            Ok(state) => state.into(),
+            Err(e) => Self::Error(e),
+        }
+    }
+}
+
+/// Convert backend state into frontend state.
+impl From<glue::State> for App {
+    fn from(state: glue::State) -> Self {
+        match state {
+            glue::State::LoadingSettings => Self::LoadingSettings,
+            glue::State::Setup => Self::Setup,
+            _ => unimplemented!(),
+        }
+    }
+}

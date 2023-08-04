@@ -1,5 +1,5 @@
 [package]
-name = "chipbox-backend"
+name = "chipbox-backend-bin"
 version = "0.0.0"
 edition = "2021"
 
@@ -9,22 +9,15 @@ tauri-build = { version = "1.4", features = [] }
 [dependencies]
 tauri = { version = "1.4", features = ["shell-open"] }
 serde = { version = "1.0", features = ["derive", "unstable"] }
-serde_json = "1.0"
 tracing = "0.1"
 tracing-subscriber = "0.3"
 tauri-plugin-window-state = "0.1"
 tokio = { version = "1.29", features = ["macros", "fs", "tracing", "time"] }
-home = "0.5"
-async-recursion = "1.0"
-tokio-stream = { version = "0.1", features = ["fs"] }
-const_format = { version = "0.2", features = ["nightly_const_generics"] }
-parking_lot = { version = "0.12", features = ["nightly"] }
 color-eyre = "0.6"
+chipbox-glue = { path = "../glue", features = ["backend"] }
+chipbox-backend-lib = { path = "../backend-lib" }
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
 # DO NOT REMOVE!!
 custom-protocol = ["tauri/custom-protocol"]
-
-[dev-dependencies]
-tempfile = "3.6"

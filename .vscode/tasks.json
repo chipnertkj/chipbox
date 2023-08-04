@@ -2,28 +2,16 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "tauri dev",
+      "label": "dev",
       "type": "shell",
-      "command": "cargo tauri dev",
-      "problemMatcher": [],
+      "command": "cargo",
+      "args": [
+        "tauri",
+        "dev"
+      ],
+      "isBackground": true,
+      "problemMatcher": "$rustc-watch",
       "presentation": {
-        "group": "dev background tasks",
-        "reveal": "silent",
-        "echo": false,
-        "focus": false,
-        "panel": "dedicated",
-        "showReuseMessage": false,
-        "clear": false,
-        "close": true
-      }
-    },
-    {
-      "label": "sass watch",
-      "type": "shell",
-      "command": "sass --watch scss-input/:scss-output/ --no-source-map",
-      "problemMatcher": [],
-      "presentation": {
-        "group": "dev background tasks",
         "reveal": "silent",
         "echo": false,
         "focus": false,
@@ -33,17 +21,28 @@
       }
     },
     {
-      "label": "dev background tasks",
-      "dependsOn": ["tauri dev", "sass watch"]
+      "label": "sass",
+      "type": "shell",
+      "command": "sass --watch scss-input/:scss-output/ --no-source-map",
+      "problemMatcher": "$node-sass",
+      "presentation": {
+        "reveal": "silent",
+        "echo": false,
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": false
+      }
     },
     {
-      "label": "PS bacon clippy (backend)",
+      "label": "bacon",
       "type": "shell",
       "command": "Start-Process bacon clippy",
       "problemMatcher": [],
       "options": {
-        "cwd": "${workspaceFolder}/backend",
-        "shell": { "executable": "powershell" }
+        "shell": {
+          "executable": "powershell"
+        }
       },
       "presentation": {
         "reveal": "always",

@@ -1,8 +1,1 @@
-{
-  "workbench.colorCustomizations": {
-    "statusBar.background": "#333333",
-    "minimap.background": "#00000000",
-    "scrollbar.shadow": "#00000000"
-  },
-  "rust-analyzer.showUnlinkedFileNotification": false
-}
+{}

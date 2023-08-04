@@ -15,22 +15,24 @@ description = "Open-source DAW with a node graph system."
 maintenance = { status = "actively-developed" }
 
 [dependencies]
+chipbox-glue = { path = "glue", features = ["frontend"] }
 yew = { version = "0.20", features = ["csr"] }
+yew-macro = "0.20"
 serde = { version = "1.0", features = ["derive"] }
 serde-wasm-bindgen = "0.5"
 wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
 wasm-bindgen-futures = "0.4"
-web-sys = { version = "0.3.64", features = ["Performance"] }
+web-sys = { version = "0.3.64", features = ["BeforeUnloadEvent"] }
 js-sys = "0.3"
 tracing = "0.1"
-tracing-subscriber = { version = "0.3.17" }
-console_error_panic_hook = "0.1.7"
-tracing-web = "0.1.2"
-yew-macro = "0.20.0"
-gloo = { version = "0.8.1", features = ["futures"] }
+tracing-subscriber = { version = "0.3" }
+tracing-web = "0.1"
+console_error_panic_hook = "0.1"
+gloo = { version = "0.9", features = ["futures"] }
+wasm-timer = "0.2.5"
 
 [workspace]
-members = ["backend"]
+members = ["backend-bin", "backend-lib", "glue"]
 
 [profile.dev]
 lto = false

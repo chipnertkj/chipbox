@@ -2,16 +2,16 @@
 //! as well as filesystem utilities for unit tests.
 
 use std::path::PathBuf;
-use std::{error, fmt, io};
+use std::{error, fmt, fs, io};
 
 /// Result type alias for this module's `Error` type.
-pub(crate) type Result<T> = std::result::Result<T, Error>;
+pub type Result<T> = std::result::Result<T, Error>;
 
 /// Errors encountered while accessing paths defined in this module.
 #[derive(Debug)]
-pub(crate) enum Error {
-    /// See inner type for more information.
-    IO(io::Error),
+pub enum Error {
+    /// See inner error type for more information.
+    IO { path: PathBuf, inner: io::Error },
     /// Unable to locate the user's HOME directory.
     HomeDirectory,
 }
@@ -19,8 +19,8 @@ pub(crate) enum Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::IO(e) => {
-                write!(f, "io error while reading path: {e}`")
+            Self::IO { path, inner } => {
+                write!(f, "io error while accessing path `{path:?}`: {inner}")
             }
             Self::HomeDirectory => {
                 f.write_str("unable to locate the user's HOME directory")
@@ -42,38 +42,59 @@ const CONFIG_FOLDER: &str =
 
 /// Default path to the projects folder.
 /// Local to the `MAIN_FOLDER` directory.
-pub(crate) const DEFAULT_PROJECTS_FOLDER: &str = "./projects/";
+pub const DEFAULT_PROJECTS_FOLDER: &str = "./projects/";
 
-/// Absoulte path to the main application data folder.
+/// Absoulte path to the main application data folder, `~/.chipbox`.
 ///
 /// # Notes
 /// See `create_temp_dir` for more information about the behavior
 /// of this function in unit tests.
-pub(crate) fn main_folder() -> Result<PathBuf> {
+pub fn main_folder() -> Result<PathBuf> {
+    // This will normally return ~/.chipbox.
     #[cfg(not(test))]
     {
-        let path = home::home_dir()
-            .ok_or(Error::HomeDirectory)?
-            .join(MAIN_FOLDER)
-            .canonicalize()
-            .map_err(Error::IO)?;
-        Ok(path)
+        #[cfg(feature = "backend")]
+        {
+            let path = home::home_dir()
+                .ok_or(Error::HomeDirectory)?
+                .join(MAIN_FOLDER);
+            fs::create_dir_all(&path).map_err(|inner| Error::IO {
+                path: path.clone(),
+                inner,
+            })?;
+            let path = path
+                .canonicalize()
+                .map_err(|inner| Error::IO { path, inner })?;
+            Ok(path)
+        }
+        #[cfg(not(feature = "backend"))]
+        unreachable!()
     }
+    // This will return the temporary directory in tests.
     #[cfg(test)]
     {
-        let path = temp_path()
+        let path = temp_path();
+        fs::create_dir_all(&path).map_err(|inner| Error::IO {
+            path: path.clone(),
+            inner,
+        })?;
+        let path = path
             .canonicalize()
-            .map_err(Error::IO)?;
+            .map_err(|inner| Error::IO { path, inner })?;
         Ok(path)
     }
 }
 
 /// Absoulte path to the config folder.
-pub(crate) fn config_folder() -> Result<PathBuf> {
-    let path = main_folder()?
-        .join(CONFIG_FOLDER)
+pub fn config_folder() -> Result<PathBuf> {
+    let path = main_folder()?.join(CONFIG_FOLDER);
+    fs::create_dir_all(&path).map_err(|inner| Error::IO {
+        path: path.clone(),
+        inner,
+    })?;
+    let path = path
         .canonicalize()
-        .map_err(Error::IO)?;
+        .map_err(|inner| Error::IO { path, inner })?;
     Ok(path)
 }
 
@@ -108,8 +129,7 @@ static TEMP_DIR_WEAK: OnceLock<Weak<TempDir>> = OnceLock::new();
 /// Otherwise, the directory will not be created.
 /// The `Arc` should be kept in scope for as long as filesystem operations are expected to be used.
 #[cfg(test)]
-pub(crate) fn create_temp_dir() -> std::result::Result<Arc<TempDir>, io::Error>
-{
+pub fn create_temp_dir() -> std::result::Result<Arc<TempDir>, io::Error> {
     let init = || {
         let temp_dir = Arc::new(tempfile::tempdir()?);
         TEMP_DIR_WEAK.get_or_init(|| std::sync::Arc::downgrade(&temp_dir));

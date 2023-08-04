@@ -1,20 +1,22 @@
 //! Implements the structure of a project `Tree` and methods to load project trees from the filesystem.
 
-use crate::app_state::settings::{project_tree_location, ProjectTreeLocation};
 use std::fs::{self, DirEntry};
 use std::path::{Path, PathBuf};
 use std::{error, fmt, io, result};
 
+use crate::state::settings::project_management::tree_location;
+use crate::state::settings::TreeLocation;
+
 /// Result type alias for this module's `Error` type.
-pub(crate) type Result<T> = result::Result<T, Error>;
+pub type Result<T> = result::Result<T, Error>;
 
 /// Errors encountered during the deserialization of a project tree.
 #[derive(Debug)]
-pub(crate) enum Error {
+pub enum Error {
     /// See inner type for more information.
     Io(io::Error),
     /// See inner type for more information.
-    ProjectTreeLocation(project_tree_location::Error),
+    ProjectTreeLocation(tree_location::Error),
     /// Project file was unexpectedly found in root.
     RootIsProject(Project),
     /// Invalid entry type.
@@ -60,7 +62,7 @@ impl fmt::Display for Error {
 
 /// A project tree entry. Represents a collection of `Project`s or other `Group`s.
 #[derive(Debug)]
-pub(crate) struct Group {
+pub struct Group {
     path: PathBuf,
     children: Vec<Entry>,
 }
@@ -89,7 +91,7 @@ impl Group {
 /// This type makes no guarantees on the validity of the directory
 /// at `self.path` as a deserialized editor `Project` representation.
 #[derive(Debug)]
-pub(crate) struct Project {
+pub struct Project {
     path: PathBuf,
 }
 
@@ -131,7 +133,7 @@ impl Project {
 
 /// Enumeration of the possible items in a project tree.
 #[derive(Debug)]
-pub(crate) enum Entry {
+pub enum Entry {
     Group(Group),
     Project(Project),
 }
@@ -162,7 +164,7 @@ impl Entry {
 
 /// A logical representation of a user's project tree directory.
 #[derive(Debug)]
-pub(crate) struct Tree {
+pub struct Tree {
     root: Group,
 }
 
@@ -217,7 +219,7 @@ impl Tree {
     }
 
     /// Construct a `Tree` based on a filesystem directory, decided by the `ProjectTreeLocation` setting.
-    pub(crate) fn from_setting(setting: &ProjectTreeLocation) -> Result<Self> {
+    pub fn from_setting(setting: &TreeLocation) -> Result<Self> {
         let path = setting
             .path()
             .map_err(Error::ProjectTreeLocation)?;
@@ -233,13 +235,13 @@ mod display {
 
     /// String that represents one level of indentation.
     pub(super) const ENTRY_INDENT: &str = "  ";
-    /// String that appears before each `Group`.
+    /// String that appears before each `Group` display string.
     pub(super) const GROUP_PREFIX: &str = "> ";
-    /// String that appears after each `Group`.
+    /// String that appears after each `Group` display string.
     pub(super) const GROUP_POSTFIX: &str = ":\n";
-    /// String that appears before each `Project`.
+    /// String that appears before each `Project` display string.
     pub(super) const PROJECT_PREFIX: &str = "- ";
-    /// String that appears after each ``Project`.
+    /// String that appears after each `Project` display string.
     pub(super) const PROJECT_POSTFIX: &str = "\n";
 
     /// Static mutex used in `write_indent` and `update_indent`.
@@ -330,8 +332,8 @@ impl fmt::Display for Tree {
 #[cfg(test)]
 mod test {
     use super::{display, Project, Tree};
-    use crate::app_state::settings::ProjectTreeLocation;
     use crate::path;
+    use crate::state::settings::TreeLocation;
     use color_eyre::eyre::{self, eyre};
     use std::fs;
 
@@ -345,7 +347,7 @@ mod test {
         color_eyre::install()?;
         let _temp_dir = path::create_temp_dir()?;
 
-        let setting = ProjectTreeLocation::default();
+        let setting = TreeLocation::default();
         let tree_path = setting.path()?;
         const GROUP1_NAME: &str = "group 1";
         const PROJECT1_NAME: &str = "project 1";

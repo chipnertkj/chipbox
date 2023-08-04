@@ -31,6 +31,11 @@
   font-family: "IBM Plex Mono", monospace;
 }
 
+h1 {
+  margin-block-start: 0;
+  margin-block-end: 0;
+}
+
 body {
   width: 100vw;
   height: 100vh;
@@ -113,4 +118,8 @@ body {
   user-select: text;
   max-width: 35em;
   word-wrap: break-word;
+}
+
+button {
+  background-color: #181818;
 }
