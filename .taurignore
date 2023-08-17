@@ -10,8 +10,7 @@ Cargo.toml
 Cargo.lock
 LICENSE.txt
 README.md
-rust-toolchain.toml
 rustfmt.toml
 Trunk.toml
-.taurinore
+.taurignore
 index.html

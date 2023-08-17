@@ -2,18 +2,15 @@
 target = "./index.html"
 
 [watch]
-# ignore these files/folders when watching for frontend rebuild:
+# Ignore these files/folders when watching for frontend rebuild.
 ignore = [
-    "backend-bin/",
-    "backend-lib/",
+    "backend/",
     ".github/",
     ".vscode/",
-    "dist/",
     "scss-input/",
     ".gitignore",
     "LICENSE.txt",
     "README.md",
-    "rust-toolchain.toml",
     "rustfmt.toml",
     ".taurignore",
     "Trunk.toml",

@@ -2,14 +2,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "frontend",
-            "type": "msedge",
-            "port": 9222,
-            "request": "attach",
-            "webRoot": "${workspaceFolder}/dist",
-            "timeout": 1000,
-        },
-        {
             "name": "backend",
             "type": "lldb",
             "request": "attach",
@@ -17,17 +9,13 @@
                 "rust"
             ],
             "program": "${workspaceFolder}/target/debug/chipbox.exe",
-            "waitFor": false,
         },
-    ],
-    "compounds": [
         {
-            "name": "chipbox",
-            "configurations": [
-                "frontend",
-                "backend",
-            ],
-            "stopAll": true
+            "name": "frontend",
+            "type": "msedge",
+            "request": "attach",
+            "port": 9222,
+            "webRoot": "${workspaceFolder}/dist",
         }
-    ]
+    ],
 }
