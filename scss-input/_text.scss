@@ -1,5 +1,6 @@
 .text {
-    user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .text-primary {

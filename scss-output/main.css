@@ -1,6 +1,7 @@
 @import "https://fonts.googleapis.com/css?family=Lato:300,400,600,700";
 @import "https://fonts.googleapis.com/css?family=IBM Plex Mono:300,400,600,700";
 .text, .text-tertiary, .text-secondary, .card-title, *, .text-primary, .card-msg-text {
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -115,6 +116,7 @@ body {
 .card-msg-text {
   margin: 0;
   color: hsl(0deg, 50%, 90%);
+  -webkit-user-select: text;
   user-select: text;
   max-width: 35em;
   word-wrap: break-word;

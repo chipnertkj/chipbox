@@ -31,6 +31,7 @@
     @extend .text-primary, .font-mono;
     margin: 0;
     color: hsl(0, 50%, 90%);
+    -webkit-user-select: text;
     user-select: text;
     max-width: 35em;
     word-wrap: break-word;
