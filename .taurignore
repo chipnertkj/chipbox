@@ -1,4 +1,5 @@
 # ignore these files/folders when watching for backend rebuild:
+public/
 .vscode/
 .github/
 dist/
