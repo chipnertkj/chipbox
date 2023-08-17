@@ -20,11 +20,16 @@ extern "C" {
 ///
 /// Returns the exact value returned by the backend command.
 /// If the command returns a `Result`, use `invoke_query` instead.
+/// Failure to do so may cause a type-mismatch, which will result in a panic.
 ///
 /// # Panics
 /// - Panics if the function signature (note the generic parameters) does not
 /// match that of the specified backend command.
 /// - Panics if the command name `cmd` does not match any command on the backend.
+/// - May panic if the backend command natively returns a `Result`. More specifically, it will
+/// panic if the query receives a `Result` from `invoke` where the Error type
+/// is not convertible (see `serde_wasm_bindgen::from_value`) to `String`.
+/// `invoke` returns a JS Promise error (which is convertible) if the command does not exist.
 pub(crate) async fn invoke_query_infallible<T, Args>(
     cmd: &str,
     args: &Args,
@@ -41,7 +46,7 @@ where
 /// Call a backend command on `chipbox-backend` and retrieve the result.
 /// The command has to be registered as a `tauri` command.
 ///
-/// Returns a `Result`, as defined in the backend command`s function signature.
+/// Returns a `Result`, as defined in the backend command's function signature.
 /// If the command does not return a `Result`, use `invoke_query_infallible` instead.
 ///
 /// # Panics
