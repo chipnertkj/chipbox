@@ -2,13 +2,13 @@ use chipbox_glue as glue;
 use setup::Setup;
 use yew::platform::spawn_local;
 use yew::prelude::*;
+mod querying_backend;
 mod setup;
+use querying_backend::QueryingBackend;
 
 #[function_component]
 pub(super) fn App() -> yew::Html {
-    use glue::app::{App, QueryingBackend};
-
-    let app_state = use_state(App::default);
+    let app_state = use_state(glue::App::default);
     use_memo(
         |_| {
             let app_state = app_state.clone();
@@ -21,19 +21,14 @@ pub(super) fn App() -> yew::Html {
     );
 
     match &*app_state {
-        App::QueryingBackend(state) => match state {
-            QueryingBackend::Requesting => html! {
-                <h1>{"Requesting state"}</h1>
-            },
-            QueryingBackend::ReadingSettings => html! {
-                <h1>{"Reading Settings"}</h1>
-            },
+        glue::App::QueryingBackend(state) => html! {
+            <QueryingBackend state={state.clone()} />
         },
-        App::Setup(state) => html! { <Setup state={state.clone()} /> },
-        App::Home => html! {
+        glue::App::Setup(state) => html! { <Setup state={state.clone()} /> },
+        glue::App::Home => html! {
             <h1>{"Home"}</h1>
         },
-        App::Editor => html! {
+        glue::App::Editor => html! {
             <h1>{"Editor"}</h1>
         },
     }
