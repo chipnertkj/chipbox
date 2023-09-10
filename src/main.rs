@@ -1,4 +1,10 @@
+// Required by `const_format::formatc!`.
+#![feature(const_mut_refs)]
+
 mod app;
+mod spinner;
+
+pub(crate) use spinner::Spinner;
 use tracing_subscriber::layer::SubscriberExt as _;
 use tracing_subscriber::util::SubscriberInitExt as _;
 

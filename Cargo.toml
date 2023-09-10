@@ -5,7 +5,7 @@ authors = ["chipnertkj <domekaij@gmail.com>"]
 exclude = ["target/", ".github/"]
 readme = "README.md"
 edition = "2021"
-license = "GPL-3.0-or-later"
+license = "MPL-2.0"
 repository = "https://github.com/chipnertkj/chipbox"
 categories = ["multimedia::audio"]
 keywords = ["daw", "music", "vst", "clap", "audio"]
@@ -53,3 +53,4 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3" }
 tracing-web = "0.1"
 console_error_panic_hook = "0.1"
+const_format = { version = "0.2", features = ["fmt"] }

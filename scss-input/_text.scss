@@ -1,6 +1,6 @@
 .text {
-  -webkit-user-select: none;
-  user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .text-primary {
@@ -26,12 +26,14 @@
 }
 
 @import "https://fonts.googleapis.com/css?family=Lato:300,400,600,700";
-.font-sans {
+.sans {
+    @extend .text;
     font-family: "Lato", sans-serif;
 }
 
 @import "https://fonts.googleapis.com/css?family=IBM Plex Mono:300,400,600,700";
-.font-mono {
+.mono {
+    @extend .text;
     font-family: "IBM Plex Mono", monospace;
 }
 

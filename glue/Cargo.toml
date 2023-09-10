@@ -29,7 +29,6 @@ chipbox-common = { path = "../common" }
 # deps
 serde = { version = "1.0", features = ["derive", "rc"] }
 tracing = "0.1"
-const_format = { version = "0.2", features = ["nightly_const_generics"] }
 
 # backend workspace deps
 chipbox-backend-lib = { path = "../backend/lib", optional = true }

@@ -1,5 +1,5 @@
 #[derive(
-    serde::Serialize, serde::Deserialize, Debug, Default, PartialEq, Clone,
+    serde::Serialize, serde::Deserialize, Debug, Default, PartialEq, Clone, Copy,
 )]
 #[serde(tag = "type")]
 pub enum QueryingBackend {

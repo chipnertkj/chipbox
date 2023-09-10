@@ -2,7 +2,7 @@
 @use "../text";
 
 .card {
-    @extend .drop-shadow;
+    @extend .drop-shadow-primary;
     background-color: hsl(0, 50%, 40%);
     border-radius: 0.5rem;
     display: flex;
@@ -12,7 +12,7 @@
 }
 
 .card-title {
-    @extend .text-secondary, .font-sans;
+    @extend .text-secondary, .sans;
     color: hsl(0, 50%, 80%);
     margin: 0;
     padding: 1rem;
@@ -20,7 +20,7 @@
 }
 
 .card-msg {
-    @extend .drop-shadow-light;
+    @extend .drop-shadow-tertiary;
     background-color: hsl(0, 50%, 20%);
     border-radius: 0.5rem;
     padding: 2rem;
@@ -28,7 +28,7 @@
 }
 
 .card-msg-text {
-    @extend .text-primary, .font-mono;
+    @extend .text-primary, .mono;
     margin: 0;
     color: hsl(0, 50%, 90%);
     -webkit-user-select: text;

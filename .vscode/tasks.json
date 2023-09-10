@@ -21,7 +21,7 @@
       }
     },
     {
-      "label": "sass",
+      "label": "scss/sass",
       "type": "shell",
       "command": "sass --watch scss-input/:scss-output/ --no-source-map",
       "problemMatcher": "$node-sass",
