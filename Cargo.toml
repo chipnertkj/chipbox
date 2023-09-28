@@ -21,6 +21,8 @@ members = ["backend", "backend/lib", "lib", "glue", "common"]
 [profile.dev]
 lto = false
 opt-level = 1
+incremental = false
+debug = "full"
 
 # All dependencies optimized on dev.
 [profile.dev.package."*"]
@@ -36,17 +38,18 @@ opt-level = 1
 [profile.dev.package.chipbox-backend-lib]
 opt-level = 1
 
-# Enable dependency optimizations on release. Keep debug info.
+# Keep debug info.
 [profile.release]
 lto = "fat"
 opt-level = 3
 incremental = false
-debug = 2
+debug = "full"
 
 [dependencies]
 # workspace deps
 chipbox-lib = { path = "lib" }
 chipbox-glue = { path = "glue", features = ["frontend"] }
+chipbox-common = { path = "common" }
 # deps
 yew = { version = "0.20", features = ["csr"] }
 tracing = "0.1"

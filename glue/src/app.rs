@@ -6,7 +6,7 @@ mod setup;
 #[cfg(feature = "backend")]
 use chipbox_backend_lib as backend_lib;
 
-#[derive(serde::Serialize, serde::Deserialize, Debug)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, PartialEq)]
 #[serde(tag = "type")]
 pub enum App {
     QueryingBackend(QueryingBackend),

@@ -10,14 +10,12 @@ pub(super) struct Props {
 #[function_component]
 pub(super) fn QueryingBackend(props: &Props) -> yew::Html {
     let Props { state } = props;
-
     const ROOT_STYLE: &str =
         "height: 100vh; display: flex; justify-content: center; \
         flex-direction: column; text-align: center;";
     const MAIN_STYLE: &str = const_format::formatc!("flex: 1; {}", ROOT_STYLE);
     const FOOTER_SYLE: &str =
         const_format::formatc!("flex: 0; margin-bottom: 1rem; {}", ROOT_STYLE);
-
     const FOOTER_TEXT: &str =
         const_format::formatc!("chipbox {}", env!("CARGO_PKG_VERSION"));
     let message_text = match state {

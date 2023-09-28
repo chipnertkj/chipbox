@@ -62,7 +62,7 @@ where
     E: for<'de> serde::Deserialize<'de> + std::fmt::Debug,
     Args: serde::Serialize + std::fmt::Debug,
 {
-    let cmd_pretty = format!("`{cmd}`({args:?})");
+    let cmd_pretty = format!("{cmd}({args:?})");
 
     // Start perf timer.
     tracing::trace!("{cmd_pretty}: begin query");
