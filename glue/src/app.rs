@@ -1,6 +1,8 @@
+pub use home::Home;
 pub use querying_backend::QueryingBackend;
 pub use setup::Setup;
 
+mod home;
 mod querying_backend;
 mod setup;
 #[cfg(feature = "backend")]
@@ -11,7 +13,7 @@ use chipbox_backend_lib as backend_lib;
 pub enum App {
     QueryingBackend(QueryingBackend),
     Setup(Setup),
-    Home,
+    Home(Home),
     Editor,
 }
 
@@ -29,7 +31,9 @@ impl From<&backend_lib::App> for App {
                 Self::QueryingBackend(QueryingBackend::ReadingSettings)
             }
             backend_lib::App::Setup(setup) => Self::Setup(setup.into()),
-            backend_lib::App::ProjectSelection(_) => Self::Home,
+            backend_lib::App::ProjectSelection(project_selection) => {
+                Self::Home(project_selection.into())
+            }
             backend_lib::App::Editor => Self::Editor,
         }
     }

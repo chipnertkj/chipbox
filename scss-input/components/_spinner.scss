@@ -5,7 +5,7 @@
     Modifications to the source are available under the Mozilla Public License 2.0.
     See the LICENSE.txt file in the workspace root for full license text.
 
-    Below is the original license text:
+    Below is the original source license text:
 
     BEGIN LICENSE TEXT
 
@@ -43,21 +43,18 @@
     }
 }
 
-.spinner-primary {
-    @extend .spinner;
+.spinner.primary {
     width: 4rem;
     height: 4rem;
     margin: 1.25rem;
 }
 
-.spinner-secondary {
-    @extend .spinner;
+.spinner.secondary {
     width: 1.5rem;
     height: 1.5rem;
 }
 
-.spinner-tertiary {
-    @extend .spinner;
+.spinner.tertiary {
     width: 1rem;
     height: 1rem;
 }

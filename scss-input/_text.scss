@@ -1,43 +1,67 @@
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    @extend .header;
+}
+
+p,
+li {
+    @extend .text;
+    margin: 0.5rem;
+}
+
 .text {
+    @extend .sans;
     -webkit-user-select: none;
     user-select: none;
+    color: var(--cb-text-color-secondary);
+}
+.text.left {
+    text-align: left;
+}
+.text.right {
+    text-align: right;
+}
+.text.center {
+    text-align: center;
 }
 
-.text-primary {
+.header {
     @extend .text;
-    color: hsl(0, 0%, 90%);
-    font-size: 1.25rem;
-    font-weight: 500;
-    line-height: 1.5em;
-}
-
-.text-secondary {
-    @extend .text;
-    color: hsl(0, 0%, 80%);
     font-size: 1.25rem;
     font-weight: 400;
-    line-height: 1.25em;
-}
-
-.text-tertiary {
-    @extend .text;
-    color: hsl(0 0% 50%);
-    font-weight: 400;
-}
-
-@import "https://fonts.googleapis.com/css?family=Lato:300,400,600,700";
-.sans {
-    @extend .text;
-    font-family: "Lato", sans-serif;
-}
-
-@import "https://fonts.googleapis.com/css?family=IBM Plex Mono:300,400,600,700";
-.mono {
-    @extend .text;
-    font-family: "IBM Plex Mono", monospace;
-}
-
-h1 {
+    line-height: 1.25rem;
     margin-block-start: 0;
     margin-block-end: 0;
+    margin: 0.5rem;
+}
+
+.header.primary {
+    color: var(--cb-text-color-primary);
+    font-size: 1.25rem;
+    font-weight: 500;
+    line-height: 1.5rem;
+}
+
+.header.secondary {
+    color: var(--cb-text-color-secondary);
+    font-size: 1.25rem;
+    font-weight: 400;
+    line-height: 1.25rem;
+}
+
+.header.tertiary {
+    color: var(--cb-text-color-tertiary);
+    font-weight: 400;
+}
+
+.text.sans {
+    font-family: var(--cb-font-family-sans);
+}
+
+.text.mono {
+    font-family: var(--cb-font-family-mono);
 }

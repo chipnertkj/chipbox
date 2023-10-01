@@ -1,22 +1,15 @@
-.grid-list {
-    display: grid;
-    grid-template-columns: repeat(1, minmax(0, 1fr));
-}
-
-.grid-list-center {
-    @extend .grid-list;
-    justify-items: center;
-    align-content: center;
-}
-
-.drop-shadow-primary {
-    filter: drop-shadow(0rem 0.5rem 0.5rem hsla(0, 0%, 0%, 0.5));
-}
-
-.drop-shadow-secondary {
+.drop-shadow {
     filter: drop-shadow(0rem 0.45rem 0.25rem hsla(0, 0%, 0%, 0.5));
 }
 
-.drop-shadow-tertiary {
+.drop-shadow.primary {
+    filter: drop-shadow(0rem 0.5rem 0.5rem hsla(0, 0%, 0%, 0.5));
+}
+
+.drop-shadow.secondary {
+    filter: drop-shadow(0rem 0.45rem 0.25rem hsla(0, 0%, 0%, 0.5));
+}
+
+.drop-shadow.tertiary {
     filter: drop-shadow(0rem 0.25rem 0.25rem hsla(0, 0%, 0%, 0.25));
 }

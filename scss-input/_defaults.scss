@@ -1,16 +1,10 @@
 @use "text";
 
 body {
-    width: 100vw;
-    height: 100vh;
-    background-color: hsl(0, 0%, 10%);
+    background-color: var(--cb-background-color);
     margin: 0;
 }
 
 :root {
     font-size: 16px;
-}
-
-* {
-    @extend .text-secondary;
 }

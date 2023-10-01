@@ -24,15 +24,15 @@ pub(super) fn QueryingBackend(props: &Props) -> yew::Html {
     };
 
     html! {
-        <div style={ROOT_STYLE} class="sans">
+        <div style={ROOT_STYLE}>
             <main style={MAIN_STYLE}>
-                <Spinner class="drop-shadow-secondary" svg_class="spinner-primary" />
-                <h1 class="text-secondary drop-shadow-secondary">
+                <Spinner class="drop-shadow secondary" svg_class="primary" />
+                <h1 class="text drop-shadow secondary">
                     {message_text}
                 </h1>
             </main>
             <footer style={FOOTER_SYLE}>
-                <h2 class="text-tertiary drop-shadow-tertiary">
+                <h2 class="text drop-shadow tertiary">
                     {FOOTER_TEXT}
                 </h2>
             </footer>

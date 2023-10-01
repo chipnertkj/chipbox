@@ -1,7 +1,9 @@
+mod home;
 mod querying_backend;
 mod setup;
 
 use chipbox_glue as glue;
+use home::Home;
 use querying_backend::QueryingBackend;
 use setup::Setup;
 use yew::platform::spawn_local;
@@ -41,15 +43,15 @@ pub(super) fn App() -> yew::Html {
         }),
     };
 
-    let inner_html = match &*app_state {
+    let content = match &*app_state {
         glue::App::QueryingBackend(state) => html! {
             <QueryingBackend state={*state} />
         },
         glue::App::Setup(state) => html! {
             <Setup state={state.clone()} />
         },
-        glue::App::Home => html! {
-            <h1>{"Home"}</h1>
+        glue::App::Home(state) => html! {
+            <Home state={state.clone()} />
         },
         glue::App::Editor => html! {
             <h1>{"Editor"}</h1>
@@ -57,9 +59,9 @@ pub(super) fn App() -> yew::Html {
     };
 
     html! {
-        <ContextProvider<RerenderCallback> context={rerender_cb}>
-            {inner_html}
-        </ContextProvider<RerenderCallback>>
+        // We're using the alternative children syntax due to a bug in
+        // HTML syntax highlighting extensions.
+        <ContextProvider<RerenderCallback> context={rerender_cb} children={content}/>
     }
 }
 

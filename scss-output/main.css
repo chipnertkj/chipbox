@@ -1,46 +1,122 @@
 @import "https://fonts.googleapis.com/css?family=Lato:300,400,600,700";
 @import "https://fonts.googleapis.com/css?family=IBM Plex Mono:300,400,600,700";
-.text, .mono, .card-msg-text, .sans, .card-title, .text-tertiary, .text-secondary, *, .text-primary {
+p,
+li {
+  margin: 0.5rem;
+}
+
+.text, .header, h1,
+h2,
+h3,
+h4,
+h5,
+h6, p,
+li {
   -webkit-user-select: none;
   user-select: none;
+  color: var(--cb-text-color-secondary);
 }
 
-.text-primary, .card-msg-text {
-  color: hsl(0deg, 0%, 90%);
-  font-size: 1.25rem;
-  font-weight: 500;
-  line-height: 1.5em;
+.text.left, .left.header, h1.left,
+h2.left,
+h3.left,
+h4.left,
+h5.left,
+h6.left, p.left,
+li.left {
+  text-align: left;
 }
 
-.text-secondary, .card-title, * {
-  color: hsl(0deg, 0%, 80%);
+.text.right, .right.header, h1.right,
+h2.right,
+h3.right,
+h4.right,
+h5.right,
+h6.right, p.right,
+li.right {
+  text-align: right;
+}
+
+.text.center, .center.header, h1.center,
+h2.center,
+h3.center,
+h4.center,
+h5.center,
+h6.center, p.center,
+li.center {
+  text-align: center;
+}
+
+.header, h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-size: 1.25rem;
   font-weight: 400;
-  line-height: 1.25em;
-}
-
-.text-tertiary {
-  color: hsl(0deg, 0%, 50%);
-  font-weight: 400;
-}
-
-.sans, .card-title {
-  font-family: "Lato", sans-serif;
-}
-
-.mono, .card-msg-text {
-  font-family: "IBM Plex Mono", monospace;
-}
-
-h1 {
+  line-height: 1.25rem;
   margin-block-start: 0;
   margin-block-end: 0;
+  margin: 0.5rem;
+}
+
+.header.primary, h1.primary,
+h2.primary,
+h3.primary,
+h4.primary,
+h5.primary,
+h6.primary {
+  color: var(--cb-text-color-primary);
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.5rem;
+}
+
+.header.secondary, h1.secondary,
+h2.secondary,
+h3.secondary,
+h4.secondary,
+h5.secondary,
+h6.secondary {
+  color: var(--cb-text-color-secondary);
+  font-size: 1.25rem;
+  font-weight: 400;
+  line-height: 1.25rem;
+}
+
+.header.tertiary, h1.tertiary,
+h2.tertiary,
+h3.tertiary,
+h4.tertiary,
+h5.tertiary,
+h6.tertiary {
+  color: var(--cb-text-color-tertiary);
+  font-weight: 400;
+}
+
+.text.sans, .text, p,
+li, .header, h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--cb-font-family-sans);
+}
+
+.text.mono, p.mono,
+li.mono, .mono.header, h1.mono,
+h2.mono,
+h3.mono,
+h4.mono,
+h5.mono,
+h6.mono {
+  font-family: var(--cb-font-family-mono);
 }
 
 body {
-  width: 100vw;
-  height: 100vh;
-  background-color: hsl(0deg, 0%, 10%);
+  background-color: var(--cb-background-color);
   margin: 0;
 }
 
@@ -48,25 +124,19 @@ body {
   font-size: 16px;
 }
 
-.grid-list, .grid-list-center {
-  display: grid;
-  grid-template-columns: repeat(1, minmax(0, 1fr));
-}
-
-.grid-list-center {
-  justify-items: center;
-  align-content: center;
-}
-
-.drop-shadow-primary, .card {
-  filter: drop-shadow(0rem 0.5rem 0.5rem hsla(0deg, 0%, 0%, 0.5));
-}
-
-.drop-shadow-secondary {
+.drop-shadow {
   filter: drop-shadow(0rem 0.45rem 0.25rem hsla(0deg, 0%, 0%, 0.5));
 }
 
-.drop-shadow-tertiary, .card-msg {
+.drop-shadow.primary {
+  filter: drop-shadow(0rem 0.5rem 0.5rem hsla(0deg, 0%, 0%, 0.5));
+}
+
+.drop-shadow.secondary {
+  filter: drop-shadow(0rem 0.45rem 0.25rem hsla(0deg, 0%, 0%, 0.5));
+}
+
+.drop-shadow.tertiary {
   filter: drop-shadow(0rem 0.25rem 0.25rem hsla(0deg, 0%, 0%, 0.25));
 }
 
@@ -77,7 +147,7 @@ body {
     Modifications to the source are available under the Mozilla Public License 2.0.
     See the LICENSE.txt file in the workspace root for full license text.
 
-    Below is the original license text:
+    Below is the original source license text:
 
     BEGIN LICENSE TEXT
 
@@ -103,29 +173,29 @@ body {
 
     END LICENSE TEXT
 */
-.spinner, .spinner-tertiary, .spinner-secondary, .spinner-primary {
+.spinner {
   animation: rotate 2s linear infinite;
   width: 5rem;
   height: 5rem;
 }
-.spinner .path, .spinner-tertiary .path, .spinner-secondary .path, .spinner-primary .path {
+.spinner .path {
   stroke: hsla(0deg, 0%, 100%, 0.75);
   stroke-linecap: round;
   animation: dash 1.5s ease-in-out infinite;
 }
 
-.spinner-primary {
+.spinner.primary {
   width: 4rem;
   height: 4rem;
   margin: 1.25rem;
 }
 
-.spinner-secondary {
+.spinner.secondary {
   width: 1.5rem;
   height: 1.5rem;
 }
 
-.spinner-tertiary {
+.spinner.tertiary {
   width: 1rem;
   height: 1rem;
 }
@@ -149,38 +219,15 @@ body {
     stroke-dashoffset: -124;
   }
 }
-.card {
-  background-color: hsl(0deg, 50%, 40%);
-  border-radius: 0.5rem;
-  display: flex;
-  flex-direction: column;
-  margin: 1rem;
-  padding: 0.5rem;
-}
-
-.card-title {
-  color: hsl(0deg, 50%, 80%);
-  margin: 0;
-  padding: 1rem;
-  text-align: center;
-}
-
-.card-msg {
-  background-color: hsl(0deg, 50%, 20%);
-  border-radius: 0.5rem;
-  padding: 2rem;
-  margin: 0.5rem;
-}
-
-.card-msg-text {
-  margin: 0;
-  color: hsl(0deg, 50%, 90%);
-  -webkit-user-select: text;
-  user-select: text;
-  max-width: 35em;
-  word-wrap: break-word;
-}
-
 button {
   background-color: #181818;
+}
+
+:root {
+  --cb-font-family-sans: "Lato", sans-serif;
+  --cb-font-family-mono: "IBM Plex Mono", monospace;
+  --cb-background-color: hsl(0, 0%, 10%);
+  --cb-text-color-primary: hsl(0, 0%, 90%);
+  --cb-text-color-secondary: hsl(0, 0%, 80%);
+  --cb-text-color-tertiary: hsl(0, 0%, 50%);
 }

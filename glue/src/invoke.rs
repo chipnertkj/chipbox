@@ -82,11 +82,14 @@ where
     match backend_result {
         Ok(js_value) => {
             let value = serde_wasm_bindgen::from_value(js_value)
-                .unwrap_or_else(|_| {
+                .unwrap_or_else(|e| {
+                    tracing::error!(
+                        "{cmd_pretty}: unable to deserialize `Ok(T)`: {e}"
+                    );
                     panic!(
                         "{cmd_pretty}: Invalid response - type mismatch. \
                         Unable to deserialize `Ok(T)`. \
-                        Does the function signature match `{cmd}`?"
+                        Does the function signature match `{cmd}`?",
                     );
                 });
             tracing::info!("{cmd_pretty} -> Ok({value:?})");

@@ -1,0 +1,14 @@
+@import "https://fonts.googleapis.com/css?family=Lato:300,400,600,700";
+@import "https://fonts.googleapis.com/css?family=IBM Plex Mono:300,400,600,700";
+
+:root {
+    // Font families.
+    --cb-font-family-sans: "Lato", sans-serif;
+    --cb-font-family-mono: "IBM Plex Mono", monospace;
+    // Colors.
+    --cb-background-color: hsl(0, 0%, 10%);
+    // Text colors.
+    --cb-text-color-primary: hsl(0, 0%, 90%);
+    --cb-text-color-secondary: hsl(0, 0%, 80%);
+    --cb-text-color-tertiary: hsl(0, 0%, 50%);
+}
