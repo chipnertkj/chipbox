@@ -2,6 +2,7 @@
 //! It is responsible for generating an invoke handler and adding it to a `tauri::Builder`.
 
 use crate::app::*;
+use crate::load_project::*;
 use crate::skip_setup::*;
 
 pub trait BuilderGlue<R: tauri::Runtime> {
@@ -14,6 +15,10 @@ pub trait BuilderGlue<R: tauri::Runtime> {
 /// Implement `BuilderGlue` for `tauri::Builder`.
 impl<R: tauri::Runtime> BuilderGlue<R> for tauri::Builder<R> {
     fn glue_invoke_handler(self) -> Self {
-        self.invoke_handler(tauri::generate_handler![app, skip_setup])
+        self.invoke_handler(tauri::generate_handler![
+            app,
+            load_project,
+            skip_setup,
+        ])
     }
 }

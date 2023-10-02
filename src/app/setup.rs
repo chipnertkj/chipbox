@@ -40,8 +40,8 @@ fn html_first(rerender_cb: yew::Callback<()>) -> yew::Html {
         <>
             <h1>{"First time setup"}</h1>
             <button onclick={on_click}>
-                <h2>{"Skip setup"}</h2>
-                <h3>{"Use default settings"}</h3>
+                <h2 class="left">{"Skip setup"}</h2>
+                <p class="tertiary left">{"Use default settings"}</p>
             </button>
         </>
     }

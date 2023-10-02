@@ -81,10 +81,11 @@ where
 
     match backend_result {
         Ok(js_value) => {
+            tracing::trace!("{cmd_pretty}: Ok response `{js_value:?}`");
             let value = serde_wasm_bindgen::from_value(js_value)
                 .unwrap_or_else(|e| {
                     tracing::error!(
-                        "{cmd_pretty}: unable to deserialize `Ok(T)`: {e}"
+                        "{cmd_pretty}: Unable to deserialize `Ok(T)`: {e}"
                     );
                     panic!(
                         "{cmd_pretty}: Invalid response - type mismatch. \
@@ -96,27 +97,25 @@ where
             Ok(value)
         }
         Err(js_value) => {
-            let value = serde_wasm_bindgen::from_value(js_value)
+            tracing::trace!("{cmd_pretty}: Err response `{js_value:?}`");
+            let value = serde_wasm_bindgen::from_value(js_value.clone())
                 .unwrap_or_else(|e| {
                     tracing::error!(
-                        "{cmd_pretty}: unable to deserialize `Err(E)`: {e}"
+                        "{cmd_pretty}: Unable to deserialize `Err(E)`: {e}"
                     );
                     // The fallback is needed due to `tauri` command jank.
                     tracing::warn!(
-                        "{cmd_pretty}: falling back to `Err(String)`"
+                        "{cmd_pretty}: Unable to deserialize error value. Falling back to `Err(JsValue)`"
                     );
-                    let err: String = serde_wasm_bindgen::from_value(e.into())
-                        .unwrap_or_else(|e| {
-                            tracing::error!(
-                                "{cmd_pretty}: unable to deserialize `Err(String)`: {e}"
-                            );
-                            panic!(
-                                "{cmd_pretty}: Invalid response - type mismatch. \
-                                Unable to deserialize `Err(String)`. \
-                                Does the function signature match `{cmd}`?"
-                            );
-                        });
-                    panic!("{cmd_pretty}: {err:?}");
+                    tracing::warn!(
+                        "{cmd_pretty}: Printing error trace from the captured `JsValue`..."
+                    );
+                    tracing::error!("{cmd_pretty}: Root cause was `{:?}`", js_value);
+                    panic!(
+                        "{cmd_pretty}: Invalid response - type mismatch. \
+                        Does the function signature match `{cmd}`? \
+                        Is the command available from the command handler?"
+                    );
                 });
             tracing::error!("{cmd_pretty} -> Err({value:?})");
             Err(value)

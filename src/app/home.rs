@@ -1,4 +1,7 @@
+use crate::app::RerenderCallback;
 use chipbox_glue as glue;
+use const_format::formatc;
+use yew::platform::spawn_local;
 use yew::prelude::*;
 
 #[derive(Properties, PartialEq)]
@@ -10,22 +13,39 @@ pub(super) struct Props {
 pub(super) fn Home(props: &Props) -> yew::Html {
     let Props { state } = props;
 
+    let rerender_cb = use_context::<RerenderCallback>()
+        .expect("no rerender callback context")
+        .inner;
+
+    let on_click_new = move |_| {
+        let rerender_cb = rerender_cb.clone();
+        spawn_local(async move {
+            let info = glue::LoadProjectInfo::New;
+            let response = glue::load_project::query(info).await;
+            tracing::info!("response: {:?}", response);
+            rerender_cb.emit(());
+        });
+    };
+
     html! {
         <main>
-            <h1>{const_format::formatc!("chipbox {}", env!("CARGO_PKG_VERSION"))}</h1>
-            <button>
-                <h1 class="primary left">{"Create a new project"}</h1>
-                <h2 class="secondary left">{"Continue to the editor."}</h2>
+            <h1 class="title">
+                {"chipbox"}
+                <code class="header tertiary code">{formatc!("v{}", env!("CARGO_PKG_VERSION"))}</code>
+            </h1>
+            <button onclick={on_click_new}>
+                <h2 class="left">{"Create a new project"}</h2>
+                <p class="tertiary left">{"Continue to the editor."}</p>
             </button>
             <button>
-                <h1 class="primary left">{"User projects"}</h1>
-                <h2 class="secondary left">{"Browse projects in the user directory."}</h2>
+                <h2 class="left">{"User projects"}</h2>
+                <p class="tertiary left">{"Browse projects in the user directory."}</p>
             </button>
             <br />
             <div>
-                <h1>{"Recent projects"}</h1>
+                <h2>{"Recent projects"}</h2>
                 <div>
-                    <p>{"todo"}</p>
+                    <p class="tertiary">{"todo"}</p>
                 </div>
             </div>
         </main>

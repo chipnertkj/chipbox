@@ -6,6 +6,18 @@ h5,
 h6 {
     @extend .header;
 }
+h1 {
+    @extend .primary;
+}
+h2 {
+    @extend .secondary;
+}
+h3,
+h4,
+h5,
+h6 {
+    @extend .tertiary;
+}
 
 p,
 li {
@@ -13,11 +25,24 @@ li {
     margin: 0.5rem;
 }
 
+code {
+    @extend .code;
+}
+
+.code {
+    @extend .text;
+    @extend .mono;
+    margin: 1rem;
+}
+
 .text {
     @extend .sans;
+    color: var(--cb-text-color-secondary);
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.15rem;
     -webkit-user-select: none;
     user-select: none;
-    color: var(--cb-text-color-secondary);
 }
 .text.left {
     text-align: left;
@@ -28,40 +53,37 @@ li {
 .text.center {
     text-align: center;
 }
+.text.primary {
+    color: var(--cb-text-color-primary);
+}
+.text.secondary {
+    color: var(--cb-text-color-secondary);
+}
+.text.tertiary {
+    color: var(--cb-text-color-tertiary);
+}
+.text.sans {
+    font-family: var(--cb-font-family-sans);
+}
+.text.mono {
+    font-family: var(--cb-font-family-mono);
+}
 
 .header {
     @extend .text;
     font-size: 1.25rem;
-    font-weight: 400;
     line-height: 1.25rem;
-    margin-block-start: 0;
-    margin-block-end: 0;
     margin: 0.5rem;
 }
-
 .header.primary {
-    color: var(--cb-text-color-primary);
-    font-size: 1.25rem;
     font-weight: 500;
     line-height: 1.5rem;
 }
-
-.header.secondary {
-    color: var(--cb-text-color-secondary);
-    font-size: 1.25rem;
-    font-weight: 400;
-    line-height: 1.25rem;
-}
-
-.header.tertiary {
-    color: var(--cb-text-color-tertiary);
-    font-weight: 400;
-}
-
-.text.sans {
-    font-family: var(--cb-font-family-sans);
-}
-
-.text.mono {
-    font-family: var(--cb-font-family-mono);
+// .header.secondary {}
+// .header.tertiary {}
+.header.title {
+    font-size: 2.5rem;
+    line-height: 2.5rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
 }

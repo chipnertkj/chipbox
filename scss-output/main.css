@@ -5,16 +5,23 @@ li {
   margin: 0.5rem;
 }
 
+.code, code {
+  margin: 1rem;
+}
+
 .text, .header, h1,
 h2,
 h3,
 h4,
 h5,
 h6, p,
-li {
+li, .code, code {
+  color: var(--cb-text-color-secondary);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.15rem;
   -webkit-user-select: none;
   user-select: none;
-  color: var(--cb-text-color-secondary);
 }
 
 .text.left, .left.header, h1.left,
@@ -23,7 +30,7 @@ h3.left,
 h4.left,
 h5.left,
 h6.left, p.left,
-li.left {
+li.left, .left.code, code.left {
   text-align: left;
 }
 
@@ -33,7 +40,7 @@ h3.right,
 h4.right,
 h5.right,
 h6.right, p.right,
-li.right {
+li.right, .right.code, code.right {
   text-align: right;
 }
 
@@ -43,8 +50,64 @@ h3.center,
 h4.center,
 h5.center,
 h6.center, p.center,
-li.center {
+li.center, .center.code, code.center {
   text-align: center;
+}
+
+.text.primary, .primary.header,
+h2.primary,
+h3.primary,
+h4.primary,
+h5.primary,
+h6.primary, p.primary,
+li.primary, .primary.code, code.primary, h1.header, h1, h1.code {
+  color: var(--cb-text-color-primary);
+}
+
+.text.secondary, .secondary.header, h1.secondary,
+h3.secondary,
+h4.secondary,
+h5.secondary,
+h6.secondary, p.secondary,
+li.secondary, .secondary.code, code.secondary, h2.header,
+h2, h2.code {
+  color: var(--cb-text-color-secondary);
+}
+
+.text.tertiary, .tertiary.header, h1.tertiary,
+h2.tertiary, p.tertiary,
+li.tertiary, .tertiary.code, code.tertiary, h3.header,
+h3, h3.code,
+h4.header,
+h4,
+h4.code,
+h5.header,
+h5,
+h5.code,
+h6.header,
+h6,
+h6.code {
+  color: var(--cb-text-color-tertiary);
+}
+
+.text.sans, .text, .header, h1,
+h2,
+h3,
+h4,
+h5,
+h6, p,
+li, .code, code {
+  font-family: var(--cb-font-family-sans);
+}
+
+.text.mono, .mono.header, h1.mono,
+h2.mono,
+h3.mono,
+h4.mono,
+h5.mono,
+h6.mono, p.mono,
+li.mono, .code, code {
+  font-family: var(--cb-font-family-mono);
 }
 
 .header, h1,
@@ -54,65 +117,30 @@ h4,
 h5,
 h6 {
   font-size: 1.25rem;
-  font-weight: 400;
   line-height: 1.25rem;
-  margin-block-start: 0;
-  margin-block-end: 0;
   margin: 0.5rem;
 }
 
-.header.primary, h1.primary,
+.header.primary,
 h2.primary,
 h3.primary,
 h4.primary,
 h5.primary,
-h6.primary {
-  color: var(--cb-text-color-primary);
-  font-size: 1.25rem;
+h6.primary, h1 {
   font-weight: 500;
   line-height: 1.5rem;
 }
 
-.header.secondary, h1.secondary,
-h2.secondary,
-h3.secondary,
-h4.secondary,
-h5.secondary,
-h6.secondary {
-  color: var(--cb-text-color-secondary);
-  font-size: 1.25rem;
-  font-weight: 400;
-  line-height: 1.25rem;
-}
-
-.header.tertiary, h1.tertiary,
-h2.tertiary,
-h3.tertiary,
-h4.tertiary,
-h5.tertiary,
-h6.tertiary {
-  color: var(--cb-text-color-tertiary);
-  font-weight: 400;
-}
-
-.text.sans, .text, p,
-li, .header, h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: var(--cb-font-family-sans);
-}
-
-.text.mono, p.mono,
-li.mono, .mono.header, h1.mono,
-h2.mono,
-h3.mono,
-h4.mono,
-h5.mono,
-h6.mono {
-  font-family: var(--cb-font-family-mono);
+.header.title, h1.title,
+h2.title,
+h3.title,
+h4.title,
+h5.title,
+h6.title {
+  font-size: 2.5rem;
+  line-height: 2.5rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 
 body {
@@ -221,6 +249,7 @@ body {
 }
 button {
   background-color: #181818;
+  margin: 0.5rem;
 }
 
 :root {

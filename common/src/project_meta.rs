@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+#[derive(serde::Serialize, serde::Deserialize, Debug, PartialEq)]
 pub struct ProjectPath {
     pub name: String,
     pub group: Option<String>,
