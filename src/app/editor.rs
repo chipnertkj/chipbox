@@ -1,5 +1,8 @@
+mod timeline;
+
 use crate::app::{update_ctx_settings, AppContext};
 use chipbox_glue as glue;
+use timeline::Timeline;
 use yew::prelude::*;
 
 #[derive(Properties, PartialEq)]
@@ -21,9 +24,16 @@ pub(super) fn Editor(props: &Props) -> yew::Html {
     // Update context settings.
     update_ctx_settings(state, &mut app_ctx);
 
-    html! {
-        <main>
+    // Main styling.
+    const MAIN_STYLE: &str = "width: 100vw; height: 100vh;";
+    const MAIN_CLASS: &str = "";
+    // Timeline styling.
+    const TIMELINE_STYLE: &str = "width: 100%; height: 100%; overflow: auto;";
+    const TIMELINE_CLASS: &str = "";
 
+    html! {
+        <main style={MAIN_STYLE} class={MAIN_CLASS}>
+            <Timeline style={TIMELINE_STYLE} class={TIMELINE_CLASS}/>
         </main>
     }
 }
