@@ -1,3 +1,4 @@
+use crate::app::{set_default_ctx_settings, AppContext};
 use crate::Spinner;
 use chipbox_glue as glue;
 use yew::prelude::*;
@@ -9,7 +10,18 @@ pub(super) struct Props {
 
 #[function_component]
 pub(super) fn QueryingBackend(props: &Props) -> yew::Html {
+    // Debug info.
+    tracing::trace!("Rendering component.");
+
+    // Retrieve state.
     let Props { state } = props;
+
+    // Acquire app context.
+    let mut app_ctx = use_context::<AppContext>().expect("no app context");
+
+    // Update context settings.
+    set_default_ctx_settings(&mut app_ctx);
+
     const ROOT_STYLE: &str =
         "height: 100vh; display: flex; justify-content: center; \
         flex-direction: column; text-align: center;";

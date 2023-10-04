@@ -1,4 +1,4 @@
-use crate::app::RerenderCallback;
+use crate::app::{rerender, update_ctx_settings, AppContext};
 use chipbox_glue as glue;
 use const_format::formatc;
 use yew::platform::spawn_local;
@@ -11,19 +11,26 @@ pub(super) struct Props {
 
 #[function_component]
 pub(super) fn Home(props: &Props) -> yew::Html {
+    // Debug info.
+    tracing::trace!("Rendering component.");
+
+    // Retrieve state.
     let Props { state } = props;
 
-    let rerender_cb = use_context::<RerenderCallback>()
-        .expect("no rerender callback context")
-        .inner;
+    // Acquire app context.
+    let mut app_ctx = use_context::<AppContext>().expect("no app context");
 
+    // Update context settings.
+    update_ctx_settings(state, &mut app_ctx);
+
+    // On click new project.
     let on_click_new = move |_| {
-        let rerender_cb = rerender_cb.clone();
+        let app_ctx = app_ctx.clone();
+        let info = glue::LoadProjectInfo::New;
         spawn_local(async move {
-            let info = glue::LoadProjectInfo::New;
             let response = glue::load_project::query(info).await;
             tracing::info!("response: {:?}", response);
-            rerender_cb.emit(());
+            rerender(app_ctx);
         });
     };
 
@@ -31,15 +38,23 @@ pub(super) fn Home(props: &Props) -> yew::Html {
         <main>
             <h1 class="title">
                 {"chipbox"}
-                <code class="header tertiary code">{formatc!("v{}", env!("CARGO_PKG_VERSION"))}</code>
+                <code class="header tertiary code">
+                    {formatc!("v{}", env!("CARGO_PKG_VERSION"))}
+                </code>
             </h1>
             <button onclick={on_click_new}>
-                <h2 class="left">{"Create a new project"}</h2>
-                <p class="tertiary left">{"Continue to the editor."}</p>
+                <h2 class="left">
+                    {"Create a new project"}
+                </h2>
+                <p class="tertiary left">
+                    {"Continue to the editor."}
+                </p>
             </button>
             <button>
                 <h2 class="left">{"User projects"}</h2>
-                <p class="tertiary left">{"Browse projects in the user directory."}</p>
+                <p class="tertiary left">
+                    {"Browse projects in the user directory."}
+                </p>
             </button>
             <br />
             <div>

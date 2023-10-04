@@ -7,9 +7,15 @@ mod editor;
 mod home;
 mod querying_backend;
 mod setup;
+use chipbox_common as common;
+use std::rc::Rc;
 
 #[cfg(feature = "backend")]
 use chipbox_backend_lib as backend_lib;
+
+pub trait ConfiguredState {
+    fn settings(&self) -> Rc<common::Settings>;
+}
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, PartialEq)]
 #[serde(tag = "type")]
@@ -37,7 +43,7 @@ impl From<&backend_lib::App> for App {
             backend_lib::App::ProjectSelection(project_selection) => {
                 Self::Home(project_selection.into())
             }
-            backend_lib::App::Editor(project) => Self::Editor,
+            backend_lib::App::Editor(editor) => Self::Editor(editor.into()),
         }
     }
 }

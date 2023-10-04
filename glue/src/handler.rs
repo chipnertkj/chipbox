@@ -3,6 +3,7 @@
 
 use crate::app::*;
 use crate::load_project::*;
+use crate::set_settings::*;
 use crate::skip_setup::*;
 
 pub trait BuilderGlue<R: tauri::Runtime> {
@@ -18,6 +19,7 @@ impl<R: tauri::Runtime> BuilderGlue<R> for tauri::Builder<R> {
         self.invoke_handler(tauri::generate_handler![
             app,
             load_project,
+            set_settings,
             skip_setup,
         ])
     }

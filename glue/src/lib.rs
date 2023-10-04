@@ -11,7 +11,8 @@ type ManagedApp = std::sync::Arc<tokio::sync::Mutex<chipbox_backend_lib::App>>;
 // Commands.
 pub mod app;
 pub mod load_project;
+pub mod set_settings;
 pub mod skip_setup;
 
-pub use app::App;
+pub use app::{App, ConfiguredState, Setup};
 pub use load_project::LoadProjectInfo;

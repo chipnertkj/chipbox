@@ -1,27 +1,35 @@
 use yew::platform::spawn_local;
 use yew::prelude::*;
 
-use crate::app::RerenderCallback;
+use crate::app::{set_default_ctx_settings, AppContext};
 use {chipbox_common as common, chipbox_glue as glue};
 
 #[derive(Properties, PartialEq)]
-pub(super) struct SetupProps {
-    pub state: glue::app::Setup,
+pub(super) struct Props {
+    pub state: glue::Setup,
 }
 
 #[function_component]
-pub(super) fn Setup(props: &SetupProps) -> yew::Html {
-    use glue::app::Setup;
-    let SetupProps { state } = props;
+pub(super) fn Setup(props: &Props) -> yew::Html {
+    // Debug info.
+    tracing::trace!("Rendering component.");
 
-    let rerender_cb = use_context::<RerenderCallback>()
-        .expect("no rerender callback context")
-        .inner;
+    // Retrieve state.
+    let Props { state } = props;
+
+    // Acquire app context.
+    let mut app_ctx = use_context::<AppContext>().expect("no app context");
+
+    // Update context settings.
+    set_default_ctx_settings(&mut app_ctx);
+
+    // Retrieve rerender callback.
+    let rerender_cb = app_ctx.rerender_cb.inner;
 
     match state {
-        Setup::First => html_first(rerender_cb),
-        Setup::Error(error) => html_error(error),
-        Setup::Modify(settings) => html_modify(settings),
+        glue::Setup::First => html_first(rerender_cb),
+        glue::Setup::Error(error) => html_error(error),
+        glue::Setup::Modify(settings) => html_modify(settings),
     }
 }
 

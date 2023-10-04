@@ -30,16 +30,22 @@ pub(crate) async fn load_project(
 ) -> Result<(), Error> {
     let mut backend_app = backend_app.lock().await;
     match &mut *backend_app {
-        backend_lib::App::ProjectSelection(project_selection) => match info {
-            LoadProjectInfo::New => {
-                *backend_app = backend_lib::App::Editor;
-                Ok(())
+        backend_lib::App::ProjectSelection(project_selection) => {
+            let editor = backend_lib::Editor {
+                settings: project_selection
+                    .settings
+                    .clone(),
+            };
+            match info {
+                LoadProjectInfo::New => {
+                    *backend_app = backend_lib::App::Editor(editor);
+                    Ok(())
+                }
+                LoadProjectInfo::Load(_project_path) => {
+                    todo!();
+                }
             }
-            LoadProjectInfo::Load(path) => {
-                *backend_app = backend_lib::App::Editor;
-                Ok(())
-            }
-        },
+        }
         _ => Err(Error::NotApplicable),
     }
 }
