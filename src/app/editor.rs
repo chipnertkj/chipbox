@@ -13,7 +13,7 @@ pub(super) struct Props {
 #[function_component]
 pub(super) fn Editor(props: &Props) -> yew::Html {
     // Debug info.
-    tracing::trace!("Rendering component.");
+    tracing::trace!("Rendering Editor component.");
 
     // Retrieve state.
     let Props { state } = props;

@@ -11,7 +11,7 @@ pub(super) struct Props {
 #[function_component]
 pub(super) fn QueryingBackend(props: &Props) -> yew::Html {
     // Debug info.
-    tracing::trace!("Rendering component.");
+    tracing::trace!("Rendering QueryingBackend component.");
 
     // Retrieve state.
     let Props { state } = props;

@@ -12,7 +12,7 @@ pub(super) struct Props {
 #[function_component]
 pub(super) fn Home(props: &Props) -> yew::Html {
     // Debug info.
-    tracing::trace!("Rendering component.");
+    tracing::trace!("Rendering Home component.");
 
     // Retrieve state.
     let Props { state } = props;

@@ -14,7 +14,7 @@ pub(super) fn Timeline(props: &Props) -> yew::Html {
     let Props { style, class } = props;
 
     // Debug info.
-    tracing::trace!("Rendering component.");
+    tracing::trace!("Rendering Timeline component.");
 
     html! {
         <div style={style} class={class.to_string()}>

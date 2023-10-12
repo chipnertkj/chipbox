@@ -32,7 +32,7 @@ pub struct AppContext {
 #[function_component]
 pub(super) fn App() -> yew::Html {
     // Debug info.
-    tracing::trace!("Rendering component.");
+    tracing::trace!("Rendering App component.");
 
     // Set up state.
     let app_state = use_state(glue::App::default);
