@@ -32,13 +32,10 @@ pub(crate) async fn load_project(
     match &mut *backend_app {
         backend_lib::App::ProjectSelection(project_selection) => match info {
             LoadProjectInfo::New => {
-                let editor = backend_lib::Editor {
-                    settings: project_selection
-                        .settings
-                        .clone(),
-                    project: Default::default(),
-                    project_meta_opt: None,
-                };
+                let settings = project_selection
+                    .settings
+                    .clone();
+                let editor = backend_lib::Editor::from_settings(settings);
                 *backend_app = backend_lib::App::Editor(editor);
                 Ok(())
             }

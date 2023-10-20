@@ -1,5 +1,3 @@
-#![feature(async_fn_in_trait)]
-
 pub use configured_state::ConfiguredState;
 pub use editor::Editor;
 pub use project_selection::ProjectSelection;
@@ -12,7 +10,7 @@ mod project_selection;
 mod settings;
 mod setup;
 
-#[derive(Default, Debug)]
+#[derive(Default)]
 pub enum App {
     #[default]
     ReadingSettings,

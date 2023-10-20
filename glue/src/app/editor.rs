@@ -21,6 +21,7 @@ impl From<&backend_lib::Editor> for Editor {
             settings,
             project,
             project_meta_opt: project_meta,
+            ..
         } = editor;
         Self {
             settings: Rc::new(settings.clone()),

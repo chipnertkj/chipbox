@@ -6,6 +6,10 @@ edition = "2021"
 [dependencies]
 # workspace deps
 chipbox-common = { path = "../../common" }
+cpal = { git = "https://github.com/RustAudio/cpal", features = [
+    "asio",
+    "jack",
+] }
 # deps
 home = { version = "0.5" }
 serde = { version = "1.0" }
