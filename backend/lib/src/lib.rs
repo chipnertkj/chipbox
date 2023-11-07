@@ -1,3 +1,5 @@
+#![feature(try_find)]
+
 pub use configured_state::ConfiguredState;
 pub use editor::Editor;
 pub use project_selection::ProjectSelection;

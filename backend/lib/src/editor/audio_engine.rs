@@ -1,123 +1,157 @@
+use self::device::Error;
+use self::host_id::HostId;
+use self::stream_config::{SampleFormat, StreamConfig};
 use chipbox_common as common;
-use common::audio_engine::Settings;
-use std::str::FromStr;
+use common::audio_engine::{SelectedDevice, Settings};
+use cpal::traits::{DeviceTrait as _, HostTrait, StreamTrait as _};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-struct HostId(cpal::HostId);
-
-impl From<HostId> for cpal::HostId {
-    fn from(val: HostId) -> Self {
-        let HostId(val) = val;
-        val
-    }
-}
+mod device;
+mod host_id;
+mod stream_config;
 
 #[derive(Debug)]
-pub enum HostIdStrError {
-    Invalid(String),
-    WrongPlatform(String),
-}
-
-impl std::fmt::Display for HostIdStrError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            HostIdStrError::Invalid(s) => {
-                write!(f, "`{s}` is not a valid host id")
-            }
-            HostIdStrError::WrongPlatform(s) => {
-                write!(
-                    f,
-                    "host `{s}` is not supported on this platform ({platform})",
-                    platform = std::env::consts::OS
-                )
-            }
-        }
-    }
-}
-
-impl std::error::Error for HostIdStrError {}
-
-impl FromStr for HostId {
-    type Err = HostIdStrError;
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        const WASAPI: &str = "WASAPI";
-        const ASIO: &str = "ASIO";
-        const JACK: &str = "JACK";
-        const ALSA: &str = "ALSA";
-        const CORE_AUDIO: &str = "CoreAudio";
-        const OBOE: &str = "Oboe";
-        const EMSCRIPTEN: &str = "Emscripten";
-        const WEBAUDIO: &str = "WebAudio";
-        const NULL: &str = "Null";
-        const SUPPORTED_BACKENDS: [&str; 9] = [
-            WASAPI, ASIO, JACK, ALSA, CORE_AUDIO, OBOE, EMSCRIPTEN, WEBAUDIO,
-            NULL,
-        ];
-
-        match s {
-            #[cfg(target_os = "windows")]
-            WASAPI => Ok(Self(cpal::HostId::Wasapi)),
-            #[cfg(target_os = "windows")]
-            ASIO => Ok(Self(cpal::HostId::Asio)),
-            #[cfg(any(
-                target_os = "linux",
-                target_os = "dragonfly",
-                target_os = "freebsd",
-                target_os = "netbsd"
-            ))]
-            JACK => Ok(Self(cpal::HostId::Jack)),
-            #[cfg(any(
-                target_os = "linux",
-                target_os = "dragonfly",
-                target_os = "freebsd",
-                target_os = "netbsd"
-            ))]
-            ALSA => Ok(Self(cpal::HostId::Alsa)),
-            #[cfg(target_os = "macos")]
-            CORE_AUDIO => Ok(Self(cpal::HostId::CoreAudio)),
-            #[cfg(target_os = "android")]
-            OBOE => Ok(Self(cpal::HostId::Oboe)),
-            #[cfg(target_os = "emscripten")]
-            EMSCRIPTEN => Ok(Self(cpal::HostId::Emscripten)),
-            #[cfg(all(target_arch = "wasm32", feature = "wasm-bindgen"))]
-            WEBAUDIO => Ok(Self(cpal::HostId::WebAudio)),
-            #[cfg(not(any(
-                windows,
-                target_os = "linux",
-                target_os = "dragonfly",
-                target_os = "freebsd",
-                target_os = "netbsd",
-                target_os = "macos",
-                target_os = "ios",
-                target_os = "emscripten",
-                target_os = "android",
-                all(target_arch = "wasm32", feature = "wasm-bindgen"),
-            )))]
-            NULL => Ok(Self(cpal::HostId::Null)),
-            _ => {
-                if SUPPORTED_BACKENDS.contains(&s) {
-                    Err(HostIdStrError::WrongPlatform(s.into()))
-                } else {
-                    Err(HostIdStrError::Invalid(s.into()))
-                }
-            }
-        }
-    }
+pub enum ParseSettingsError {
+    StreamConfigParse(stream_config::ParseError),
+    HostIdParse(host_id::ParseError),
+    InvalidStreamConfig(stream_config::Error),
 }
 
 pub struct AudioEngine {
-    host_id: HostId,
     host: cpal::Host,
+    output_device: cpal::Device,
+    output_stream: cpal::Stream,
+
+    host_id: HostId,
+    selected_device: SelectedDevice,
+    expected_output_stream_config: StreamConfig,
 }
 
 impl AudioEngine {
-    pub fn from_settings(settings: &Settings) -> Result<Self, HostIdStrError> {
-        let Settings {
-            host_id: host_id_str,
-        } = settings;
-        let host_id = HostId::from_str(host_id_str)?;
+    pub fn from_settings(
+        settings: &Settings,
+    ) -> Result<Self, ParseSettingsError> {
+        let host_id = HostId::try_from(&settings.host)
+            .map_err(ParseSettingsError::HostIdParse)?;
         let host =
             cpal::host_from_id(host_id.into()).expect("unable to get host");
-        Ok(Self { host_id, host })
+
+        let output_device = Self::output_device(&host, &settings.output_device)
+            .map_err(|e| {
+                ParseSettingsError::InvalidStreamConfig(
+                    stream_config::Error::Device(e),
+                )
+            })?;
+        let expected_output_stream_config =
+            StreamConfig::from_settings(&settings.output_stream_config)
+                .map_err(ParseSettingsError::StreamConfigParse)?;
+
+        let output_stream =
+            Self::output_stream(&output_device, &expected_output_stream_config)
+                .map_err(ParseSettingsError::InvalidStreamConfig)?;
+
+        Ok(Self {
+            host_id,
+            host,
+            output_device,
+            expected_output_stream_config,
+            output_stream,
+            selected_device: settings.output_device.clone(),
+        })
+    }
+
+    pub fn start(&self) -> Result<(), cpal::PlayStreamError> {
+        self.output_stream.play()?;
+        Ok(())
+    }
+
+    fn output_stream(
+        output_device: &cpal::Device,
+        expected_stream_config: &StreamConfig,
+    ) -> Result<cpal::Stream, stream_config::Error> {
+        let supported_config = match expected_stream_config {
+            StreamConfig::Default => output_device
+                .default_output_config()
+                .map_err(|e| {
+                    stream_config::Error::Device(device::Error::Other(
+                        Box::new(e),
+                    ))
+                }),
+            StreamConfig::Custom {
+                sample_format,
+                sample_rate,
+                channels,
+            } => {
+                let SampleFormat(sample_format) = sample_format;
+                let supported_configs = output_device
+                    .supported_output_configs()
+                    .map_err(|x| {
+                        stream_config::Error::Device(Error::Disconnected(
+                            Box::new(x),
+                        ))
+                    })?;
+                let supported_config = supported_configs
+                    .into_iter()
+                    .find(|x| {
+                        x.channels() == *channels
+                            && x.min_sample_rate() <= *sample_rate
+                            && x.max_sample_rate() >= *sample_rate
+                            && x.sample_format() == *sample_format
+                    })
+                    .ok_or(stream_config::Error::NoMatchingConfig)?
+                    .with_sample_rate(*sample_rate);
+                Ok(supported_config)
+            }
+        }?;
+
+        let sample_format = supported_config.sample_format();
+        let config = supported_config.config();
+
+        let stream = output_device
+            .build_output_stream_raw(
+                &config,
+                sample_format,
+                |_, _| {},
+                |_| {},
+                None,
+            )
+            .map_err(|x| stream_config::Error::Other(Box::new(x)))?;
+
+        Ok(stream)
+    }
+
+    fn output_device(
+        host: &cpal::Host,
+        device_settings: &SelectedDevice,
+    ) -> Result<cpal::Device, Error> {
+        match &device_settings {
+            SelectedDevice::Default => host
+                .default_output_device()
+                .ok_or(Error::NoDefault),
+            SelectedDevice::Named(name) => host
+                .output_devices()
+                .map_err(|x| Error::Other(Box::new(x)))?
+                .try_find(|d| {
+                    Ok(&d
+                        .name()
+                        .map_err(|x| Error::Other(Box::new(x)))?
+                        == name)
+                })?
+                .ok_or(Error::NoMatch),
+        }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn start_default_stream() {
+        let settings = Settings::default();
+        let audio_engine = AudioEngine::from_settings(&settings)
+            .expect("unable to parse default config");
+        audio_engine
+            .start()
+            .expect("unable to start audio engine with default config");
     }
 }
