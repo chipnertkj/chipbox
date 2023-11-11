@@ -1,9 +1,12 @@
+use std::cell::RefCell;
+
 use self::device::Error;
 use self::host_id::HostId;
 use self::stream_config::{SampleFormat, StreamConfig};
 use chipbox_common as common;
 use common::audio_engine::{SelectedDevice, Settings};
 use cpal::traits::{DeviceTrait as _, HostTrait, StreamTrait as _};
+use gen_value::vec::GenVec;
 
 mod device;
 mod host_id;
@@ -16,10 +19,16 @@ pub enum ParseSettingsError {
     InvalidStreamConfig(stream_config::Error),
 }
 
+pub type Streams = GenVec<cpal::Stream>;
+
+thread_local! {
+    pub static STREAMS: RefCell<Streams> = RefCell::new(Streams::new());
+}
+
 pub struct AudioEngine {
     host: cpal::Host,
     output_device: cpal::Device,
-    output_stream: cpal::Stream,
+    output_stream_idx: (usize, usize),
 
     host_id: HostId,
     selected_device: SelectedDevice,
@@ -45,26 +54,58 @@ impl AudioEngine {
             StreamConfig::from_settings(&settings.output_stream_config)
                 .map_err(ParseSettingsError::StreamConfigParse)?;
 
-        let output_stream =
-            Self::output_stream(&output_device, &expected_output_stream_config)
-                .map_err(ParseSettingsError::InvalidStreamConfig)?;
+        let output_stream = Self::create_output_stream(
+            &output_device,
+            &expected_output_stream_config,
+        )
+        .map_err(ParseSettingsError::InvalidStreamConfig)?;
+
+        let output_stream_idx = STREAMS.with(|x| {
+            x.borrow_mut()
+                .insert(output_stream)
+                .expect("generational index limit exceeded")
+        });
 
         Ok(Self {
             host_id,
             host,
             output_device,
             expected_output_stream_config,
-            output_stream,
+            output_stream_idx,
             selected_device: settings.output_device.clone(),
         })
     }
 
-    pub fn start(&self) -> Result<(), cpal::PlayStreamError> {
-        self.output_stream.play()?;
-        Ok(())
+    pub fn play(&self) -> Result<(), cpal::PlayStreamError> {
+        self.with_output_stream(|x| x.play())
     }
 
-    fn output_stream(
+    pub fn pause(&self) -> Result<(), cpal::PauseStreamError> {
+        self.with_output_stream(|x| x.pause())
+    }
+
+    fn with_output_stream<V>(&self, f: impl FnOnce(&cpal::Stream) -> V) -> V {
+        STREAMS.with_borrow(|x| {
+            let stream = x
+                .get(self.output_stream_idx)
+                .expect("stream not found");
+            f(stream)
+        })
+    }
+
+    fn with_output_stream_mut<V>(
+        &self,
+        f: impl FnOnce(&mut cpal::Stream) -> V,
+    ) -> V {
+        STREAMS.with_borrow_mut(|x| {
+            let stream = x
+                .get_mut(self.output_stream_idx)
+                .expect("stream not found");
+            f(stream)
+        })
+    }
+
+    fn create_output_stream(
         output_device: &cpal::Device,
         expected_stream_config: &StreamConfig,
     ) -> Result<cpal::Stream, stream_config::Error> {
@@ -141,6 +182,18 @@ impl AudioEngine {
     }
 }
 
+impl Drop for AudioEngine {
+    fn drop(&mut self) {
+        STREAMS.with(|x| {
+            x.borrow_mut()
+                .remove(self.output_stream_idx)
+                .unwrap_or_else(|e| {
+                    tracing::error!("failed to remove stream: {}", e);
+                })
+        })
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -150,8 +203,14 @@ mod test {
         let settings = Settings::default();
         let audio_engine = AudioEngine::from_settings(&settings)
             .expect("unable to parse default config");
+        println!("created audio engine");
         audio_engine
-            .start()
+            .play()
             .expect("unable to start audio engine with default config");
+        println!("audio engine running");
+        audio_engine
+            .pause()
+            .expect("unable to stop audio engine");
+        println!("audio engine stopped");
     }
 }

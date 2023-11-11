@@ -21,3 +21,4 @@ tauri-plugin-window-state = "0.1"
 color-eyre = "0.6"
 tracing-subscriber = "0.3"
 tokio = { version = "1.29", features = ["macros", "fs", "tracing", "time"] }
+tracing = "0.1.40"

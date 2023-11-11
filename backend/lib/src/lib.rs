@@ -12,13 +12,15 @@ mod project_selection;
 mod settings;
 mod setup;
 
+pub type ManagedApp = std::sync::Arc<tokio::sync::Mutex<App>>;
+
 #[derive(Default)]
 pub enum App {
     #[default]
     ReadingSettings,
     Setup(Setup),
     ProjectSelection(ProjectSelection),
-    Editor(Editor),
+    Editor(Box<Editor>),
 }
 
 impl App {
@@ -27,7 +29,7 @@ impl App {
             App::ReadingSettings => None,
             App::Setup(..) => None,
             App::ProjectSelection(project_selection) => Some(project_selection),
-            App::Editor(editor) => Some(editor),
+            App::Editor(editor) => Some(editor.as_ref()),
         }
     }
 
@@ -38,7 +40,7 @@ impl App {
             App::ReadingSettings => None,
             App::Setup(..) => None,
             App::ProjectSelection(project_selection) => Some(project_selection),
-            App::Editor(editor) => Some(editor),
+            App::Editor(editor) => Some(editor.as_mut()),
         }
     }
 }

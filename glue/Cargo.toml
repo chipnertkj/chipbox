@@ -28,7 +28,6 @@ frontend = [
 chipbox-common = { path = "../common" }
 # deps
 serde = { version = "1.0", features = ["derive", "rc"] }
-tracing = "0.1"
 
 # backend workspace deps
 chipbox-backend-lib = { path = "../backend/lib", optional = true }
@@ -44,11 +43,12 @@ tokio = { version = "1.29", features = [
 # frontend workspace deps
 chipbox-lib = { path = "../lib", optional = true }
 # frontend deps
-yew = { version = "0.20", optional = true }
+yew = { version = "0.21", optional = true }
 wasm-bindgen = { version = "0.2", features = [
     "serde-serialize",
 ], optional = true }
 wasm-bindgen-futures = { version = "0.4", optional = true }
 wasm-timer = { version = "0.2", optional = true }
-serde-wasm-bindgen = { version = "0.5", optional = true }
+serde-wasm-bindgen = { version = "0.6.1", optional = true }
 js-sys = { version = "0.3", optional = true }
+tracing = "0.1.40"

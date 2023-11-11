@@ -1,3 +1,5 @@
+#[cfg(feature = "backend")]
+use chipbox_backend_lib as backend_lib;
 use chipbox_common as common;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, PartialEq)]
@@ -15,10 +17,10 @@ impl std::fmt::Display for Error {
 #[cfg(feature = "backend")]
 #[tauri::command]
 pub(crate) async fn set_settings(
-    backend_app: tauri::State<super::ManagedApp, '_>,
+    state: tauri::State<'_, backend_lib::ManagedApp>,
     settings: common::Settings,
 ) -> Result<(), Error> {
-    let mut backend_app = backend_app.lock().await;
+    let mut backend_app = state.inner().lock().await;
     let configured_state_opt = backend_app.as_configured_state_mut();
     match configured_state_opt {
         Some(configured_state) => *configured_state.settings_mut() = settings,

@@ -52,10 +52,9 @@ pub(super) fn App() -> yew::Html {
     };
 
     // Rerender page on RenderState::Requested.
-    use_memo(
-        |render_state| handle_rerender(app_state.clone(), render_state.clone()),
-        render_state,
-    );
+    use_memo(render_state, |render_state| {
+        handle_rerender(app_state.clone(), render_state.clone())
+    });
 
     // Render main page content.
     let content = match &*app_state {

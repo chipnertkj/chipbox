@@ -25,10 +25,10 @@ pub enum LoadProjectInfo {
 #[cfg(feature = "backend")]
 #[tauri::command]
 pub(crate) async fn load_project(
-    backend_app: tauri::State<super::ManagedApp, '_>,
+    state: tauri::State<'_, backend_lib::ManagedApp>,
     info: LoadProjectInfo,
 ) -> Result<(), Error> {
-    let mut backend_app = backend_app.lock().await;
+    let mut backend_app = state.inner().lock().await;
     match &mut *backend_app {
         backend_lib::App::ProjectSelection(project_selection) => match info {
             LoadProjectInfo::New => {
@@ -36,7 +36,7 @@ pub(crate) async fn load_project(
                     .settings
                     .clone();
                 let editor = backend_lib::Editor::from_settings(settings);
-                *backend_app = backend_lib::App::Editor(editor);
+                *backend_app = backend_lib::App::Editor(Box::new(editor));
                 Ok(())
             }
             LoadProjectInfo::Load(_project_path) => {
