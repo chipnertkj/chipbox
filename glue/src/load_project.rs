@@ -28,7 +28,7 @@ pub(crate) async fn load_project(
     state: tauri::State<'_, backend_lib::ManagedApp>,
     info: LoadProjectInfo,
 ) -> Result<(), Error> {
-    let mut backend_app = state.inner().lock().await;
+    let mut backend_app = state.arc.lock().await;
     match &mut *backend_app {
         backend_lib::App::ProjectSelection(project_selection) => match info {
             LoadProjectInfo::New => {

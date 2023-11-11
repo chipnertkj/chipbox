@@ -1,16 +1,15 @@
-use std::cell::RefCell;
-
 use self::device::Error;
 use self::host_id::HostId;
 use self::stream_config::{SampleFormat, StreamConfig};
+use self::stream_handle::StreamHandle;
 use chipbox_common as common;
 use common::audio_engine::{SelectedDevice, Settings};
 use cpal::traits::{DeviceTrait as _, HostTrait, StreamTrait as _};
-use gen_value::vec::GenVec;
 
 mod device;
 mod host_id;
 mod stream_config;
+mod stream_handle;
 
 #[derive(Debug)]
 pub enum ParseSettingsError {
@@ -19,16 +18,10 @@ pub enum ParseSettingsError {
     InvalidStreamConfig(stream_config::Error),
 }
 
-pub type Streams = GenVec<cpal::Stream>;
-
-thread_local! {
-    pub static STREAMS: RefCell<Streams> = RefCell::new(Streams::new());
-}
-
 pub struct AudioEngine {
     host: cpal::Host,
     output_device: cpal::Device,
-    output_stream_idx: (usize, usize),
+    output_stream_handle: StreamHandle,
 
     host_id: HostId,
     selected_device: SelectedDevice,
@@ -60,46 +53,34 @@ impl AudioEngine {
         )
         .map_err(ParseSettingsError::InvalidStreamConfig)?;
 
-        let output_stream_idx = STREAMS.with(|x| {
-            x.borrow_mut()
-                .insert(output_stream)
-                .expect("generational index limit exceeded")
-        });
+        let output_stream_handle =
+            stream_handle::STREAMS.with_borrow_mut(|streams| {
+                streams.insert(output_stream)
+                    .expect("unable to insert stream due to generational index overflow")
+            });
 
         Ok(Self {
             host_id,
             host,
             output_device,
             expected_output_stream_config,
-            output_stream_idx,
+            output_stream_handle,
             selected_device: settings.output_device.clone(),
         })
     }
 
     pub fn play(&self) -> Result<(), cpal::PlayStreamError> {
-        self.with_output_stream(|x| x.play())
+        self.with_output_stream(|stream| stream.play())
     }
 
     pub fn pause(&self) -> Result<(), cpal::PauseStreamError> {
-        self.with_output_stream(|x| x.pause())
+        self.with_output_stream(|stream| stream.pause())
     }
 
     fn with_output_stream<V>(&self, f: impl FnOnce(&cpal::Stream) -> V) -> V {
-        STREAMS.with_borrow(|x| {
-            let stream = x
-                .get(self.output_stream_idx)
-                .expect("stream not found");
-            f(stream)
-        })
-    }
-
-    fn with_output_stream_mut<V>(
-        &self,
-        f: impl FnOnce(&mut cpal::Stream) -> V,
-    ) -> V {
-        STREAMS.with_borrow_mut(|x| {
-            let stream = x
-                .get_mut(self.output_stream_idx)
+        stream_handle::STREAMS.with_borrow(|streams| {
+            let stream = streams
+                .get(&self.output_stream_handle)
                 .expect("stream not found");
             f(stream)
         })
@@ -179,18 +160,6 @@ impl AudioEngine {
                 })?
                 .ok_or(Error::NoMatch),
         }
-    }
-}
-
-impl Drop for AudioEngine {
-    fn drop(&mut self) {
-        STREAMS.with(|x| {
-            x.borrow_mut()
-                .remove(self.output_stream_idx)
-                .unwrap_or_else(|e| {
-                    tracing::error!("failed to remove stream: {}", e);
-                })
-        })
     }
 }
 

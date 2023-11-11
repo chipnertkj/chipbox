@@ -19,7 +19,7 @@ impl std::fmt::Display for Error {
 pub(crate) async fn skip_setup(
     state: tauri::State<'_, backend_lib::ManagedApp>,
 ) -> Result<(), Error> {
-    let mut backend_app = state.inner().lock().await;
+    let mut backend_app = state.arc.lock().await;
     match &mut *backend_app {
         backend_lib::App::Setup(setup) => {
             if let backend_lib::Setup::First = setup {

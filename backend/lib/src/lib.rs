@@ -12,7 +12,10 @@ mod project_selection;
 mod settings;
 mod setup;
 
-pub type ManagedApp = std::sync::Arc<tokio::sync::Mutex<App>>;
+#[derive(Clone, Default)]
+pub struct ManagedApp {
+    pub arc: std::sync::Arc<tokio::sync::Mutex<App>>,
+}
 
 #[derive(Default)]
 pub enum App {

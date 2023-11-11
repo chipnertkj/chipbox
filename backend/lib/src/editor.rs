@@ -8,7 +8,7 @@ pub struct Editor {
     pub settings: common::Settings,
     pub project: common::Project,
     pub project_meta_opt: Option<ProjectMeta>,
-    audio_engine: audio_engine::AudioEngine,
+    pub audio_engine: audio_engine::AudioEngine,
 }
 
 impl ConfiguredState for Editor {

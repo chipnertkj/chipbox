@@ -20,7 +20,7 @@ pub(crate) async fn set_settings(
     state: tauri::State<'_, backend_lib::ManagedApp>,
     settings: common::Settings,
 ) -> Result<(), Error> {
-    let mut backend_app = state.inner().lock().await;
+    let mut backend_app = state.arc.lock().await;
     let configured_state_opt = backend_app.as_configured_state_mut();
     match configured_state_opt {
         Some(configured_state) => *configured_state.settings_mut() = settings,
