@@ -78,17 +78,16 @@ impl Drop for StreamHandle {
 
 mod thread_local {
     use super::Streams;
-    use std::cell::{Ref, RefCell};
-    use std::rc::Rc;
+    use std::cell::RefCell;
 
-    pub fn with_streams<T, F>(f: F) -> T
+    pub fn with_streams<F, T>(f: F) -> T
     where
-        F: FnOnce(Ref<Streams>) -> T,
+        F: FnOnce(&Streams) -> T,
     {
-        STREAMS.with(|x| f(x.clone().borrow()))
+        STREAMS.with(|x| f(&x.borrow()))
     }
 
-    pub fn with_streams_mut<T, F>(f: F) -> T
+    pub fn with_streams_mut<F, T>(f: F) -> T
     where
         F: FnOnce(&mut Streams) -> T,
     {
@@ -96,6 +95,6 @@ mod thread_local {
     }
 
     thread_local! {
-        static STREAMS: Rc<RefCell<Streams>> = Rc::new(RefCell::new(Default::default()));
+        static STREAMS: RefCell<Streams> = RefCell::new(Default::default());
     }
 }
