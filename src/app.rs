@@ -90,8 +90,17 @@ fn handle_rerender(
         tracing::trace!("Manual rerender.");
         spawn_local(async move {
             // Update app state.
-            let app = glue::app::query().await;
-            app_state.set(app);
+            let response = glue::app::query().await;
+            match response {
+                Ok(app) => {
+                    app_state.set(app);
+                }
+                Err(e) => {
+                    app_state.set(glue::App::QueryingBackend(
+                        glue::app::QueryingBackend::TimedOut(e),
+                    ));
+                }
+            }
             // Reset render state.
             render_state.set(RenderState::Idle);
         })

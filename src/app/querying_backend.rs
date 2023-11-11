@@ -33,12 +33,18 @@ pub(super) fn QueryingBackend(props: &Props) -> yew::Html {
     let message_text = match state {
         glue::app::QueryingBackend::Requesting => "Requesting backend state.",
         glue::app::QueryingBackend::ReadingSettings => "Reading user settings.",
+        glue::app::QueryingBackend::TimedOut(_) => {
+            "Timed out while waiting for state."
+        }
     };
 
     html! {
         <div style={ROOT_STYLE}>
             <main style={MAIN_STYLE}>
-                <Spinner class="drop-shadow secondary" svg_class="primary" />
+                if let glue::app::QueryingBackend::TimedOut(_) = state {}
+                else {
+                    <Spinner class="drop-shadow secondary" svg_class="primary" />
+                }
                 <h1 class="text drop-shadow secondary">
                     {message_text}
                 </h1>

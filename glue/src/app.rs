@@ -12,6 +12,8 @@ use std::rc::Rc;
 
 #[cfg(feature = "backend")]
 use chipbox_backend_lib as backend_lib;
+#[cfg(feature = "backend")]
+use std::time::Duration;
 
 pub trait ConfiguredState {
     fn settings(&self) -> Rc<common::Settings>;
@@ -51,39 +53,55 @@ impl From<&backend_lib::App> for App {
 }
 
 #[cfg(feature = "backend")]
+const TIMEOUT: Duration = Duration::from_secs(10);
+
+#[derive(
+    Debug, serde::Serialize, serde::Deserialize, Clone, Copy, PartialEq,
+)]
+pub struct StateTimedOutError;
+
+impl std::error::Error for StateTimedOutError {}
+impl std::fmt::Display for StateTimedOutError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "timed out while waiting for state")
+    }
+}
+
+#[cfg(feature = "backend")]
 #[tauri::command]
-pub(crate) async fn app<R>(app_handle: tauri::AppHandle<R>) -> App
+pub(crate) async fn app<R>(
+    app_handle: tauri::AppHandle<R>,
+) -> Result<App, StateTimedOutError>
 where
     R: tauri::Runtime,
 {
-    use std::sync::Arc;
-    use std::time::Duration;
     use tauri::Manager as _;
-    use tokio::sync::Mutex;
     use tokio::time::sleep;
 
-    /// As managed by `tauri::App` in `chipbox_backend`.
-    /// Note that we use `tokio::sync::Mutex`.
-    type ManagedApp = Arc<Mutex<backend_lib::App>>;
-
     // Query `backend_lib::App` with a delay of 50ns on failure.
+    let begin = std::time::Instant::now();
     let state = loop {
-        match app_handle.try_state::<ManagedApp>() {
+        match app_handle.try_state::<backend_lib::ManagedApp>() {
             Some(state) => break state,
             None => {
-                sleep(Duration::from_nanos(50)).await;
-                tracing::info!("waiting for `backend_lib::App`...");
+                let elapsed = begin.elapsed();
+                if elapsed > TIMEOUT {
+                    return Err(StateTimedOutError);
+                } else {
+                    sleep(Duration::from_nanos(50)).await;
+                    tracing::info!("waiting for `backend_lib::App`...");
+                }
             }
         }
     };
 
     // Lock mutex and convert `backend_lib::App` to `glue::App`.
-    let backend_app = state.lock().await;
-    (&*backend_app).into()
+    let backend_app = state.arc.lock().await;
+    Ok((&*backend_app).into())
 }
 
 #[cfg(feature = "frontend")]
-pub async fn query() -> App {
+pub async fn query() -> Result<App, StateTimedOutError> {
     use crate::invoke::*;
-    invoke_query_infallible::<App, ()>("app", &()).await
+    invoke_query::<App, StateTimedOutError, ()>("app", &()).await
 }

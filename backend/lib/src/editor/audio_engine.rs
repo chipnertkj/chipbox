@@ -53,12 +53,15 @@ impl AudioEngine {
         )
         .map_err(ParseSettingsError::InvalidStreamConfig)?;
 
-        let output_stream_handle =
-            stream_handle::STREAMS.with_borrow_mut(|streams| {
-                streams.insert(output_stream)
-                    .expect("unable to insert stream due to generational index overflow")
-            });
+        let output_stream_handle = stream_handle::with_streams_mut(|streams| {
+            streams
+                .insert(output_stream)
+                .expect(
+                "unable to insert stream due to generational index overflow",
+            )
+        });
 
+        tracing::info!("created audio engine from settings: `{:?}`", settings);
         Ok(Self {
             host_id,
             host,
@@ -70,15 +73,17 @@ impl AudioEngine {
     }
 
     pub fn play(&self) -> Result<(), cpal::PlayStreamError> {
+        tracing::info!("starting audio engine");
         self.with_output_stream(|stream| stream.play())
     }
 
     pub fn pause(&self) -> Result<(), cpal::PauseStreamError> {
+        tracing::info!("pausing audio engine");
         self.with_output_stream(|stream| stream.pause())
     }
 
     fn with_output_stream<V>(&self, f: impl FnOnce(&cpal::Stream) -> V) -> V {
-        stream_handle::STREAMS.with_borrow(|streams| {
+        stream_handle::with_streams(|streams| {
             let stream = streams
                 .get(&self.output_stream_handle)
                 .expect("stream not found");
@@ -163,23 +168,28 @@ impl AudioEngine {
     }
 }
 
+impl Drop for AudioEngine {
+    fn drop(&mut self) {
+        tracing::info!("dropping audio engine");
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
 
     #[test]
     fn start_default_stream() {
+        tracing_subscriber::fmt::init();
+
         let settings = Settings::default();
         let audio_engine = AudioEngine::from_settings(&settings)
             .expect("unable to parse default config");
-        println!("created audio engine");
         audio_engine
             .play()
             .expect("unable to start audio engine with default config");
-        println!("audio engine running");
         audio_engine
             .pause()
             .expect("unable to stop audio engine");
-        println!("audio engine stopped");
     }
 }

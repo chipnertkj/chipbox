@@ -3,7 +3,6 @@
 use color_eyre::eyre;
 use glue::handler::BuilderGlue as _;
 use tauri::{async_runtime, Manager};
-use tracing_subscriber::util::SubscriberInitExt as _;
 use {chipbox_backend_lib as backend_lib, chipbox_glue as glue};
 
 /// Construct and configure a `tauri::App`.
@@ -41,7 +40,9 @@ fn ready(managed_app: backend_lib::ManagedApp) {
 /// Initialize `color_eyre`, `tracing-subscriber` and `tauri`.
 fn main() -> eyre::Result<()> {
     color_eyre::install()?;
-    tracing_subscriber::FmtSubscriber::default().init();
+    tracing_subscriber::fmt::SubscriberBuilder::default()
+        .with_max_level(tracing::Level::TRACE)
+        .init();
     tauri_app().run(run);
     Ok(())
 }

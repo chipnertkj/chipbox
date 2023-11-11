@@ -4,6 +4,8 @@ pub use configured_state::ConfiguredState;
 pub use editor::Editor;
 pub use project_selection::ProjectSelection;
 pub use setup::Setup;
+use tokio::sync::Mutex;
+use std::sync::Arc;
 
 mod configured_state;
 mod editor;
@@ -14,7 +16,7 @@ mod setup;
 
 #[derive(Clone, Default)]
 pub struct ManagedApp {
-    pub arc: std::sync::Arc<tokio::sync::Mutex<App>>,
+    pub arc: Arc<Mutex<App>>,
 }
 
 #[derive(Default)]

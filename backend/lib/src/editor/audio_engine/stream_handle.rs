@@ -1,5 +1,5 @@
 use gen_value::vec::GenVec;
-use std::cell::RefCell;
+pub use thread_local::{with_streams, with_streams_mut};
 
 type StreamIdxProd = usize;
 pub type StreamIdx = (StreamIdxProd, StreamIdxProd);
@@ -30,9 +30,12 @@ impl Streams {
         &mut self,
         stream: cpal::Stream,
     ) -> Result<StreamHandle, gen_value::Error> {
-        self.inner
+        let handle = self
+            .inner
             .insert(stream)
-            .map(|x| StreamHandle { idx: x })
+            .map(|x| StreamHandle { idx: x });
+        tracing::info!("adding stream to thread-local storage: `{:?}`", handle);
+        handle
     }
 
     pub fn get(
@@ -58,16 +61,41 @@ impl From<StreamsGenVec> for Streams {
 
 impl Drop for StreamHandle {
     fn drop(&mut self) {
-        STREAMS.with(|x| {
-            x.borrow_mut()
+        tracing::info!("dropping stream handle: `{:?}`", self);
+        with_streams_mut(|streams| {
+            streams
                 .remove(self.idx)
                 .unwrap_or_else(|e| {
                     tracing::error!("unable to remove stream: {}", e)
                 });
+            tracing::info!(
+                "stream removed from thread-local storage: `{:?}`",
+                self
+            );
         });
     }
 }
 
-thread_local! {
-    pub static STREAMS: RefCell<Streams> = RefCell::new(Default::default());
+mod thread_local {
+    use super::Streams;
+    use std::cell::{Ref, RefCell};
+    use std::rc::Rc;
+
+    pub fn with_streams<T, F>(f: F) -> T
+    where
+        F: FnOnce(Ref<Streams>) -> T,
+    {
+        STREAMS.with(|x| f(x.clone().borrow()))
+    }
+
+    pub fn with_streams_mut<T, F>(f: F) -> T
+    where
+        F: FnOnce(&mut Streams) -> T,
+    {
+        STREAMS.with(|x| f(&mut x.borrow_mut()))
+    }
+
+    thread_local! {
+        static STREAMS: Rc<RefCell<Streams>> = Rc::new(RefCell::new(Default::default()));
+    }
 }

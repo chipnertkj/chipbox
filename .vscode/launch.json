@@ -2,6 +2,12 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "type": "lldb",
+            "request": "attach",
+            "name": "Attach",
+            "program": "${workspaceFolder}/target/debug/deps/chipbox_backend_lib-7f15bd4634991514.exe"
+        },
+        {
             "name": "backend",
             "type": "lldb",
             "request": "attach",
