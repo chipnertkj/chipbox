@@ -13,7 +13,6 @@ ignore = [
     "README.md",
     "rustfmt.toml",
     ".taurignore",
-    "Trunk.toml",
 ]
 
 [serve]

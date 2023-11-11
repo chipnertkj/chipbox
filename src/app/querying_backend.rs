@@ -41,7 +41,11 @@ pub(super) fn QueryingBackend(props: &Props) -> yew::Html {
     html! {
         <div style={ROOT_STYLE}>
             <main style={MAIN_STYLE}>
-                if let glue::app::QueryingBackend::TimedOut(_) = state {}
+                if let glue::app::QueryingBackend::TimedOut(_) = state {
+                    <h1 class="drop-shadow primary">
+                        {":("}
+                    </h1>
+                }
                 else {
                     <Spinner class="drop-shadow secondary" svg_class="primary" />
                 }

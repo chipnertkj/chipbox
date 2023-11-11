@@ -85,7 +85,7 @@ where
             Some(state) => break state,
             None => {
                 let elapsed = begin.elapsed();
-                if elapsed > TIMEOUT {
+                if elapsed >= TIMEOUT {
                     return Err(StateTimedOutError);
                 } else {
                     sleep(Duration::from_nanos(50)).await;
