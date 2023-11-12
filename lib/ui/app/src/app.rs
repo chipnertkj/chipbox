@@ -32,9 +32,6 @@ pub struct AppContext {
 
 #[function_component]
 pub fn App() -> yew::Html {
-    // Debug info.
-    tracing::trace!("Rendering App component.");
-
     // Set up state.
     let app_state = use_state(glue::App::default);
     let render_state = use_state(RenderState::default);
@@ -143,6 +140,7 @@ pub fn set_default_ctx_settings(app_ctx: &mut AppContext) {
 fn apply_settings(app_ctx: &AppContext) {
     // Retrieve settings.
     let settings = &app_ctx.settings;
+
     tracing::trace!("Applying settings: {settings:?}");
 
     // Retrieve theme.

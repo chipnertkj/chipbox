@@ -1,8 +1,8 @@
-mod timeline;
+mod bottom_panel;
 
 use crate::app::{update_ctx_settings, AppContext};
+use bottom_panel::BottomPanel;
 use chipbox_glue as glue;
-use timeline::Timeline;
 use yew::prelude::*;
 
 #[derive(Properties, PartialEq)]
@@ -12,9 +12,6 @@ pub(super) struct Props {
 
 #[function_component]
 pub(super) fn Editor(props: &Props) -> yew::Html {
-    // Debug info.
-    tracing::trace!("Rendering Editor component.");
-
     // Retrieve state.
     let Props { state } = props;
 
@@ -33,7 +30,7 @@ pub(super) fn Editor(props: &Props) -> yew::Html {
 
     html! {
         <main style={MAIN_STYLE} class={MAIN_CLASS}>
-            <Timeline style={TIMELINE_STYLE} class={TIMELINE_CLASS}/>
+            <BottomPanel style={TIMELINE_STYLE} class={TIMELINE_CLASS}/>
         </main>
     }
 }

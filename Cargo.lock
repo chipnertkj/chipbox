@@ -460,9 +460,19 @@ version = "0.1.0"
 dependencies = [
  "chipbox-common",
  "chipbox-glue",
+ "chipbox-ui-panel",
  "chipbox-ui-spinner",
  "const_format",
  "tracing",
+ "yew",
+]
+
+[[package]]
+name = "chipbox-ui-panel"
+version = "0.1.0"
+dependencies = [
+ "tracing",
+ "web-sys",
  "yew",
 ]
 

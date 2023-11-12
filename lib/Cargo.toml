@@ -4,6 +4,6 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-# deps
 # ui
 chipbox-ui-app = { path = "ui/app" }
+# deps

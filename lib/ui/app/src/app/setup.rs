@@ -11,9 +11,6 @@ pub(super) struct Props {
 
 #[function_component]
 pub(super) fn Setup(props: &Props) -> yew::Html {
-    // Debug info.
-    tracing::trace!("Rendering Setup component.");
-
     // Retrieve state.
     let Props { state } = props;
 
