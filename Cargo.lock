@@ -435,7 +435,6 @@ version = "0.0.0"
 dependencies = [
  "chipbox-backend-lib",
  "chipbox-common",
- "chipbox-lib",
  "js-sys",
  "serde",
  "serde-wasm-bindgen 0.6.1",
@@ -451,6 +450,29 @@ dependencies = [
 [[package]]
 name = "chipbox-lib"
 version = "0.0.0"
+dependencies = [
+ "chipbox-ui-app",
+]
+
+[[package]]
+name = "chipbox-ui-app"
+version = "0.1.0"
+dependencies = [
+ "chipbox-common",
+ "chipbox-glue",
+ "chipbox-ui-spinner",
+ "const_format",
+ "tracing",
+ "yew",
+]
+
+[[package]]
+name = "chipbox-ui-spinner"
+version = "0.1.0"
+dependencies = [
+ "tracing",
+ "yew",
+]
 
 [[package]]
 name = "chrono"

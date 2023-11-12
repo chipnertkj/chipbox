@@ -1,4 +1,4 @@
-use super::{host_id, stream_config};
+use super::{device, host_id, stream_config};
 
 #[derive(Debug)]
 pub enum SettingsError {
@@ -47,6 +47,30 @@ impl std::fmt::Display for ResetStreamError {
         match self {
             ResetStreamError::Config(e) => e.fmt(f),
             ResetStreamError::Play(e) => e.fmt(f),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub enum ResetDeviceError {
+    Stream(ResetStreamError),
+    Device(device::Error),
+}
+
+impl std::error::Error for ResetDeviceError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match self {
+            ResetDeviceError::Stream(e) => Some(e),
+            ResetDeviceError::Device(e) => Some(e),
+        }
+    }
+}
+
+impl std::fmt::Display for ResetDeviceError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ResetDeviceError::Stream(e) => e.fmt(f),
+            ResetDeviceError::Device(e) => e.fmt(f),
         }
     }
 }

@@ -1,14 +1,14 @@
 use yew::prelude::*;
 
 #[derive(Properties, PartialEq)]
-pub(crate) struct Props {
+pub struct Props {
     #[prop_or_default]
-    pub(crate) class: AttrValue,
-    pub(crate) svg_class: AttrValue,
+    pub class: AttrValue,
+    pub svg_class: AttrValue,
 }
 
 #[function_component]
-pub(crate) fn Spinner(props: &Props) -> yew::Html {
+pub fn Spinner(props: &Props) -> yew::Html {
     let Props { class, svg_class } = props;
     html! {
         <span class={format!("{class}")}>

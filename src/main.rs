@@ -1,12 +1,7 @@
-// Required by `const_format::formatc!`.
-#![feature(const_mut_refs)]
-
-mod app;
-mod spinner;
-
-pub(crate) use spinner::Spinner;
 use tracing_subscriber::layer::SubscriberExt as _;
 use tracing_subscriber::util::SubscriberInitExt as _;
+
+use chipbox_lib as lib;
 
 /// Initialize `console_error_panic_hook` on debug.
 /// This forwards Rust panic traces to the console.
@@ -36,5 +31,5 @@ fn setup_tracing() {
 fn main() {
     setup_panic_console_hook();
     setup_tracing();
-    yew::Renderer::<app::App>::new().render();
+    yew::Renderer::<lib::ui::App>::new().render();
 }

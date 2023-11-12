@@ -13,7 +13,6 @@ backend = [
 ]
 frontend = [
     # workspace deps
-    "dep:chipbox-lib",
     # deps
     "dep:yew",
     "dep:wasm-bindgen",
@@ -40,8 +39,6 @@ tokio = { version = "1.29", features = [
     "time",
 ], optional = true }
 
-# frontend workspace deps
-chipbox-lib = { path = "../lib", optional = true }
 # frontend deps
 yew = { version = "0.21", optional = true }
 wasm-bindgen = { version = "0.2", features = [

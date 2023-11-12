@@ -1,5 +1,6 @@
+pub use self::error::{ResetDeviceError, ResetStreamError, SettingsError};
+
 use self::device::Error;
-use self::error::{ResetStreamError, SettingsError};
 use self::host_id::HostId;
 use self::stream_config::{SampleFormat, StreamConfig};
 use self::stream_handle::StreamHandle;
@@ -95,14 +96,16 @@ impl AudioEngine {
     }
 
     /// Resets the output device and stream.
-    pub fn reset_output_device(&mut self) -> Result<(), ResetStreamError> {
+    pub fn reset_output_device(&mut self) -> Result<(), ResetDeviceError> {
         tracing::info!("resetting output device");
         // Reset device.
         self.output_device =
             Self::output_device(&self.host, &self.config.selected_device)
-                .expect("unable to reset output device");
+                .map_err(ResetDeviceError::Device)?;
         // Reset stream.
         self.reset_output_stream()
+            .map_err(ResetDeviceError::Stream)?;
+        Ok(())
     }
 
     /// Resets the output stream.
@@ -130,7 +133,7 @@ impl AudioEngine {
     fn add_thread_local_stream(stream: cpal::Stream) -> StreamHandle {
         stream_handle::with_streams_mut(|streams| {
             streams.insert(stream)
-            // Unlikely (idx len is usize^2), but panic on overflow.
+            // Unlikely (max index is usize^2-1), but panic on overflow.
             .expect(
                 "unable to insert stream due to generational index overflow",
             )
@@ -220,6 +223,8 @@ impl AudioEngine {
                 .default_output_device()
                 .ok_or(Error::NoDefault),
             // Open output device with matching name.
+            // In case of multiple matches, the first one is selected.
+            // TODO: Do any of the platforms allow for duplicate names?
             SelectedDevice::Named(name) => host
                 .output_devices()
                 .map_err(|x| Error::Other(Box::new(x)))?

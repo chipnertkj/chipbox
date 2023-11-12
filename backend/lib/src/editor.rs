@@ -11,17 +11,8 @@ pub struct Editor {
     pub audio_engine: audio_engine::AudioEngine,
 }
 
-impl ConfiguredState for Editor {
-    fn settings(&self) -> &common::Settings {
-        &self.settings
-    }
-
-    fn settings_mut(&mut self) -> &mut common::Settings {
-        &mut self.settings
-    }
-}
-
 impl Editor {
+    /// Creates an `Editor` instance from the given app `Settings`.
     pub fn from_settings(settings: common::Settings) -> Self {
         Self {
             audio_engine: audio_engine::AudioEngine::from_settings(
@@ -32,5 +23,21 @@ impl Editor {
             project: common::Project::default(),
             project_meta_opt: None,
         }
+    }
+}
+
+impl From<common::Settings> for Editor {
+    fn from(settings: common::Settings) -> Self {
+        Self::from_settings(settings)
+    }
+}
+
+impl ConfiguredState for Editor {
+    fn settings(&self) -> &common::Settings {
+        &self.settings
+    }
+
+    fn settings_mut(&mut self) -> &mut common::Settings {
+        &mut self.settings
     }
 }

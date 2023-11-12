@@ -5,3 +5,5 @@ edition = "2021"
 
 [dependencies]
 # deps
+# ui
+chipbox-ui-app = { path = "ui/app" }

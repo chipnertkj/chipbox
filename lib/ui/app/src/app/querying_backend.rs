@@ -1,6 +1,6 @@
 use crate::app::{set_default_ctx_settings, AppContext};
-use crate::Spinner;
 use chipbox_glue as glue;
+use chipbox_ui_spinner::Spinner;
 use yew::prelude::*;
 
 #[derive(Properties, PartialEq)]

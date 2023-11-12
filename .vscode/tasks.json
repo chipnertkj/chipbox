@@ -34,25 +34,5 @@
         "clear": false
       }
     },
-    {
-      "label": "bacon",
-      "type": "shell",
-      "command": "Start-Process bacon clippy",
-      "problemMatcher": [],
-      "options": {
-        "shell": {
-          "executable": "powershell"
-        }
-      },
-      "presentation": {
-        "reveal": "always",
-        "echo": false,
-        "focus": false,
-        "panel": "dedicated",
-        "showReuseMessage": false,
-        "clear": false,
-        "close": true
-      }
-    }
   ]
 }

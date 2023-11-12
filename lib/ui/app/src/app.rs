@@ -1,7 +1,4 @@
-mod editor;
-mod home;
-mod querying_backend;
-mod setup;
+use {chipbox_common as common, chipbox_glue as glue};
 
 use editor::Editor;
 use home::Home;
@@ -9,7 +6,11 @@ use querying_backend::QueryingBackend;
 use setup::Setup;
 use yew::platform::spawn_local;
 use yew::prelude::*;
-use {chipbox_common as common, chipbox_glue as glue};
+
+mod editor;
+mod home;
+mod querying_backend;
+mod setup;
 
 #[derive(PartialEq, Default)]
 enum RenderState {
@@ -30,7 +31,7 @@ pub struct AppContext {
 }
 
 #[function_component]
-pub(super) fn App() -> yew::Html {
+pub fn App() -> yew::Html {
     // Debug info.
     tracing::trace!("Rendering App component.");
 
