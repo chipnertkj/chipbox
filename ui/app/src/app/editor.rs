@@ -24,13 +24,10 @@ pub(super) fn Editor(props: &Props) -> yew::Html {
     // Main styling.
     const MAIN_STYLE: &str = "width: 100vw; height: 100vh;";
     const MAIN_CLASS: &str = "";
-    // Timeline styling.
-    const TIMELINE_STYLE: &str = "width: 100%; height: 100%; overflow: auto;";
-    const TIMELINE_CLASS: &str = "";
 
     html! {
         <main style={MAIN_STYLE} class={MAIN_CLASS}>
-            <BottomPanel style={TIMELINE_STYLE} class={TIMELINE_CLASS}/>
+            <BottomPanel/>
         </main>
     }
 }

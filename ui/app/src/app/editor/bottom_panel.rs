@@ -20,7 +20,7 @@ pub enum Tab {
 impl yew::ToHtml for Tab {
     fn to_html(&self) -> yew::virtual_dom::VNode {
         match self {
-            Self::Timeline => todo!(),
+            Self::Timeline => html! { "Timeline" },
             Self::Mixer => html! { "Mixer" },
         }
     }

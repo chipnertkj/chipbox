@@ -15,15 +15,7 @@ description = "Open-source DAW with a node graph system."
 maintenance = { status = "actively-developed" }
 
 [workspace]
-members = [
-    "backend",
-    "backend/lib",
-    "lib",
-    "glue",
-    "common",
-    "lib/ui/app",
-    "lib/ui/spinner",
-]
+members = ["backend", "glue", "common", "ui/app", "ui/spinner"]
 
 # Low optimization.
 [profile.dev]
@@ -39,11 +31,7 @@ opt-level = 3
 # Do not optimize workspace members.
 [profile.dev.package.chipbox-backend]
 opt-level = 1
-[profile.dev.package.chipbox-backend-lib]
-opt-level = 1
 [profile.dev.package.chipbox]
-opt-level = 1
-[profile.dev.package.chipbox-lib]
 opt-level = 1
 [profile.dev.package.chipbox-glue]
 opt-level = 1
@@ -63,9 +51,10 @@ debug = "full"
 
 [dependencies]
 # workspace deps
-chipbox-lib = { path = "lib" }
 chipbox-glue = { path = "glue", features = ["frontend"] }
 chipbox-common = { path = "common" }
+# ui deps
+chipbox-ui-app = { path = "ui/app" }
 # deps
 yew = { version = "0.21", features = ["csr"] }
 tracing = "0.1"

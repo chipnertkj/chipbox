@@ -24,7 +24,7 @@ where
     let class = format!("panel-root {}", class);
 
     // Set up state.
-    let tab_idx = use_state::<usize, _>(|| 0);
+    let tab_idx = use_state_eq::<usize, _>(|| 0);
 
     // Ensure tab index is in range.
     if *tab_idx >= tabs.len() && !tabs.is_empty() {
@@ -40,8 +40,8 @@ where
     };
 
     html! {
-        <div style={style} class={class}>
-            <div class="panel-header">
+        <span style={style} class={class}>
+            <span class="panel-header">
                 {
                     tabs.iter().enumerate().map(|(idx, tab)| {
                         let tab_onclick = tab_onclick.clone();
@@ -54,10 +54,11 @@ where
                         }
                     }).collect::<Html>()
                 }
-            </div>
-            <div class="panel-content">
+            </span>
+            <br/>
+            <span class="panel-content">
                 {tabs[*tab_idx].to_html()}
-            </div>
-        </div>
+            </span>
+        </span>
     }
 }

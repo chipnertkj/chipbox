@@ -8,8 +8,8 @@ edition = "2021"
 chipbox-ui-spinner = { path = "../spinner" }
 chipbox-ui-panel = { path = "../panel" }
 # deps
-chipbox-glue = { path = "../../../glue" }
-chipbox-common = { path = "../../../common" }
+chipbox-glue = { path = "../../glue" }
+chipbox-common = { path = "../../common" }
 yew = { version = "0.21.0", features = ["csr"] }
 tracing = "0.1.40"
 const_format = { version = "0.2.32", features = [

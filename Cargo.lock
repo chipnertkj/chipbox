@@ -381,7 +381,7 @@ version = "0.0.0"
 dependencies = [
  "chipbox-common",
  "chipbox-glue",
- "chipbox-lib",
+ "chipbox-ui-app",
  "console_error_panic_hook",
  "const_format",
  "tracing",
@@ -394,28 +394,17 @@ dependencies = [
 name = "chipbox-backend"
 version = "0.0.0"
 dependencies = [
- "chipbox-backend-lib",
- "chipbox-glue",
- "color-eyre",
- "tauri",
- "tauri-build",
- "tauri-plugin-window-state",
- "tokio",
- "tracing",
- "tracing-subscriber",
-]
-
-[[package]]
-name = "chipbox-backend-lib"
-version = "0.0.0"
-dependencies = [
  "chipbox-common",
+ "color-eyre",
  "cpal",
  "gen_value",
  "home",
  "once_cell",
  "serde",
  "serde_json",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-window-state",
  "tokio",
  "tracing",
  "tracing-subscriber",
@@ -433,7 +422,7 @@ dependencies = [
 name = "chipbox-glue"
 version = "0.0.0"
 dependencies = [
- "chipbox-backend-lib",
+ "chipbox-backend",
  "chipbox-common",
  "js-sys",
  "serde",
@@ -445,13 +434,6 @@ dependencies = [
  "wasm-bindgen-futures",
  "wasm-timer",
  "yew",
-]
-
-[[package]]
-name = "chipbox-lib"
-version = "0.0.0"
-dependencies = [
- "chipbox-ui-app",
 ]
 
 [[package]]

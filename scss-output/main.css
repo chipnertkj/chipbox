@@ -247,6 +247,11 @@ body {
     stroke-dashoffset: -124;
   }
 }
+.panel-root {
+  outline: var(--cb-panel-root-outline-thickness) solid var(--cb-panel-root-outline-color);
+  background-color: var(--cb-panel-root-color);
+}
+
 button {
   background-color: #181818;
   margin: 0.5rem;
@@ -259,4 +264,7 @@ button {
   --cb-text-color-primary: hsl(0, 0%, 90%);
   --cb-text-color-secondary: hsl(0, 0%, 80%);
   --cb-text-color-tertiary: hsl(0, 0%, 50%);
+  --cb-panel-root-color: hsl(0, 0%, 10%);
+  --cb-panel-root-outline-thickness: 0.1rem;
+  --cb-panel-root-outline-color: hsla(0, 0%, 0%, 1);
 }
