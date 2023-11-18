@@ -1,0 +1,21 @@
+[package]
+name = "chipbox-backend-lib"
+version = "0.0.0"
+edition = "2021"
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
+
+[dependencies]
+# workspace deps
+chipbox-common = { workspace = true }
+# deps
+tracing = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+cpal = { workspace = true }
+color-eyre = { workspace = true }
+home = { workspace = true }
+gen_value = { workspace = true }
+once_cell = { workspace = true }

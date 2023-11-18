@@ -5,14 +5,11 @@ edition = "2021"
 
 [dependencies]
 # ui
-chipbox-ui-spinner = { path = "../spinner" }
-chipbox-ui-panel = { path = "../panel" }
+chipbox-ui-spinner = { workspace = true }
+chipbox-ui-panel = { workspace = true }
 # deps
-chipbox-glue = { path = "../../glue" }
-chipbox-common = { path = "../../common" }
-yew = { version = "0.21.0", features = ["csr"] }
-tracing = "0.1.40"
-const_format = { version = "0.2.32", features = [
-    "nightly_const_generics",
-    "fmt",
-] }
+chipbox-glue = { workspace = true }
+chipbox-common = { workspace = true }
+yew = { workspace = true }
+tracing = { workspace = true }
+const_format = { workspace = true }

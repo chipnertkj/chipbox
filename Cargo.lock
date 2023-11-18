@@ -93,13 +93,14 @@ checksum = "d301b3b94cb4b2f23d7917810addbbaff90738e0ca2be692bd027e70d7e0330c"
 [[package]]
 name = "asio-sys"
 version = "0.2.1"
-source = "git+https://github.com/RustAudio/cpal#3a449538b7d263138455f5669685e7b2e50ac28d"
+source = "git+https://github.com/RustAudio/cpal#efa0c7af6b997cbdab3b95e5d792717503ef1667"
 dependencies = [
  "bindgen",
  "cc",
- "num-derive",
+ "num-derive 0.4.1",
  "num-traits",
  "once_cell",
+ "parse_cfg",
  "walkdir",
 ]
 
@@ -171,9 +172,9 @@ dependencies = [
 
 [[package]]
 name = "bindgen"
-version = "0.68.1"
+version = "0.69.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "726e4313eb6ec35d2730258ad4e15b547ee75d6afaa1361a922e78e59b7d8078"
+checksum = "9ffcebc3849946a7170a05992aac39da343a90676ab392c51a4280981d6379c2"
 dependencies = [
  "bitflags 2.4.1",
  "cexpr",
@@ -394,6 +395,20 @@ dependencies = [
 name = "chipbox-backend"
 version = "0.0.0"
 dependencies = [
+ "chipbox-backend-lib",
+ "chipbox-glue",
+ "color-eyre",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-window-state",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
+name = "chipbox-backend-lib"
+version = "0.0.0"
+dependencies = [
  "chipbox-common",
  "color-eyre",
  "cpal",
@@ -402,9 +417,6 @@ dependencies = [
  "once_cell",
  "serde",
  "serde_json",
- "tauri",
- "tauri-build",
- "tauri-plugin-window-state",
  "tokio",
  "tracing",
  "tracing-subscriber",
@@ -422,7 +434,7 @@ dependencies = [
 name = "chipbox-glue"
 version = "0.0.0"
 dependencies = [
- "chipbox-backend",
+ "chipbox-backend-lib",
  "chipbox-common",
  "js-sys",
  "serde",
@@ -539,9 +551,9 @@ dependencies = [
 
 [[package]]
 name = "color-spantrace"
-version = "0.2.0"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1ba75b3d9449ecdccb27ecbc479fdc0b87fa2dd43d2f8298f9bf0e59aacc8dce"
+checksum = "cd6be1b2a7e382e2b98b43b2adcca6bb0e465af0bdd38123873ae61eb17a72c2"
 dependencies = [
  "once_cell",
  "owo-colors",
@@ -655,9 +667,9 @@ dependencies = [
 
 [[package]]
 name = "coreaudio-sys"
-version = "0.2.13"
+version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d8478e5bdad14dce236b9898ea002eabfa87cbe14f0aa538dbe3b6a4bec4332d"
+checksum = "f3120ebb80a9de008e638ad833d4127d50ea3d3a960ea23ea69bc66d9358a028"
 dependencies = [
  "bindgen",
 ]
@@ -665,7 +677,7 @@ dependencies = [
 [[package]]
 name = "cpal"
 version = "0.15.2"
-source = "git+https://github.com/RustAudio/cpal#3a449538b7d263138455f5669685e7b2e50ac28d"
+source = "git+https://github.com/RustAudio/cpal#efa0c7af6b997cbdab3b95e5d792717503ef1667"
 dependencies = [
  "alsa",
  "asio-sys",
@@ -947,9 +959,9 @@ dependencies = [
 
 [[package]]
 name = "eyre"
-version = "0.6.8"
+version = "0.6.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c2b6b5a29c02cdc822728b7d7b8ae1bab3e3b05d44522770ddd49722eeac7eb"
+checksum = "80f656be11ddf91bd709454d15d5bd896fbaf4cc3314e69349e4d1569f5b46cd"
 dependencies = [
  "indenter",
  "once_cell",
@@ -2474,6 +2486,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "num-derive"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cfb77679af88f8b125209d354a202862602672222e7f2313fdd6dc349bad4712"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.39",
+]
+
+[[package]]
 name = "num-integer"
 version = "0.1.45"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2580,7 +2603,7 @@ dependencies = [
  "jni 0.20.0",
  "ndk 0.7.0",
  "ndk-context",
- "num-derive",
+ "num-derive 0.3.3",
  "num-traits",
  "oboe-sys",
 ]
@@ -2693,6 +2716,15 @@ dependencies = [
  "redox_syscall 0.4.1",
  "smallvec",
  "windows-targets",
+]
+
+[[package]]
+name = "parse_cfg"
+version = "4.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "905787a434a2c721408e7c9a252e85f3d93ca0f118a5283022636c0e05a7ea49"
+dependencies = [
+ "nom",
 ]
 
 [[package]]
@@ -4150,7 +4182,6 @@ dependencies = [
  "sharded-slab",
  "smallvec",
  "thread_local",
- "time",
  "tracing",
  "tracing-core",
  "tracing-log",

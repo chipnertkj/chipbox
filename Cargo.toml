@@ -11,11 +11,73 @@ categories = ["multimedia::audio"]
 keywords = ["daw", "music", "vst", "clap", "audio"]
 description = "Open-source DAW with a node graph system."
 
+[lib]
+name = "chipbox"
+path = "src/lib.rs"
+
+[[bin]]
+name = "chipbox"
+path = "src/main.rs"
+
 [badges]
 maintenance = { status = "actively-developed" }
 
 [workspace]
-members = ["backend", "glue", "common", "ui/app", "ui/spinner"]
+members = [
+    # chipbox members
+    "backend",
+    "glue",
+    "common",
+    # ui members
+    "ui/app",
+    "ui/panel",
+    "ui/spinner",
+]
+
+[workspace.dependencies]
+# chipbox deps
+chipbox-backend = { path = "backend" }
+chipbox-backend-lib = { path = "backend/lib" }
+chipbox-glue = { path = "glue" }
+chipbox-common = { path = "common" }
+# ui deps
+chipbox-ui-app = { path = "ui/app" }
+chipbox-ui-panel = { path = "ui/panel" }
+chipbox-ui-spinner = { path = "ui/spinner" }
+# deps
+tracing = "0.1"
+tracing-subscriber = { version = "0.3" }
+tracing-web = "0.1"
+console_error_panic_hook = "0.1"
+const_format = { version = "0.2", features = ["fmt"] }
+tauri-build = "1.5"
+tauri = { version = "1.5", features = ["shell-open"] }
+tauri-plugin-window-state = "0.1"
+tokio = { version = "1.29", features = [
+    "macros",
+    "fs",
+    "tracing",
+    "time",
+    "sync",
+] }
+yew = { version = "0.21", features = ["csr"] }
+wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
+wasm-bindgen-futures = { version = "0.4" }
+wasm-timer = { version = "0.2" }
+serde-wasm-bindgen = { version = "0.6" }
+js-sys = { version = "0.3" }
+serde = { version = "1.0", features = ["derive", "rc"] }
+serde_json = "1.0"
+cpal = { git = "https://github.com/RustAudio/cpal", features = [
+    "asio",
+    "jack",
+] }
+color-eyre = "0.6"
+home = { version = "0.5" }
+gen_value = "0.7"
+once_cell = "1.18"
+chrono = { version = "0.4", features = ["serde"] }
+web-sys = "0.3"
 
 # Low optimization.
 [profile.dev]
@@ -51,14 +113,14 @@ debug = "full"
 
 [dependencies]
 # workspace deps
-chipbox-glue = { path = "glue", features = ["frontend"] }
-chipbox-common = { path = "common" }
+chipbox-common = { workspace = true }
+chipbox-glue = { workspace = true, features = ["frontend"] }
 # ui deps
-chipbox-ui-app = { path = "ui/app" }
+chipbox-ui-app = { workspace = true }
 # deps
-yew = { version = "0.21", features = ["csr"] }
-tracing = "0.1"
-tracing-subscriber = { version = "0.3" }
-tracing-web = "0.1"
-console_error_panic_hook = "0.1"
-const_format = { version = "0.2", features = ["fmt"] }
+const_format = { workspace = true }
+yew = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+tracing-web = { workspace = true }
+console_error_panic_hook = { workspace = true }

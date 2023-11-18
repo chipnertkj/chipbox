@@ -4,6 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-yew = { version = "0.21.0", features = ["csr"] }
-tracing = "0.1.40"
-web-sys = "0.3.61"
+yew = { workspace = true }
+tracing = { workspace = true }
+web-sys = { workspace = true }

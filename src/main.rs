@@ -1,4 +1,3 @@
-use chipbox_lib as lib;
 use tracing_subscriber::layer::SubscriberExt as _;
 use tracing_subscriber::util::SubscriberInitExt as _;
 
