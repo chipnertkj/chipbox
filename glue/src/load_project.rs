@@ -24,11 +24,13 @@ pub enum LoadProjectInfo {
 
 #[cfg(feature = "backend")]
 #[tauri::command]
-pub(crate) async fn load_project(
+pub(crate) fn load_project(
     state: tauri::State<'_, backend_lib::ManagedApp>,
     info: LoadProjectInfo,
 ) -> Result<(), Error> {
-    let mut backend_app = state.arc.lock().await;
+    use tauri::async_runtime;
+
+    let mut backend_app = async_runtime::block_on(state.arc.lock());
     match &mut *backend_app {
         backend_lib::App::ProjectSelection(project_selection) => match info {
             LoadProjectInfo::New => {

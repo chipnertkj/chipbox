@@ -2,7 +2,7 @@ use crate::ConfiguredState;
 use chipbox_common as common;
 use common::project::ProjectMeta;
 
-mod audio_engine;
+pub mod audio_engine;
 
 pub struct Editor {
     pub settings: common::Settings,

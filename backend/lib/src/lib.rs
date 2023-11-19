@@ -1,12 +1,13 @@
 #![feature(try_find)]
 
 pub use configured_state::ConfiguredState;
+pub use editor::audio_engine::stream_handle;
 pub use editor::Editor;
 pub use project_selection::ProjectSelection;
 pub use setup::Setup;
-use tokio::sync::Mutex;
-use std::sync::Arc;
 
+use std::sync::Arc;
+use tokio::sync::Mutex;
 mod configured_state;
 mod editor;
 mod error;

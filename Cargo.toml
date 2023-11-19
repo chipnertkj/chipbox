@@ -11,14 +11,6 @@ categories = ["multimedia::audio"]
 keywords = ["daw", "music", "vst", "clap", "audio"]
 description = "Open-source DAW with a node graph system."
 
-[lib]
-name = "chipbox"
-path = "src/lib.rs"
-
-[[bin]]
-name = "chipbox"
-path = "src/main.rs"
-
 [badges]
 maintenance = { status = "actively-developed" }
 

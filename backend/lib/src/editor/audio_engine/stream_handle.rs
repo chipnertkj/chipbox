@@ -1,5 +1,5 @@
 use gen_value::vec::GenVec;
-pub use thread_local::{with_streams, with_streams_mut};
+pub use thread_local::{init_streams, with_streams, with_streams_mut};
 
 type StreamIdxProd = usize;
 pub type StreamIdx = (StreamIdxProd, StreamIdxProd);
@@ -59,42 +59,101 @@ impl From<StreamsGenVec> for Streams {
     }
 }
 
-impl Drop for StreamHandle {
-    fn drop(&mut self) {
-        tracing::info!("dropping stream handle: `{:?}`", self);
-        with_streams_mut(|streams| {
-            streams
-                .remove(self.idx)
-                .unwrap_or_else(|e| {
-                    tracing::error!("unable to remove stream: {}", e)
-                });
-            tracing::info!(
-                "stream removed from thread-local storage: `{:?}`",
-                self
-            );
-        });
-    }
-}
-
 mod thread_local {
+    impl Drop for super::StreamHandle {
+        fn drop(&mut self) {
+            tracing::info!("dropping stream handle: `{:?}`", self);
+            let _ = STREAMS.try_with(|streams| {
+                match &mut *streams.borrow_mut() {
+                    Some(streams) => {
+                        let _ = streams.remove(self.idx);
+                    }
+                    None => {} // STREAMS thread-local already dropped
+                };
+            });
+        }
+    }
+
     use super::Streams;
     use std::cell::RefCell;
+    use std::sync::Mutex;
 
     pub fn with_streams<F, T>(f: F) -> T
     where
         F: FnOnce(&Streams) -> T,
     {
-        STREAMS.with(|x| f(&x.borrow()))
+        verify_thread_id();
+        STREAMS.with(|x| match &*x.borrow() {
+            Some(x) => f(x),
+            None => panic!(
+                "STREAMS thread-local accessed but not initialized on thread {:?}",
+                std::thread::current().id()
+            ),
+        })
     }
 
     pub fn with_streams_mut<F, T>(f: F) -> T
     where
         F: FnOnce(&mut Streams) -> T,
     {
-        STREAMS.with(|x| f(&mut x.borrow_mut()))
+        verify_thread_id();
+        STREAMS.with(|x| match &mut *x.borrow_mut() {
+            Some(x) => f(x),
+            None => panic!(
+                "STREAMS thread-local accessed but not initialized on thread {:?}",
+                std::thread::current().id()
+            ),
+        })
     }
 
+    pub fn init_streams() {
+        tracing::info!("initializing thread-local storage for streams");
+        STREAMS.with_borrow_mut(|streams_opt| {
+            let mut stream_thread_id = STREAM_THREAD_ID
+                .lock()
+                .unwrap();
+            match &*stream_thread_id
+            {
+                Some(thread_id) => {
+                    panic!(
+                        "STREAMS thread-local already initialized on thread {thread_id:?}",
+                    );
+                }
+                None => {
+                    let current_thread_id = std::thread::current().id();
+                    *stream_thread_id = Some(current_thread_id);
+                    *streams_opt = Some(Default::default());
+                    tracing::info!(
+                        "initialized STREAMS thread-local on thread {current_thread_id:?}",
+                    );
+                }
+            }
+        });
+    }
+
+    fn verify_thread_id() {
+        let current_thread_id = std::thread::current().id();
+        let stream_thread_id = STREAM_THREAD_ID
+            .lock()
+            .unwrap();
+        match &*stream_thread_id {
+            Some(stream_thread_id) => assert_eq!(
+                current_thread_id,
+                *stream_thread_id,
+                "STREAMS thread-local initialized on thread {stream_thread_id:?}, \
+                but accessed from thread {current_thread_id:?}",
+            ),
+            None => panic!(
+                "STREAMS thread-local not initialized on thread {:?}",
+                std::thread::current().id()
+            ),
+        }
+    }
+
+    static STREAM_THREAD_ID: Mutex<Option<std::thread::ThreadId>> =
+        Mutex::new(None);
+
     thread_local! {
-        static STREAMS: RefCell<Streams> = RefCell::new(Default::default());
+        static STREAMS: RefCell<Option<Streams>> = RefCell::new(None);
     }
 }

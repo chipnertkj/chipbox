@@ -12,7 +12,7 @@ mod device;
 mod error;
 mod host_id;
 mod stream_config;
-mod stream_handle;
+pub mod stream_handle;
 
 /// Represents a configuration of the AudioEngine.
 pub struct AudioEngineConfig {

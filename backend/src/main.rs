@@ -39,10 +39,17 @@ fn ready(managed_app: backend_lib::ManagedApp) {
 /// Application entry point.
 /// Initialize `color_eyre`, `tracing-subscriber` and `tauri`.
 fn main() -> eyre::Result<()> {
+    // install color-eyre
     color_eyre::install()?;
-    tracing_subscriber::fmt::SubscriberBuilder::default()
+    // install subscriber
+    let subscriber = tracing_subscriber::fmt()
         .with_max_level(tracing::Level::TRACE)
-        .init();
+        .finish();
+    tracing::subscriber::set_global_default(subscriber)?;
+    // init thread-local storage on main thread
+    backend_lib::stream_handle::init_streams();
+    // start app
     tauri_app().run(run);
+    // ok
     Ok(())
 }
