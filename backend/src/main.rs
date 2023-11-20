@@ -14,6 +14,8 @@ fn tauri_app() -> tauri::App {
         .plugin(window_plugin)
         .glue_invoke_handler() // See `glue::handler::BuilderGlue`.
         .build(tauri::generate_context!())
+        // Something went wrong while starting up.
+        // Panic.
         .expect("error while building `tauri::App`")
 }
 

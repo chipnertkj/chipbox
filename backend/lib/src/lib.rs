@@ -10,8 +10,10 @@ pub use setup::Setup;
 
 use std::sync::Arc;
 use tokio::sync::Mutex;
+
+pub mod editor;
+
 mod configured_state;
-mod editor;
 mod error;
 mod project_selection;
 mod settings;

@@ -5,14 +5,21 @@ use chipbox_common::project::ProjectPath;
 #[derive(serde::Serialize, serde::Deserialize, Debug, PartialEq)]
 pub enum Error {
     NotApplicable,
-    IO,
+    AudioEngine(String),
+    PlayStream(String),
 }
 
 impl std::error::Error for Error {}
 
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "`load_project` is N/A in this context")
+        match self {
+            Self::NotApplicable => {
+                write!(f, "`load_project` is N/A in this context")
+            }
+            Self::AudioEngine(e) => write!(f, "editor error: {e}"),
+            Self::PlayStream(e) => write!(f, "playback error: {e}"),
+        }
     }
 }
 
@@ -37,9 +44,25 @@ pub(crate) fn load_project(
                 let settings = project_selection
                     .settings
                     .clone();
-                let editor = backend_lib::Editor::from_settings(settings);
-                *backend_app = backend_lib::App::Editor(Box::new(editor));
-                Ok(())
+                let editor_result =
+                    backend_lib::Editor::from_settings(settings);
+                match editor_result {
+                    Ok(editor) => {
+                        *backend_app =
+                            backend_lib::App::Editor(Box::new(editor));
+                        Ok(())
+                    }
+                    Err(backend_lib::editor::Error::PlayStream {
+                        editor,
+                        e,
+                    }) => {
+                        *backend_app = backend_lib::App::Editor(editor);
+                        Err(Error::PlayStream(e.to_string()))
+                    }
+                    Err(backend_lib::editor::Error::AudioEngine(e)) => {
+                        Err(Error::AudioEngine(e.to_string()))
+                    }
+                }
             }
             LoadProjectInfo::Load(_project_path) => {
                 todo!();

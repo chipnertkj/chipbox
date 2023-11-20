@@ -39,6 +39,7 @@ where
     // Invoke query with private `Infallible` type.
     invoke_query::<T, Infallible, Args>(cmd, args)
         .await
+        // If this happens, you're misusing the function.
         .expect("infallible")
 }
 
@@ -73,6 +74,8 @@ where
 
     // Serialize query arguments.
     let args = serde_wasm_bindgen::to_value(args)
+        // Invalid arguments struct.
+        // Verify that serialization is set up correctly.
         .expect("{cmd_pretty}: Unable to serialize query arguments.");
     // Invoke backend command.
     let backend_result = invoke(cmd, args).await;

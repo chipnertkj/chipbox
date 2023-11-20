@@ -15,7 +15,9 @@ pub(super) fn Setup(props: &Props) -> yew::Html {
     let Props { state } = props;
 
     // Acquire app context.
-    let mut app_ctx = use_context::<AppContext>().expect("no app context");
+    let mut app_ctx = use_context::<AppContext>()
+        // App context should be available at this point.
+        .expect("no app context");
 
     // Update context settings.
     set_default_ctx_settings(&mut app_ctx);

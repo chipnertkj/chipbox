@@ -1,7 +1,6 @@
 pub use self::error::{ResetDeviceError, ResetStreamError, SettingsError};
 
 use self::buffer::{Buffer, BufferConfig, Consumer, MonoFrame, StereoFrame};
-use self::device::Error;
 use self::host_id::HostId;
 use self::stream_config::{SampleFormat, StreamConfig};
 use self::stream_handle::StreamHandle;
@@ -36,33 +35,61 @@ pub struct AudioEngine {
     output_buffer: Buffer,
 }
 
+#[derive(Debug)]
+pub enum Error {
+    Settings(SettingsError),
+    HostUnavailable(cpal::HostUnavailable),
+}
+
+impl std::error::Error for Error {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match self {
+            Self::Settings(e) => Some(e),
+            Self::HostUnavailable(e) => Some(e),
+        }
+    }
+}
+
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Settings(e) => e.fmt(f),
+            Self::HostUnavailable(e) => e.fmt(f),
+        }
+    }
+}
+
 impl AudioEngine {
     /// Creates an `AudioEngine` instance from the given audio engine `Settings`.
-    pub fn from_settings(settings: &Settings) -> Result<Self, SettingsError> {
+    pub fn from_settings(settings: &Settings) -> Result<Self, Error> {
         // Read HostId and open Host.
         let host_id = HostId::try_from(&settings.host)
-            .map_err(SettingsError::HostIdParse)?;
-        let host =
-            cpal::host_from_id(host_id.into()).expect("unable to get host");
+            .map_err(|e| Error::Settings(SettingsError::HostIdParse(e)))?;
+        let host = cpal::host_from_id(host_id.into())
+            .map_err(Error::HostUnavailable)?;
 
         // Open output device.
         let output_device = Self::output_device(&host, &settings.output_device)
             .map_err(|e| {
-                SettingsError::InvalidStreamConfig(
+                Error::Settings(SettingsError::InvalidStreamConfig(
                     stream_config::Error::Device(e),
-                )
+                ))
             })?;
 
         // Get output stream config.
         let output_stream_config =
             StreamConfig::from_settings(&settings.output_stream_config)
-                .map_err(SettingsError::StreamConfigParse)?;
+                .map_err(|e| {
+                    Error::Settings(SettingsError::StreamConfigParse(e))
+                })?;
         let supported_output_stream_config =
             Self::supported_output_stream_config(
                 &output_device,
                 &output_stream_config,
             )
-            .map_err(SettingsError::InvalidStreamConfig)?;
+            .map_err(|e| {
+                Error::Settings(SettingsError::InvalidStreamConfig(e))
+            })?;
 
         // Calculate frame count in buffer.
         let cpal::SampleRate(sample_rate) =
@@ -83,8 +110,10 @@ impl AudioEngine {
                     length: buffer_length,
                 },
                 n => {
-                    return Err(SettingsError::InvalidStreamConfig(
-                        stream_config::Error::UnsupportedChannelCount(n),
+                    return Err(Error::Settings(
+                        SettingsError::InvalidStreamConfig(
+                            stream_config::Error::UnsupportedChannelCount(n),
+                        ),
                     ))
                 }
             };
@@ -109,7 +138,7 @@ impl AudioEngine {
             &supported_output_stream_config,
             consumer,
         )
-        .map_err(SettingsError::InvalidStreamConfig)?;
+        .map_err(|e| Error::Settings(SettingsError::InvalidStreamConfig(e)))?;
         let output_stream_handle = Self::add_thread_local_stream(output_stream);
 
         // Construct.
@@ -190,7 +219,8 @@ impl AudioEngine {
     fn add_thread_local_stream(stream: cpal::Stream) -> StreamHandle {
         stream_handle::with_streams_mut(|streams| {
             streams.insert(stream)
-            // Unlikely (max index is usize^2-1), but panic on overflow.
+            // Unlikely (max index is usize^2-1).
+            // Panic on overflow.
             .expect(
                 "unable to insert stream due to generational index overflow",
             )
@@ -205,6 +235,7 @@ impl AudioEngine {
         stream_handle::with_streams(|streams| {
             let stream = streams
                 .get(&self.output_stream_handle)
+                // Panic. Why are you accessing an invalid stream?
                 .expect("stream not found");
             f(stream)
         })
@@ -235,9 +266,9 @@ impl AudioEngine {
                 let supported_configs = output_device
                     .supported_output_configs()
                     .map_err(|x| {
-                        stream_config::Error::Device(Error::Disconnected(
-                            Box::new(x),
-                        ))
+                        stream_config::Error::Device(
+                            device::Error::Disconnected(Box::new(x)),
+                        )
                     })?;
                 // Find a config that matches the requested parameters.
                 supported_configs
@@ -496,31 +527,31 @@ impl AudioEngine {
     fn output_device(
         host: &cpal::Host,
         device_selection: &SelectedDevice,
-    ) -> Result<cpal::Device, Error> {
+    ) -> Result<cpal::Device, device::Error> {
         match &device_selection {
             // Open default output device.
             SelectedDevice::Default => host
                 .default_output_device()
-                .ok_or(Error::NoDefault),
+                .ok_or(device::Error::NoDefault),
             // Open output device with matching name.
             // In case of multiple matches, the first one is selected.
             // TODO: Do any of the platforms allow for duplicate names?
             SelectedDevice::Named(name) => host
                 .output_devices()
-                .map_err(|x| Error::Other(Box::new(x)))?
+                .map_err(|x| device::Error::Other(Box::new(x)))?
                 .try_find(|d| {
                     Ok(&d
                         .name()
-                        .map_err(|x| Error::Other(Box::new(x)))?
+                        .map_err(|x| device::Error::Other(Box::new(x)))?
                         == name)
                 })?
-                .ok_or(Error::NoMatch),
+                .ok_or(device::Error::NoMatch),
         }
     }
 }
 
 impl TryFrom<&Settings> for AudioEngine {
-    type Error = SettingsError;
+    type Error = Error;
     fn try_from(value: &Settings) -> Result<Self, Self::Error> {
         Self::from_settings(value)
     }
