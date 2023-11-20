@@ -14,11 +14,12 @@ pub struct Editor {
 impl Editor {
     /// Creates an `Editor` instance from the given app `Settings`.
     pub fn from_settings(settings: common::Settings) -> Self {
+        let mut audio_engine =
+            audio_engine::AudioEngine::from_settings(&settings.audio_engine)
+                .expect("failed to create audio engine");
+        audio_engine.play().unwrap();
         Self {
-            audio_engine: audio_engine::AudioEngine::from_settings(
-                &settings.audio_engine,
-            )
-            .expect("failed to create audio engine"),
+            audio_engine,
             settings,
             project: common::Project::default(),
             project_meta_opt: None,

@@ -1,4 +1,6 @@
 #![feature(try_find)]
+#![feature(const_for)]
+#![feature(const_trait_impl)]
 
 pub use configured_state::ConfiguredState;
 pub use editor::audio_engine::stream_handle;

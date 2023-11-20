@@ -1,5 +1,6 @@
 pub use self::error::{ResetDeviceError, ResetStreamError, SettingsError};
 
+use self::buffer::{Buffer, BufferConfig, Consumer, MonoFrame, StereoFrame};
 use self::device::Error;
 use self::host_id::HostId;
 use self::stream_config::{SampleFormat, StreamConfig};
@@ -7,11 +8,15 @@ use self::stream_handle::StreamHandle;
 use chipbox_common as common;
 use common::audio_engine::{SelectedDevice, Settings};
 use cpal::traits::{DeviceTrait as _, HostTrait, StreamTrait as _};
+use cpal::Sample;
+use rb::RbConsumer;
 
+mod buffer;
 mod device;
 mod error;
 mod host_id;
 mod stream_config;
+
 pub mod stream_handle;
 
 /// Represents a configuration of the AudioEngine.
@@ -19,6 +24,7 @@ pub struct AudioEngineConfig {
     pub host_id: HostId,
     pub selected_device: SelectedDevice,
     pub output_stream: StreamConfig,
+    pub output_buffer_config: BufferConfig,
     pub playing: bool,
 }
 
@@ -27,6 +33,7 @@ pub struct AudioEngine {
     output_device: cpal::Device,
     output_stream_handle: StreamHandle,
     config: AudioEngineConfig,
+    output_buffer: Buffer,
 }
 
 impl AudioEngine {
@@ -46,22 +53,59 @@ impl AudioEngine {
                 )
             })?;
 
-        // Create output stream.
+        // Get output stream config.
         let output_stream_config =
             StreamConfig::from_settings(&settings.output_stream_config)
                 .map_err(SettingsError::StreamConfigParse)?;
-        let output_stream =
-            Self::create_output_stream(&output_device, &output_stream_config)
-                .map_err(SettingsError::InvalidStreamConfig)?;
-        let output_stream_handle = Self::add_thread_local_stream(output_stream);
+        let supported_output_stream_config =
+            Self::supported_output_stream_config(
+                &output_device,
+                &output_stream_config,
+            )
+            .map_err(SettingsError::InvalidStreamConfig)?;
+
+        // Prepare buffer config.
+        let output_buffer_config =
+            match supported_output_stream_config.channels() {
+                MonoFrame::CHANNEL_COUNT => BufferConfig::Mono {
+                    length: settings
+                        .output_stream_config
+                        .buffer_size(),
+                },
+                StereoFrame::CHANNEL_COUNT => BufferConfig::Stereo {
+                    length: settings
+                        .output_stream_config
+                        .buffer_size(),
+                },
+                n => {
+                    return Err(SettingsError::InvalidStreamConfig(
+                        stream_config::Error::UnsupportedChannelCount(n),
+                    ))
+                }
+            };
 
         // Prepare engine config.
         let config = AudioEngineConfig {
             host_id,
             selected_device: settings.output_device.clone(),
+            output_buffer_config,
             output_stream: output_stream_config,
             playing: false,
         };
+
+        // Construct buffer.
+        let mut output_buffer =
+            Buffer::from_config(&config.output_buffer_config);
+        let consumer = output_buffer.consumer();
+
+        // Create output stream.
+        let output_stream = Self::create_output_stream(
+            &output_device,
+            &supported_output_stream_config,
+            consumer,
+        )
+        .map_err(SettingsError::InvalidStreamConfig)?;
+        let output_stream_handle = Self::add_thread_local_stream(output_stream);
 
         // Construct.
         tracing::info!("created audio engine from settings: `{:?}`", settings);
@@ -69,6 +113,7 @@ impl AudioEngine {
             host,
             output_device,
             output_stream_handle,
+            output_buffer,
             config,
         })
     }
@@ -111,13 +156,20 @@ impl AudioEngine {
     /// Resets the output stream.
     pub fn reset_output_stream(&mut self) -> Result<(), ResetStreamError> {
         tracing::info!("resetting output stream");
+        let supported_output_stream_config =
+            Self::supported_output_stream_config(
+                &self.output_device,
+                &self.config.output_stream,
+            )
+            .map_err(ResetStreamError::Config)?;
         // This replaces the stream handle with a new one.
         // The handle removes the old stream from the thread-local
         // storage on drop.
         self.output_stream_handle = Self::add_thread_local_stream(
             Self::create_output_stream(
                 &self.output_device,
-                &self.config.output_stream,
+                &supported_output_stream_config,
+                self.output_buffer.consumer(),
             )
             .map_err(ResetStreamError::Config)?,
         );
@@ -153,11 +205,10 @@ impl AudioEngine {
         })
     }
 
-    // Helper function for creating an output stream based on the given `StreamConfig`.
-    fn create_output_stream(
+    fn supported_output_stream_config(
         output_device: &cpal::Device,
         expected_stream_config: &StreamConfig,
-    ) -> Result<cpal::Stream, stream_config::Error> {
+    ) -> Result<cpal::SupportedStreamConfig, stream_config::Error> {
         // Get a supported config.
         let supported_config = match expected_stream_config {
             // Get default output device config.
@@ -167,7 +218,7 @@ impl AudioEngine {
                     stream_config::Error::Device(device::Error::Other(
                         Box::new(e),
                     ))
-                }),
+                })?,
             // Read custom output stream config.
             StreamConfig::Custom {
                 sample_format,
@@ -184,7 +235,7 @@ impl AudioEngine {
                         ))
                     })?;
                 // Find a config that matches the requested parameters.
-                let supported_config = supported_configs
+                supported_configs
                     .into_iter()
                     .find(|x| {
                         x.channels() == *channels
@@ -193,23 +244,247 @@ impl AudioEngine {
                             && x.sample_format() == *sample_format
                     })
                     .ok_or(stream_config::Error::NoMatchingConfig)?
-                    .with_sample_rate(*sample_rate);
-                // Ok!
-                Ok(supported_config)
+                    .with_sample_rate(*sample_rate)
             }
-        }?;
-        // Build output stream.
-        let stream = output_device
-            .build_output_stream_raw(
-                &supported_config.config(),
-                supported_config.sample_format(),
-                |_, _| {},
-                |_| {},
-                None,
+        };
+        // Check if the channel count is supported.
+        let channel_count = supported_config.channels();
+        if !Buffer::SUPPORTED_CHANNEL_COUNTS.contains(&channel_count) {
+            Err(stream_config::Error::UnsupportedChannelCount(channel_count))
+        } else {
+            Ok(supported_config)
+        }
+    }
+
+    // Helper function for creating an output stream based on the given `StreamConfig`.
+    fn create_output_stream(
+        output_device: &cpal::Device,
+        supported_config: &cpal::SupportedStreamConfig,
+        consumer: Consumer,
+    ) -> Result<cpal::Stream, stream_config::Error> {
+        // Check if the channel count is supported.
+        let channel_count = supported_config.channels();
+        if !Buffer::SUPPORTED_CHANNEL_COUNTS.contains(&channel_count) {
+            Err(stream_config::Error::UnsupportedChannelCount(channel_count))
+        } else {
+            // Build output stream.
+            let stream = Self::build_output_stream(
+                output_device,
+                supported_config,
+                consumer,
             )
             .map_err(|x| stream_config::Error::Other(Box::new(x)))?;
-        // Ok!
-        Ok(stream)
+            // Ok!
+            tracing::info!(
+                "created output stream with config: {:?}",
+                supported_config
+            );
+            Ok(stream)
+        }
+    }
+
+    fn build_output_stream(
+        output_device: &cpal::Device,
+        supported_config: &cpal::SupportedStreamConfig,
+        mut consumer: Consumer,
+    ) -> Result<cpal::Stream, cpal::BuildStreamError> {
+        let config = supported_config.config();
+        let sample_format = supported_config.sample_format();
+        let channel_count = supported_config.channels();
+        match sample_format {
+            // Special case: f64 matches the memory layout of our buffer.
+            cpal::SampleFormat::F64 => output_device.build_output_stream(
+                &config,
+                move |data: &mut [f64], _info| {
+                    Self::output_callback_f64(
+                        data,
+                        &mut consumer,
+                        channel_count,
+                    )
+                },
+                Self::output_error_callback,
+                None,
+            ),
+            // Rest of the cases has to convert samples manually.
+            cpal::SampleFormat::F32 => output_device.build_output_stream(
+                &config,
+                move |data: &mut [f32], _info| {
+                    Self::output_callback::<f32>(
+                        data,
+                        &mut consumer,
+                        channel_count,
+                    )
+                },
+                Self::output_error_callback,
+                None,
+            ),
+            cpal::SampleFormat::I8 => output_device.build_output_stream(
+                &config,
+                move |data: &mut [i8], _info| {
+                    Self::output_callback::<i8>(
+                        data,
+                        &mut consumer,
+                        channel_count,
+                    )
+                },
+                Self::output_error_callback,
+                None,
+            ),
+            cpal::SampleFormat::I16 => output_device.build_output_stream(
+                &config,
+                move |data: &mut [i16], _info| {
+                    Self::output_callback::<i16>(
+                        data,
+                        &mut consumer,
+                        channel_count,
+                    )
+                },
+                Self::output_error_callback,
+                None,
+            ),
+            cpal::SampleFormat::I32 => output_device.build_output_stream(
+                &config,
+                move |data: &mut [i32], _info| {
+                    Self::output_callback::<i32>(
+                        data,
+                        &mut consumer,
+                        channel_count,
+                    )
+                },
+                Self::output_error_callback,
+                None,
+            ),
+            cpal::SampleFormat::I64 => output_device.build_output_stream(
+                &config,
+                move |data: &mut [i64], _info| {
+                    Self::output_callback::<i64>(
+                        data,
+                        &mut consumer,
+                        channel_count,
+                    )
+                },
+                Self::output_error_callback,
+                None,
+            ),
+            cpal::SampleFormat::U8 => output_device.build_output_stream(
+                &config,
+                move |data: &mut [u8], _info| {
+                    Self::output_callback::<u8>(
+                        data,
+                        &mut consumer,
+                        channel_count,
+                    )
+                },
+                Self::output_error_callback,
+                None,
+            ),
+            cpal::SampleFormat::U16 => output_device.build_output_stream(
+                &config,
+                move |data: &mut [u16], _info| {
+                    Self::output_callback::<u16>(
+                        data,
+                        &mut consumer,
+                        channel_count,
+                    )
+                },
+                Self::output_error_callback,
+                None,
+            ),
+            cpal::SampleFormat::U32 => output_device.build_output_stream(
+                &config,
+                move |data: &mut [u32], _info| {
+                    Self::output_callback::<u32>(
+                        data,
+                        &mut consumer,
+                        channel_count,
+                    )
+                },
+                Self::output_error_callback,
+                None,
+            ),
+            cpal::SampleFormat::U64 => output_device.build_output_stream(
+                &config,
+                move |data: &mut [u64], _info| {
+                    Self::output_callback::<u64>(
+                        data,
+                        &mut consumer,
+                        channel_count,
+                    )
+                },
+                Self::output_error_callback,
+                None,
+            ),
+            _ => todo!("unsupported sample format: {:?}", sample_format),
+        }
+    }
+
+    fn output_callback_f64(
+        data: &mut [f64],
+        consumer: &mut Consumer,
+        channel_count: cpal::ChannelCount,
+    ) {
+        match consumer {
+            Consumer::Mono(consumer)
+                if channel_count == MonoFrame::CHANNEL_COUNT =>
+            {
+                // reinterpret data as MonoFrame slice, as memory layout matches
+                let data = unsafe {
+                    std::slice::from_raw_parts_mut(
+                        data.as_ptr() as *mut MonoFrame,
+                        data.len(),
+                    )
+                };
+                let _result = consumer.read(data);
+            }
+            Consumer::Stereo(consumer)
+                if channel_count == StereoFrame::CHANNEL_COUNT =>
+            {
+                // reinterpret data as StereoFrame slice, as memory layout matches
+                let data = unsafe {
+                    std::slice::from_raw_parts_mut(
+                        data.as_ptr() as *mut StereoFrame,
+                        data.len(),
+                    )
+                };
+                let _result = consumer.read(data);
+            }
+            _ => unreachable!(),
+        }
+    }
+
+    fn output_callback<T>(
+        data: &mut [T],
+        consumer: &mut Consumer,
+        channel_count: cpal::ChannelCount,
+    ) where
+        T: cpal::Sample + cpal::FromSample<f64>,
+    {
+        match consumer {
+            Consumer::Mono(consumer)
+                if channel_count == MonoFrame::CHANNEL_COUNT =>
+            {
+                for sample in data {
+                    let read_frame = Default::default();
+                    let _result = consumer.read(&mut [read_frame]);
+                    *sample = read_frame.center.to_sample();
+                }
+            }
+            Consumer::Stereo(consumer)
+                if channel_count == StereoFrame::CHANNEL_COUNT =>
+            {
+                for frame in data.chunks_exact_mut(2) {
+                    let read_frame = Default::default();
+                    let _result = consumer.read(&mut [read_frame]);
+                    frame[0] = read_frame.left.to_sample();
+                    frame[1] = read_frame.right.to_sample();
+                }
+            }
+            _ => unreachable!(),
+        }
+    }
+
+    fn output_error_callback(err: cpal::StreamError) {
+        tracing::error!("output stream error: {}", err);
     }
 
     // Helper function for opening an output device based on the given device selector.

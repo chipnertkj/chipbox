@@ -8,6 +8,7 @@ mod sample_format;
 pub enum Error {
     Device(super::device::Error),
     NoMatchingConfig,
+    UnsupportedChannelCount(u16),
     Other(Box<dyn std::error::Error>),
 }
 
@@ -21,6 +22,9 @@ impl std::fmt::Display for Error {
                     "unable to find a matching stream config for this device"
                 )
             }
+            Error::UnsupportedChannelCount(e) => {
+                write!(f, "unsupported channel count: {e}")
+            }
             Error::Other(e) => write!(f, "{e}"),
         }
     }
@@ -31,6 +35,7 @@ impl std::error::Error for Error {
         match self {
             Error::Device(e) => Some(e),
             Error::NoMatchingConfig => None,
+            Error::UnsupportedChannelCount(_) => None,
             Error::Other(e) => Some(e.as_ref()),
         }
     }
@@ -81,6 +86,7 @@ impl TryFrom<&common::audio_engine::StreamConfig> for StreamConfig {
                 sample_format,
                 sample_rate,
                 channels,
+                buffer_size: _,
             } => {
                 let sample_format = SampleFormat::from_str(sample_format)
                     .map_err(ParseError::SampleFormat)?;

@@ -1,5 +1,7 @@
 use gen_value::vec::GenVec;
-pub use thread_local::{init_streams, with_streams, with_streams_mut};
+pub use thread_local::{
+    clear_streams, init_streams, with_streams, with_streams_mut,
+};
 
 type StreamIdxProd = usize;
 pub type StreamIdx = (StreamIdxProd, StreamIdxProd);
@@ -62,13 +64,21 @@ impl From<StreamsGenVec> for Streams {
 mod thread_local {
     impl Drop for super::StreamHandle {
         fn drop(&mut self) {
-            tracing::info!("dropping stream handle: `{:?}`", self);
             let _ = STREAMS.try_with(|streams| {
                 match &mut *streams.borrow_mut() {
                     Some(streams) => {
-                        let _ = streams.remove(self.idx);
+                        match streams.remove(self.idx) {
+                            Ok(_) => {
+                                tracing::info!("dropped stream. id: `{:?}`", self.idx);
+                            }
+                            Err(_) => {
+                                tracing::warn!("stream already dropped. id: `{:?}`", self.idx);
+                            }
+                        }
                     }
-                    None => {} // STREAMS thread-local already dropped
+                    None => {
+                        tracing::warn!("stream handle dropped while STREAMS not initialized. id: `{:?}`", self.idx);
+                    }
                 };
             });
         }
@@ -106,6 +116,25 @@ mod thread_local {
         })
     }
 
+    fn verify_thread_id() {
+        let current_thread_id = std::thread::current().id();
+        let stream_thread_id = STREAM_THREAD_ID
+            .lock()
+            .unwrap();
+        match &*stream_thread_id {
+            Some(stream_thread_id) => assert_eq!(
+                current_thread_id,
+                *stream_thread_id,
+                "STREAMS thread-local initialized on thread {stream_thread_id:?}, \
+                but accessed from thread {current_thread_id:?}",
+            ),
+            None => panic!(
+                "STREAMS thread-local not initialized on thread {:?}",
+                std::thread::current().id()
+            ),
+        }
+    }
+
     pub fn init_streams() {
         tracing::info!("initializing thread-local storage for streams");
         STREAMS.with_borrow_mut(|streams_opt| {
@@ -131,23 +160,18 @@ mod thread_local {
         });
     }
 
-    fn verify_thread_id() {
-        let current_thread_id = std::thread::current().id();
-        let stream_thread_id = STREAM_THREAD_ID
-            .lock()
-            .unwrap();
-        match &*stream_thread_id {
-            Some(stream_thread_id) => assert_eq!(
-                current_thread_id,
-                *stream_thread_id,
-                "STREAMS thread-local initialized on thread {stream_thread_id:?}, \
-                but accessed from thread {current_thread_id:?}",
-            ),
-            None => panic!(
-                "STREAMS thread-local not initialized on thread {:?}",
-                std::thread::current().id()
-            ),
-        }
+    pub fn clear_streams() {
+        tracing::info!("clearing thread-local storage for streams");
+        let stream_count = STREAMS.with(|x| {
+            x.borrow()
+                .as_ref()
+                .map(|x| x.inner.len())
+                .unwrap_or_default()
+        });
+        STREAMS.with_borrow_mut(|streams_opt| {
+            *streams_opt = None;
+        });
+        tracing::info!("removed streams: {stream_count}",);
     }
 
     static STREAM_THREAD_ID: Mutex<Option<std::thread::ThreadId>> =

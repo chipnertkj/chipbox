@@ -70,6 +70,7 @@ gen_value = "0.7"
 once_cell = "1.18"
 chrono = { version = "0.4", features = ["serde"] }
 web-sys = "0.3"
+rb = { version = "0.4.1" }
 
 # Low optimization.
 [profile.dev]

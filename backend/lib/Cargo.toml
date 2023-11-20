@@ -19,3 +19,6 @@ color-eyre = { workspace = true }
 home = { workspace = true }
 gen_value = { workspace = true }
 once_cell = { workspace = true }
+rb = { workspace = true }
+num-traits = "0.2.17"
+tauri.workspace = true

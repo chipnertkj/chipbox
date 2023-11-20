@@ -28,6 +28,17 @@ pub enum StreamConfig {
     Custom {
         sample_format: String,
         sample_rate: u32,
+        // Buffer size in frames.
+        buffer_size: usize,
         channels: u16,
     },
+}
+
+impl StreamConfig {
+    pub fn buffer_size(&self) -> usize {
+        match self {
+            StreamConfig::Default => 8,
+            StreamConfig::Custom { buffer_size, .. } => *buffer_size,
+        }
+    }
 }
