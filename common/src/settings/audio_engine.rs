@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
@@ -28,17 +30,18 @@ pub enum StreamConfig {
     Custom {
         sample_format: String,
         sample_rate: u32,
-        // Buffer size in frames.
-        buffer_size: usize,
+        buffer_duration: Duration,
         channels: u16,
     },
 }
 
 impl StreamConfig {
-    pub fn buffer_size(&self) -> usize {
+    pub fn buffer_duration(&self) -> Duration {
         match self {
-            StreamConfig::Default => 8,
-            StreamConfig::Custom { buffer_size, .. } => *buffer_size,
+            StreamConfig::Default => Duration::from_millis(150),
+            StreamConfig::Custom {
+                buffer_duration, ..
+            } => *buffer_duration,
         }
     }
 }

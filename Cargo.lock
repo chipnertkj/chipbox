@@ -414,7 +414,6 @@ dependencies = [
  "cpal",
  "gen_value",
  "home",
- "num-traits",
  "once_cell",
  "rb",
  "serde",

@@ -52,6 +52,14 @@ pub enum StreamConfig {
     },
 }
 
+impl StreamConfig {
+    pub fn from_settings(
+        settings: &common::audio_engine::StreamConfig,
+    ) -> Result<Self, ParseError> {
+        Self::try_from(settings)
+    }
+}
+
 #[derive(Debug)]
 pub enum ParseError {
     SampleFormat(sample_format::ParseError),
@@ -86,7 +94,7 @@ impl TryFrom<&common::audio_engine::StreamConfig> for StreamConfig {
                 sample_format,
                 sample_rate,
                 channels,
-                buffer_size: _,
+                buffer_duration: _,
             } => {
                 let sample_format = SampleFormat::from_str(sample_format)
                     .map_err(ParseError::SampleFormat)?;
@@ -97,13 +105,5 @@ impl TryFrom<&common::audio_engine::StreamConfig> for StreamConfig {
                 })
             }
         }
-    }
-}
-
-impl StreamConfig {
-    pub fn from_settings(
-        settings: &common::audio_engine::StreamConfig,
-    ) -> Result<Self, ParseError> {
-        Self::try_from(settings)
     }
 }

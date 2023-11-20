@@ -64,18 +64,23 @@ impl AudioEngine {
             )
             .map_err(SettingsError::InvalidStreamConfig)?;
 
+        // Calculate frame count in buffer.
+        let cpal::SampleRate(sample_rate) =
+            supported_output_stream_config.sample_rate();
+        let buffer_duration = settings
+            .output_stream_config
+            .buffer_duration();
+        // Convert duration to number of frames.
+        let buffer_length = (buffer_duration.as_secs_f64() / sample_rate as f64)
+            .ceil() as usize;
         // Prepare buffer config.
         let output_buffer_config =
             match supported_output_stream_config.channels() {
                 MonoFrame::CHANNEL_COUNT => BufferConfig::Mono {
-                    length: settings
-                        .output_stream_config
-                        .buffer_size(),
+                    length: buffer_length,
                 },
                 StereoFrame::CHANNEL_COUNT => BufferConfig::Stereo {
-                    length: settings
-                        .output_stream_config
-                        .buffer_size(),
+                    length: buffer_length,
                 },
                 n => {
                     return Err(SettingsError::InvalidStreamConfig(
