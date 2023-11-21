@@ -1,9 +1,13 @@
-mod bottom_panel;
-
 use crate::app::{update_ctx_settings, AppContext};
 use bottom_panel::BottomPanel;
 use chipbox_glue as glue;
+use main_panel::MainPanel;
+use right_panel::RightPanel;
 use yew::prelude::*;
+
+mod bottom_panel;
+mod main_panel;
+mod right_panel;
 
 #[derive(Properties, PartialEq)]
 pub(super) struct Props {
@@ -29,6 +33,8 @@ pub(super) fn Editor(props: &Props) -> yew::Html {
 
     html! {
         <main style={MAIN_STYLE} class={MAIN_CLASS}>
+            <MainPanel/>
+            <RightPanel/>
             <BottomPanel/>
         </main>
     }

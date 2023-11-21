@@ -7,3 +7,4 @@ edition = "2021"
 yew = { workspace = true }
 tracing = { workspace = true }
 web-sys = { workspace = true }
+gloo = { workspace = true }

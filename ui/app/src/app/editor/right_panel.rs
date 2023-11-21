@@ -1,8 +1,6 @@
 use chipbox_ui_panel::Panel;
 use yew::prelude::*;
 
-mod timeline;
-
 #[derive(Properties, PartialEq)]
 pub(super) struct Props {
     #[prop_or_default]
@@ -13,15 +11,15 @@ pub(super) struct Props {
 
 #[derive(PartialEq)]
 pub enum Tab {
-    Timeline,
-    Mixer,
+    Slot,
+    Project,
 }
 
 impl yew::ToHtml for Tab {
     fn to_html(&self) -> yew::virtual_dom::VNode {
         match self {
-            Self::Timeline => html! { "Timeline" },
-            Self::Mixer => html! { "Mixer" },
+            Self::Slot => html! { "Slot" },
+            Self::Project => html! { "Project" },
         }
     }
 }
@@ -29,24 +27,24 @@ impl yew::ToHtml for Tab {
 impl std::fmt::Display for Tab {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Timeline => write!(f, "Timeline"),
-            Self::Mixer => write!(f, "Mixer"),
+            Self::Slot => write!(f, "Slot"),
+            Self::Project => write!(f, "Project"),
         }
     }
 }
 
 #[function_component]
-pub(super) fn BottomPanel(props: &Props) -> yew::Html {
+pub(super) fn RightPanel(props: &Props) -> yew::Html {
     // Retrieve props.
     let Props { style, class } = props;
 
     let style = format!("{}", style);
     let class = format!("{}", class);
 
-    const TABS: &[Tab] = &[Tab::Timeline, Tab::Mixer];
+    const TABS: &[Tab] = &[Tab::Slot, Tab::Project];
 
     html! {
-        <Panel<Tab> id="bottom-panel" style={style} class={class} tabs={TABS}>
+        <Panel<Tab> id="right-panel" style={style} class={class} tabs={TABS}>
         </Panel<Tab>>
     }
 }
