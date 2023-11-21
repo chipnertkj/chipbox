@@ -4,7 +4,7 @@ use yew::prelude::*;
 #[derive(Properties, PartialEq)]
 pub struct Props<T>
 where
-    T: PartialEq + ToHtml + std::fmt::Display + 'static,
+    T: PartialEq + 'static,
 {
     pub tabs: &'static [T],
     #[prop_or_default]
@@ -58,15 +58,14 @@ fn apply_tab_style(tab_nodes: &[web_sys::Element], selected_idx: usize) {
 
 fn html_tabs<T, F>(tabs: &[T], tab_onclick: F) -> Html
 where
-    T: PartialEq + ToHtml + std::fmt::Display,
     F: Fn(MouseEvent, usize) + Clone + 'static,
 {
-    tabs.iter().enumerate().map(|(idx, tab)| {
+    tabs.iter().enumerate().map(|(idx, _tab)| {
         let tab_onclick = tab_onclick.clone();
         html! {
             <button key={idx} class="panel-tab inactive" onclick={move |ev| tab_onclick(ev, idx)}>
                 <p class="panel-tab-title">
-                    {tab.to_string()}
+                    {idx}
                 </p>
             </button>
         }
