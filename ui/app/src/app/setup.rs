@@ -1,7 +1,6 @@
+use super::{set_default_ctx_settings, AppContext, RerenderCallback};
 use yew::platform::spawn_local;
 use yew::prelude::*;
-
-use crate::app::{set_default_ctx_settings, AppContext};
 use {chipbox_common as common, chipbox_glue as glue};
 
 #[derive(Properties, PartialEq)]
@@ -15,30 +14,27 @@ pub(super) fn Setup(props: &Props) -> yew::Html {
     let Props { state } = props;
 
     // Acquire app context.
-    let mut app_ctx = use_context::<AppContext>()
+    let app_ctx = use_context::<AppContext>()
         // App context should be available at this point.
         .expect("no app context");
 
     // Update context settings.
-    set_default_ctx_settings(&mut app_ctx);
-
-    // Retrieve rerender callback.
-    let rerender_cb = app_ctx.rerender_cb.inner;
+    set_default_ctx_settings(app_ctx.clone());
 
     match state {
-        glue::Setup::First => html_first(rerender_cb),
+        glue::Setup::First => html_first(app_ctx.rerender_cb),
         glue::Setup::Error(error) => html_error(error),
         glue::Setup::Modify(settings) => html_modify(settings),
     }
 }
 
-fn html_first(rerender_cb: yew::Callback<()>) -> yew::Html {
+fn html_first(rerender_cb: RerenderCallback) -> yew::Html {
     let on_click = move |_: MouseEvent| {
         let rerender_cb = rerender_cb.clone();
         spawn_local(async move {
             let response = glue::skip_setup::query().await;
             if let Ok(()) = response {
-                rerender_cb.emit(());
+                rerender_cb.emit();
             }
         });
     };

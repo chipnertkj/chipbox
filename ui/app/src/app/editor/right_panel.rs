@@ -44,7 +44,6 @@ pub(super) fn RightPanel(props: &Props) -> yew::Html {
     const TABS: &[Tab] = &[Tab::Slot, Tab::Project];
 
     html! {
-        <Panel<Tab> id="right-panel" style={style} class={class} tabs={TABS}>
-        </Panel<Tab>>
+        <Panel<Tab> id="right-panel" style={style} class={class} tabs={TABS}/>
     }
 }

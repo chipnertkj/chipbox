@@ -1,3 +1,5 @@
+use std::cell::RefCell;
+use std::rc::Rc;
 use {chipbox_common as common, chipbox_glue as glue};
 
 use editor::Editor;
@@ -21,13 +23,19 @@ enum RenderState {
 
 #[derive(Clone, PartialEq)]
 pub struct RerenderCallback {
-    pub inner: Callback<()>,
+    inner: Callback<()>,
+}
+
+impl RerenderCallback {
+    pub fn emit(&self) {
+        self.inner.emit(());
+    }
 }
 
 #[derive(Clone, PartialEq)]
 pub struct AppContext {
     pub rerender_cb: RerenderCallback,
-    pub settings: common::Settings,
+    pub settings: Rc<RefCell<common::Settings>>,
 }
 
 #[function_component]
@@ -106,11 +114,11 @@ fn handle_rerender(
 }
 
 pub fn update_ctx_settings(
-    state: &impl glue::ConfiguredState,
-    app_ctx: &mut AppContext,
+    configured_state: &impl glue::ConfiguredState,
+    app_ctx: AppContext,
 ) {
     // Retrieve settings.
-    let settings = state
+    let settings = configured_state
         .settings()
         .as_ref()
         .to_owned();
@@ -119,12 +127,12 @@ pub fn update_ctx_settings(
         "Updating app context with settings from configured state: {:?}",
         settings
     );
-    app_ctx.settings = settings;
+    *app_ctx.settings.borrow_mut() = settings;
     // Apply settings to page.
     apply_settings(app_ctx);
 }
 
-pub fn set_default_ctx_settings(app_ctx: &mut AppContext) {
+pub fn set_default_ctx_settings(app_ctx: AppContext) {
     // Retrieve default settings.
     let settings = Default::default();
     // Update settings in app context.
@@ -132,17 +140,15 @@ pub fn set_default_ctx_settings(app_ctx: &mut AppContext) {
         "Updating app context with default settings: {:?}",
         settings
     );
-    app_ctx.settings = settings;
+    *app_ctx.settings.borrow_mut() = settings;
     // Apply settings to page.
     apply_settings(app_ctx);
 }
 
-fn apply_settings(app_ctx: &AppContext) {
+fn apply_settings(app_ctx: AppContext) {
     // Retrieve settings.
-    let settings = &app_ctx.settings;
-
+    let settings = app_ctx.settings.borrow_mut();
     tracing::trace!("Applying settings: {settings:?}");
-
     // Retrieve theme.
     let theme = settings
         .user_themes
@@ -168,11 +174,4 @@ fn update_backend_settings(settings: common::Settings) {
 
 fn apply_theme(theme: &common::Theme) {
     tracing::trace!("Applying theme: {theme:?}");
-}
-
-fn rerender(app_ctx: AppContext) {
-    app_ctx
-        .rerender_cb
-        .inner
-        .emit(());
 }

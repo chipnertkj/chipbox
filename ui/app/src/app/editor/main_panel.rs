@@ -47,7 +47,6 @@ pub(super) fn MainPanel(props: &Props) -> yew::Html {
     const TABS: &[Tab] = &[Tab::Pattern, Tab::NodeTree, Tab::Audio];
 
     html! {
-        <Panel<Tab> id="main-panel" style={style} class={class} tabs={TABS}>
-        </Panel<Tab>>
+        <Panel<Tab> id="main-panel" style={style} class={class} tabs={TABS}/>
     }
 }

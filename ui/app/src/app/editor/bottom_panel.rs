@@ -46,7 +46,6 @@ pub(super) fn BottomPanel(props: &Props) -> yew::Html {
     const TABS: &[Tab] = &[Tab::Timeline, Tab::Mixer];
 
     html! {
-        <Panel<Tab> id="bottom-panel" style={style} class={class} tabs={TABS}>
-        </Panel<Tab>>
+        <Panel<Tab> id="bottom-panel" style={style} class={class} tabs={TABS}/>
     }
 }

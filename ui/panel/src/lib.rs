@@ -58,6 +58,7 @@ fn apply_tab_style(tab_nodes: &[web_sys::Element], selected_idx: usize) {
 
 fn html_tabs<T, F>(tabs: &[T], tab_onclick: F) -> Html
 where
+    T: std::fmt::Display,
     F: Fn(MouseEvent, usize) + Clone + 'static,
 {
     tabs.iter().enumerate().map(|(idx, _tab)| {
@@ -65,7 +66,7 @@ where
         html! {
             <button key={idx} class="panel-tab inactive" onclick={move |ev| tab_onclick(ev, idx)}>
                 <p class="panel-tab-title">
-                    {idx}
+                    { tabs[idx].to_string() }
                 </p>
             </button>
         }
@@ -110,11 +111,18 @@ where
 
     html! {
         <div id={id} style={style} class={class}>
-            <div class="panel-header">
-                { html_tabs(tabs, tab_onclick) }
-            </div>
-            <div class="panel-content">
-                {tabs[*tab_idx].to_html()}
+            <div class="panel-container">
+                <div class="panel-header">
+                    <div class="panel-header-overflow-x">
+                        <div class="panel-header-overflow-y">
+                            { html_tabs(tabs, tab_onclick) }
+                        </div>
+                    </div>
+                    <div class="panel-header-gradient" />
+                </div>
+                <div class="panel-content">
+                    {tabs[*tab_idx].to_html()}
+                </div>
             </div>
         </div>
     }

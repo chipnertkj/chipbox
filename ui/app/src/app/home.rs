@@ -1,4 +1,4 @@
-use crate::app::{rerender, update_ctx_settings, AppContext};
+use super::{update_ctx_settings, AppContext};
 use chipbox_glue as glue;
 use const_format::formatc;
 use yew::platform::spawn_local;
@@ -15,12 +15,12 @@ pub(super) fn Home(props: &Props) -> yew::Html {
     let Props { state } = props;
 
     // Acquire app context.
-    let mut app_ctx = use_context::<AppContext>()
+    let app_ctx = use_context::<AppContext>()
         // App context should be available at this point.
         .expect("no app context");
 
     // Update context settings.
-    update_ctx_settings(state, &mut app_ctx);
+    update_ctx_settings(state, app_ctx.clone());
 
     // On click new project.
     let on_click_new = move |_| {
@@ -29,7 +29,7 @@ pub(super) fn Home(props: &Props) -> yew::Html {
         spawn_local(async move {
             let response = glue::load_project::query(info).await;
             tracing::info!("response: {:?}", response);
-            rerender(app_ctx);
+            app_ctx.rerender_cb.emit();
         });
     };
 

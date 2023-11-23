@@ -12,7 +12,15 @@
     --cb-text-color-secondary: hsl(0, 0%, 80%);
     --cb-text-color-tertiary: hsl(0, 0%, 50%);
     // Panel root.
-    --cb-panel-root-color: hsl(0, 0%, 10%);
-    --cb-panel-root-outline-thickness: 0.1rem;
-    --cb-panel-root-outline-color: hsla(0, 0%, 0%, 1);
+    --cb-panel-root-color: hsl(0, 0%, 20%);
+    --cb-panel-root-border-width: 0.0625rem;
+    --cb-panel-root-border-color: hsla(0, 0%, 0%, 1);
+    // Panel content.
+    --cb-panel-content-border-width: 0.125rem;
+    --cb-panel-content-border-color: hsl(0, 0%, 35%);
+    --cb-panel-content-border-radius: 0.5rem;
+    --cb-panel-content-background-color: hsl(0, 0%, 14%);
+    // Panel tabs.
+    --cb-panel-tab-height: 2.25rem;
+    --cb-panel-tab-height-lower: 2rem;
 }
