@@ -69,7 +69,11 @@ home = { version = "0.5" }
 gen_value = "0.7"
 once_cell = "1.18"
 chrono = { version = "0.4", features = ["serde"] }
-web-sys = { version = "0.3", features = ["Element", "DomTokenList"] }
+web-sys = { version = "0.3", features = [
+    "Element",
+    "DomTokenList",
+    "ResizeObserver",
+] }
 rb = { version = "0.4.1" }
 gloo = { version = "0.10.0", features = ["futures"] }
 
@@ -113,7 +117,7 @@ chipbox-glue = { workspace = true, features = ["frontend"] }
 chipbox-ui-app = { workspace = true }
 # deps
 const_format = { workspace = true }
-yew = { workspace = true }
+yew.workspace = true
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 tracing-web = { workspace = true }

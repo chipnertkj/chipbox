@@ -18,6 +18,9 @@
         "panel": "dedicated",
         "showReuseMessage": false,
         "clear": false
+      },
+      "runOptions": {
+        "runOn": "folderOpen"
       }
     },
     {
@@ -32,7 +35,10 @@
         "panel": "dedicated",
         "showReuseMessage": false,
         "clear": false
+      },
+      "runOptions": {
+        "runOn": "folderOpen"
       }
-    },
+    }
   ]
 }

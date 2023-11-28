@@ -17,6 +17,10 @@ pub enum Tab {
     Mixer,
 }
 
+impl chipbox_ui_panel::Tab<Self> for Tab {
+    const TABS: &'static [Self] = &[Self::Timeline, Self::Mixer];
+}
+
 impl yew::ToHtml for Tab {
     fn to_html(&self) -> yew::virtual_dom::VNode {
         match self {
@@ -43,9 +47,7 @@ pub(super) fn BottomPanel(props: &Props) -> yew::Html {
     let style = format!("{}", style);
     let class = format!("{}", class);
 
-    const TABS: &[Tab] = &[Tab::Timeline, Tab::Mixer];
-
     html! {
-        <Panel<Tab> id="bottom-panel" style={style} class={class} tabs={TABS}/>
+        <Panel<Tab> id="bottom-panel" style={style} class={class} />
     }
 }

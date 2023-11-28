@@ -468,7 +468,9 @@ name = "chipbox-ui-panel"
 version = "0.1.0"
 dependencies = [
  "gloo 0.10.0",
+ "js-sys",
  "tracing",
+ "wasm-bindgen",
  "web-sys",
  "yew",
 ]

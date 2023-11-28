@@ -6,7 +6,6 @@ target = "./index.html"
 ignore = [
     "backend/",
     ".github/",
-    ".vscode/",
     "scss-input/",
     ".gitignore",
     "LICENSE.txt",

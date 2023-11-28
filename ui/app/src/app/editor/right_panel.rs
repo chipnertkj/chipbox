@@ -15,6 +15,10 @@ pub enum Tab {
     Project,
 }
 
+impl chipbox_ui_panel::Tab<Self> for Tab {
+    const TABS: &'static [Self] = &[Self::Slot, Self::Project];
+}
+
 impl yew::ToHtml for Tab {
     fn to_html(&self) -> yew::virtual_dom::VNode {
         match self {
@@ -41,9 +45,7 @@ pub(super) fn RightPanel(props: &Props) -> yew::Html {
     let style = format!("{}", style);
     let class = format!("{}", class);
 
-    const TABS: &[Tab] = &[Tab::Slot, Tab::Project];
-
     html! {
-        <Panel<Tab> id="right-panel" style={style} class={class} tabs={TABS}/>
+        <Panel<Tab> id="right-panel" style={style} class={class}/>
     }
 }

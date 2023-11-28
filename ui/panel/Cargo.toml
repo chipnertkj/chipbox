@@ -8,3 +8,5 @@ yew = { workspace = true }
 tracing = { workspace = true }
 web-sys = { workspace = true }
 gloo = { workspace = true }
+js-sys = { workspace = true }
+wasm-bindgen = { workspace = true }

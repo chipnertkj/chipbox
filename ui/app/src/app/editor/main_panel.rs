@@ -16,6 +16,10 @@ pub enum Tab {
     Audio,
 }
 
+impl chipbox_ui_panel::Tab<Self> for Tab {
+    const TABS: &'static [Self] = &[Self::Pattern, Self::NodeTree, Self::Audio];
+}
+
 impl yew::ToHtml for Tab {
     fn to_html(&self) -> yew::virtual_dom::VNode {
         match self {
@@ -44,9 +48,7 @@ pub(super) fn MainPanel(props: &Props) -> yew::Html {
     let style = format!("{}", style);
     let class = format!("{}", class);
 
-    const TABS: &[Tab] = &[Tab::Pattern, Tab::NodeTree, Tab::Audio];
-
     html! {
-        <Panel<Tab> id="main-panel" style={style} class={class} tabs={TABS}/>
+        <Panel<Tab> id="main-panel" style={style} class={class} />
     }
 }

@@ -3,6 +3,7 @@
     "tauri-apps.tauri-vscode",
     "rust-lang.rust-analyzer",
     "sibiraj-s.vscode-scss-formatter",
-    "brvnonascimento.code-html-macro-server"
+    "mrmlnc.vscode-scss",
+    "adrianwilczynski.format-selection-as-html"
   ]
 }

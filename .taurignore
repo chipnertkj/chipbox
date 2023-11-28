@@ -1,7 +1,7 @@
 # ignore these files/folders when watching for backend rebuild:
-chipbox/src/
-ui/
-chipbox/scss-input
-chipbox/scss-output
-chipbox/rustfmt.toml
-chipbox/Trunk.toml
+**/chipbox/src/**
+**/chipbox/ui/**
+**/chipbox/scss-input/**
+**/chipbox/scss-output/**
+rustfmt.toml
+Trunk.toml

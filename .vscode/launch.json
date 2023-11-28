@@ -1,21 +1,196 @@
 {
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "backend",
             "type": "lldb",
-            "request": "attach",
-            "sourceLanguages": [
-                "rust"
-            ],
-            "program": "${workspaceFolder}/target/debug/chipbox.exe",
+            "request": "launch",
+            "name": "Debug executable 'chipbox-backend'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=chipbox-backend",
+                    "--package=chipbox-backend"
+                ],
+                "filter": {
+                    "name": "chipbox-backend",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
         },
         {
-            "name": "frontend",
-            "type": "msedge",
-            "request": "attach",
-            "port": 9222,
-            "webRoot": "${workspaceFolder}/dist",
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'chipbox-backend'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=chipbox-backend",
+                    "--package=chipbox-backend"
+                ],
+                "filter": {
+                    "name": "chipbox-backend",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'chipbox-backend-lib'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=chipbox-backend-lib"
+                ],
+                "filter": {
+                    "name": "chipbox-backend-lib",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'chipbox-common'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=chipbox-common"
+                ],
+                "filter": {
+                    "name": "chipbox-common",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'chipbox-glue'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=chipbox-glue"
+                ],
+                "filter": {
+                    "name": "chipbox-glue",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'chipbox-ui-app'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=chipbox-ui-app"
+                ],
+                "filter": {
+                    "name": "chipbox-ui-app",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'chipbox-ui-panel'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=chipbox-ui-panel"
+                ],
+                "filter": {
+                    "name": "chipbox-ui-panel",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'chipbox-ui-spinner'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=chipbox-ui-spinner"
+                ],
+                "filter": {
+                    "name": "chipbox-ui-spinner",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'chipbox'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=chipbox",
+                    "--package=chipbox"
+                ],
+                "filter": {
+                    "name": "chipbox",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'chipbox'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=chipbox",
+                    "--package=chipbox"
+                ],
+                "filter": {
+                    "name": "chipbox",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
         }
-    ],
+    ]
 }
