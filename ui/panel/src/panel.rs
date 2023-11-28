@@ -210,28 +210,30 @@ where
         let client_width = overflow_x.client_width();
         let scroll_width = overflow_x.scroll_width();
 
+        const ACTIVE_CLASS: &str = "active";
+
         if scroll_left == 0 {
             left_gradient
                 .class_list()
-                .add_1("inactive")
-                .expect("failed to add class");
+                .remove_1(ACTIVE_CLASS)
+                .expect("failed to remove class");
         } else {
             left_gradient
                 .class_list()
-                .remove_1("inactive")
-                .expect("failed to remove class");
+                .add_1(ACTIVE_CLASS)
+                .expect("failed to add class");
         }
 
         if scroll_left + client_width >= scroll_width {
             right_gradient
                 .class_list()
-                .add_1("inactive")
-                .expect("failed to add class");
+                .remove_1(ACTIVE_CLASS)
+                .expect("failed to remove class");
         } else {
             right_gradient
                 .class_list()
-                .remove_1("inactive")
-                .expect("failed to remove class");
+                .add_1(ACTIVE_CLASS)
+                .expect("failed to add class");
         }
     }
 }

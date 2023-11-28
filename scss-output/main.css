@@ -326,7 +326,7 @@ body {
 }
 
 .panel-header-gradient, .panel-header-gradient.left, .panel-header-gradient.right {
-  opacity: 1;
+  opacity: 0;
   transition: opacity 1s cubic-bezier(0.25, 0.75, 0.25, 0.75);
   z-index: 3;
   pointer-events: none;
@@ -337,9 +337,9 @@ body {
   height: calc(100% - var(--cb-panel-content-border-width));
 }
 
-.panel-header-gradient.inactive {
+.panel-header-gradient.active {
+  opacity: 1;
   transition: opacity 1s cubic-bezier(0.25, 0.75, 0.25, 0.75);
-  opacity: 0;
 }
 
 .panel-header-gradient.right {
