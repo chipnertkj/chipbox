@@ -82,7 +82,7 @@ where
         let overflow_x = self
             .overflow_x_ref
             .cast::<web_sys::Element>()
-            .expect("should be html element");
+            .expect("should be element");
         self.overflow_x_observer
             .observe(&overflow_x);
         Self::apply_gradient_style(
@@ -153,8 +153,8 @@ where
     fn apply_tab_style(&self, idx: usize, node_ref: &NodeRef) {
         let is_active = self.tab_idx.get() == idx;
         let class_list = node_ref
-            .cast::<web_sys::HtmlElement>()
-            .expect("tab ref should be html element")
+            .cast::<web_sys::Element>()
+            .expect("tab ref should be element")
             .class_list();
         const ACTIVE_CLASS: &str = "active";
         const INACTIVE_CLASS: &str = "inactive";
@@ -200,11 +200,11 @@ where
         overflow_x: web_sys::Element,
     ) {
         let left_gradient = left_gradient_ref
-            .cast::<web_sys::HtmlElement>()
-            .expect("should be html element");
+            .cast::<web_sys::Element>()
+            .expect("should be element");
         let right_gradient = right_gradient_ref
-            .cast::<web_sys::HtmlElement>()
-            .expect("should be html element");
+            .cast::<web_sys::Element>()
+            .expect("should be element");
 
         let scroll_left = overflow_x.scroll_left();
         let client_width = overflow_x.client_width();
