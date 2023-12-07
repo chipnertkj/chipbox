@@ -152,7 +152,7 @@ fn apply_settings(app_ctx: AppContext) {
     // Retrieve theme.
     let theme = settings
         .user_themes
-        .theme(&settings.selected_theme);
+        .get(&settings.selected_theme);
     // Apply theme.
     match theme {
         Option::Some(theme) => apply_theme(theme),

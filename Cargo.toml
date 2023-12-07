@@ -74,8 +74,16 @@ web-sys = { version = "0.3", features = [
     "DomTokenList",
     "ResizeObserver",
 ] }
-rb = { version = "0.4.1" }
-gloo = { version = "0.10.0", features = ["futures"] }
+rb = { version = "0.4" }
+gloo = { version = "0.10", features = ["futures"] }
+cssparser = { git = "https://github.com/chipnertkj/rust-cssparser/", features = [
+    "serde",
+] }
+cssparser-color = { git = "https://github.com/chipnertkj/rust-cssparser/", features = [
+    "serde",
+] }
+derive_more = { version = "0.99", features = ["nightly"] }
+
 
 # Low optimization.
 [profile.dev]
