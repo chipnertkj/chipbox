@@ -22,7 +22,10 @@ impl<'a> TryFrom<&'a str> for FontWeight {
     type Error = cssparser::ParseError<'a, ()>;
 
     fn try_from(value: &'a str) -> Result<Self, Self::Error> {
-        todo!()
+        AbsoluteWeight::try_from(value)
+            .map(Self::Absolute)
+            .or_else(|_| RelativeWeight::try_from(value).map(Self::Relative))
+            .or_else(|_| Global::try_from(value).map(Self::Global))
     }
 }
 

@@ -1,7 +1,12 @@
 use cssparser::ToCss as _;
 mod family;
 
-pub use family::FontFamily;
+pub use family::{
+    Custom, FontFamily, Generic, CURSIVE_STR, EMOJI_STR, FANGSONG_STR,
+    FANTASY_STR, MATH_STR, MONOSPACE_STR, SANS_SERIF_STR, SERIF_STR,
+    SYSTEM_UI_STR, UI_MONOSPACE_STR, UI_ROUNDED_STR, UI_SANS_SERIF_STR,
+    UI_SERIF_STR,
+};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq)]
 pub struct FontFamilies(Vec<FontFamily>);
@@ -65,7 +70,7 @@ mod tests {
         let expected = FontFamilies(vec![
             FontFamily::Generic(family::Generic::SansSerif),
             FontFamily::Generic(family::Generic::Serif),
-            FontFamily::Custom("Lato".into()),
+            "\"Lato\"".try_into().unwrap(),
         ]);
         assert_eq!(font_families, expected);
     }
