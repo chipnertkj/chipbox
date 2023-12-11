@@ -16,7 +16,7 @@ h4,
 h5,
 h6, p,
 li, .code, code {
-  color: var(--cb-text-color-secsondary);
+  color: var(--cb-text-color-secondary);
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.15rem;
