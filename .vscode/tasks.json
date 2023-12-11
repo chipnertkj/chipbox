@@ -1,44 +1,57 @@
 {
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "dev",
-      "type": "shell",
-      "command": "cargo",
-      "args": [
-        "tauri",
-        "dev"
-      ],
-      "isBackground": true,
-      "problemMatcher": "$rustc-watch",
-      "presentation": {
-        "reveal": "silent",
-        "echo": false,
-        "focus": false,
-        "panel": "dedicated",
-        "showReuseMessage": false,
-        "clear": false
-      },
-      "runOptions": {
-        "runOn": "folderOpen"
-      }
-    },
-    {
-      "label": "scss/sass",
-      "type": "shell",
-      "command": "sass --watch scss-input/:scss-output/ --no-source-map",
-      "problemMatcher": "$node-sass",
-      "presentation": {
-        "reveal": "silent",
-        "echo": false,
-        "focus": false,
-        "panel": "dedicated",
-        "showReuseMessage": false,
-        "clear": false
-      },
-      "runOptions": {
-        "runOn": "folderOpen"
-      }
-    }
-  ]
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "tauri-dev",
+            "type": "shell",
+            "command": "cargo tauri dev",
+            "problemMatcher": [
+                "$rustc-watch",
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": true
+            },
+            "runOptions": {
+                "runOn": "folderOpen",
+                "instanceLimit": 1,
+                "reevaluateOnRerun": true
+            }
+        },
+        {
+            "label": "scss-watch",
+            "type": "shell",
+            "command": "sass --watch scss-input/:scss-output/ --no-source-map",
+            "problemMatcher": [
+                "$node-sass"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": true
+            },
+            "runOptions": {
+                "runOn": "folderOpen",
+                "instanceLimit": 1,
+                "reevaluateOnRerun": true
+            }
+        }
+    ]
 }

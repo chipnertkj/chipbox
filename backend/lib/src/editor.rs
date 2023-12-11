@@ -29,7 +29,6 @@ impl std::fmt::Display for Error {
 pub struct Editor {
     pub settings: common::Settings,
     pub project: common::Project,
-    pub project_meta_opt: Option<ProjectMeta>,
     pub audio_engine: audio_engine::AudioEngine,
 }
 
@@ -42,15 +41,17 @@ impl std::fmt::Debug for Editor {
 
 impl Editor {
     /// Creates an `Editor` instance from the given app `Settings`.
-    pub fn from_settings(settings: common::Settings) -> Result<Self, Error> {
+    pub fn create_project(
+        settings: common::Settings,
+        name: String,
+    ) -> Result<Self, Error> {
         let audio_engine =
             audio_engine::AudioEngine::from_settings(&settings.audio_engine)
                 .map_err(Error::AudioEngine)?;
         let mut editor = Self {
             audio_engine,
             settings,
-            project: common::Project::default(),
-            project_meta_opt: None,
+            project: common::Project::new(name),
         };
         let result = editor.audio_engine.play();
         match result {
@@ -60,13 +61,6 @@ impl Editor {
                 e,
             }),
         }
-    }
-}
-
-impl TryFrom<common::Settings> for Editor {
-    type Error = Error;
-    fn try_from(settings: common::Settings) -> Result<Self, Self::Error> {
-        Self::from_settings(settings)
     }
 }
 

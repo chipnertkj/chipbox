@@ -25,7 +25,9 @@ pub(super) fn Home(props: &Props) -> yew::Html {
     // On click new project.
     let on_click_new = move |_| {
         let app_ctx = app_ctx.clone();
-        let info = glue::LoadProjectInfo::New;
+        let info = glue::LoadProjectInfo::New {
+            name: "TEST PROJECT".to_string(),
+        };
         spawn_local(async move {
             let response = glue::load_project::query(info).await;
             tracing::info!("response: {:?}", response);

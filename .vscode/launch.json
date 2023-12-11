@@ -7,24 +7,6 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'chipbox-backend'",
-            "cargo": {
-                "args": [
-                    "build",
-                    "--bin=chipbox-backend",
-                    "--package=chipbox-backend"
-                ],
-                "filter": {
-                    "name": "chipbox-backend",
-                    "kind": "bin"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
             "name": "Debug unit tests in executable 'chipbox-backend'",
             "cargo": {
                 "args": [
@@ -150,24 +132,6 @@
                 "filter": {
                     "name": "chipbox-ui-spinner",
                     "kind": "lib"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug executable 'chipbox'",
-            "cargo": {
-                "args": [
-                    "build",
-                    "--bin=chipbox",
-                    "--package=chipbox"
-                ],
-                "filter": {
-                    "name": "chipbox",
-                    "kind": "bin"
                 }
             },
             "args": [],

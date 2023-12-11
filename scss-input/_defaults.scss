@@ -6,5 +6,5 @@ body {
 }
 
 :root {
-    font-size: 16px;
+    font-size: calc(16px * var(--cb-scale));
 }

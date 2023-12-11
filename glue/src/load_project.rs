@@ -1,6 +1,5 @@
 #[cfg(feature = "backend")]
 use chipbox_backend_lib as backend_lib;
-use chipbox_common::project::ProjectPath;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, PartialEq)]
 pub enum Error {
@@ -25,8 +24,8 @@ impl std::fmt::Display for Error {
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, PartialEq)]
 pub enum LoadProjectInfo {
-    New,
-    Load(ProjectPath),
+    New { name: String },
+    Load(std::path::PathBuf),
 }
 
 #[cfg(feature = "backend")]
@@ -40,12 +39,12 @@ pub(crate) fn load_project(
     let mut backend_app = async_runtime::block_on(state.arc.lock());
     match &mut *backend_app {
         backend_lib::App::ProjectSelection(project_selection) => match info {
-            LoadProjectInfo::New => {
+            LoadProjectInfo::New { name } => {
                 let settings = project_selection
                     .settings
                     .clone();
                 let editor_result =
-                    backend_lib::Editor::from_settings(settings);
+                    backend_lib::Editor::create_project(settings, name);
                 match editor_result {
                     Ok(editor) => {
                         *backend_app =
