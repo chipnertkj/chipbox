@@ -398,6 +398,7 @@ dependencies = [
  "chipbox-backend-lib",
  "chipbox-glue",
  "color-eyre",
+ "once_cell",
  "tauri",
  "tauri-build",
  "tauri-plugin-window-state",
@@ -444,13 +445,15 @@ dependencies = [
  "chipbox-common",
  "js-sys",
  "serde",
- "serde-wasm-bindgen 0.6.1",
+ "serde-wasm-bindgen 0.6.3",
  "tauri",
+ "tauri-sys",
  "tokio",
  "tracing",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "wasm-timer",
+ "web-sys",
  "yew",
 ]
 
@@ -463,7 +466,9 @@ dependencies = [
  "chipbox-ui-panel",
  "chipbox-ui-spinner",
  "const_format",
+ "tauri-sys",
  "tracing",
+ "web-sys",
  "yew",
 ]
 
@@ -1610,7 +1615,7 @@ dependencies = [
  "gloo-events 0.2.0",
  "gloo-utils 0.2.0",
  "serde",
- "serde-wasm-bindgen 0.6.1",
+ "serde-wasm-bindgen 0.6.3",
  "serde_urlencoded",
  "thiserror",
  "wasm-bindgen",
@@ -3434,9 +3439,9 @@ dependencies = [
 
 [[package]]
 name = "serde-wasm-bindgen"
-version = "0.6.1"
+version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "17ba92964781421b6cef36bf0d7da26d201e96d84e1b10e7ae6ed416e516906d"
+checksum = "b9b713f70513ae1f8d92665bbbbda5c295c2cf1da5542881ae5eefe20c9af132"
 dependencies = [
  "js-sys",
  "serde",
@@ -3966,6 +3971,22 @@ dependencies = [
  "webview2-com",
  "windows 0.39.0",
  "wry",
+]
+
+[[package]]
+name = "tauri-sys"
+version = "0.1.0"
+source = "git+https://github.com/JonasKruckenberg/tauri-sys#6983d926e1354766fddb6bd5e198408f8ee65667"
+dependencies = [
+ "futures",
+ "js-sys",
+ "log",
+ "serde",
+ "serde-wasm-bindgen 0.6.3",
+ "serde_repr",
+ "thiserror",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
 ]
 
 [[package]]

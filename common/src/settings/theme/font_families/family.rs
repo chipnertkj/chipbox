@@ -4,6 +4,7 @@ mod generic;
 
 pub use crate::settings::theme::global::Global;
 pub use custom::Custom;
+#[allow(unused_imports)]
 pub use generic::{
     Generic, CURSIVE_STR, EMOJI_STR, FANGSONG_STR, FANTASY_STR, MATH_STR,
     MONOSPACE_STR, SANS_SERIF_STR, SERIF_STR, SYSTEM_UI_STR, UI_MONOSPACE_STR,

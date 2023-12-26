@@ -1,39 +1,36 @@
-use super::{update_ctx_settings, AppContext};
-use chipbox_glue as glue;
+use super::querying_backend::{self, QueryingBackend};
+use crate::common::Settings;
 use const_format::formatc;
-use yew::platform::spawn_local;
 use yew::prelude::*;
+
+#[derive(PartialEq, Clone)]
+pub(super) enum State {
+    QueryingSettings,
+    Welcome(Settings),
+}
 
 #[derive(Properties, PartialEq)]
 pub(super) struct Props {
-    pub(super) state: glue::app::Home,
+    pub(super) state: State,
 }
 
 #[function_component]
 pub(super) fn Home(props: &Props) -> yew::Html {
-    // Retrieve state.
-    let Props { state } = props;
+    match &props.state {
+        State::QueryingSettings => html_querying_settings(),
+        State::Welcome(settings) => html_welcome(),
+    }
+}
 
-    // Acquire app context.
-    let app_ctx = use_context::<AppContext>()
-        // App context should be available at this point.
-        .expect("no app context");
+fn html_querying_settings() -> yew::Html {
+    html! {
+        <QueryingBackend state={querying_backend::State::QueryingSettings} />
+    }
+}
 
-    // Update context settings.
-    update_ctx_settings(state, app_ctx.clone());
-
+fn html_welcome() -> Html {
     // On click new project.
-    let on_click_new = move |_| {
-        let app_ctx = app_ctx.clone();
-        let info = glue::LoadProjectInfo::New {
-            name: "TEST PROJECT".to_string(),
-        };
-        spawn_local(async move {
-            let response = glue::load_project::query(info).await;
-            tracing::info!("response: {:?}", response);
-            app_ctx.rerender_cb.emit();
-        });
-    };
+    let on_click_new = move |_| {};
 
     html! {
         <main>

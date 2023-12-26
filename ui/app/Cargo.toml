@@ -13,3 +13,5 @@ chipbox-common = { workspace = true }
 yew = { workspace = true }
 tracing = { workspace = true }
 const_format = { workspace = true }
+web-sys = { workspace = true }
+tauri-sys = { workspace = true }

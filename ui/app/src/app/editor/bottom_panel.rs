@@ -1,7 +1,8 @@
+mod timeline;
+
+use self::timeline::Timeline;
 use chipbox_ui_panel::Panel;
 use yew::prelude::*;
-
-mod timeline;
 
 #[derive(Properties, PartialEq)]
 pub(super) struct Props {
@@ -24,7 +25,7 @@ impl chipbox_ui_panel::Tab<Self> for Tab {
 impl yew::ToHtml for Tab {
     fn to_html(&self) -> yew::virtual_dom::VNode {
         match self {
-            Self::Timeline => html! { "Timeline" },
+            Self::Timeline => html! { <Timeline /> },
             Self::Mixer => html! { "Mixer" },
         }
     }

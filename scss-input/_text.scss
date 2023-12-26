@@ -37,7 +37,6 @@ code {
 
 .text {
     @extend .sans;
-    color: var(--cb-text-color-secondary);
     font-size: 1rem;
     font-weight: 400;
     line-height: 1.15rem;
@@ -54,32 +53,37 @@ code {
     text-align: center;
 }
 .text.primary {
-    color: var(--cb-text-color-primary);
+    color: hsl(0, 0%, 80%);
 }
 .text.secondary {
-    color: var(--cb-text-color-secondary);
+    color: hsl(0, 0%, 70%);
 }
 .text.tertiary {
-    color: var(--cb-text-color-tertiary);
+    color: hsl(0, 0%, 50%);
 }
+@import "https://fonts.googleapis.com/css?family=Lato:300,400,600,700";
 .text.sans {
-    font-family: var(--cb-font-family-sans);
+    font-family: "Lato", sans-serif;
 }
+@import "https://fonts.googleapis.com/css?family=IBM Plex Mono:300,400,600,700";
 .text.mono {
-    font-family: var(--cb-font-family-mono);
+    font-family: "IBM Plex Mono", monospace;
 }
 
 .header {
     @extend .text;
-    font-size: 1.25rem;
-    line-height: 1.25rem;
     margin: 0.5rem;
 }
 .header.primary {
+    font-size: 1.5rem;
     font-weight: 500;
     line-height: 1.5rem;
 }
-// .header.secondary {}
+.header.secondary {
+    font-size: 1.5rem;
+    font-weight: 500;
+    line-height: 1.5rem;
+}
 // .header.tertiary {}
 .header.title {
     font-size: 2.5rem;

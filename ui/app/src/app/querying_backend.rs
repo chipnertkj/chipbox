@@ -1,26 +1,31 @@
-use super::{set_default_ctx_settings, AppContext};
-use chipbox_glue as glue;
 use chipbox_ui_spinner::Spinner;
 use yew::prelude::*;
 
+#[derive(PartialEq, Default, Clone, Copy)]
+pub(super) enum State {
+    #[default]
+    WaitingForBackend,
+    ReadingSettings,
+    QueryingSettings,
+}
+
+impl AsRef<str> for State {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::WaitingForBackend => "Waiting for backend...",
+            Self::ReadingSettings => "Reading settings...",
+            Self::QueryingSettings => "Querying settings...",
+        }
+    }
+}
+
 #[derive(Properties, PartialEq)]
 pub(super) struct Props {
-    pub(super) state: glue::app::QueryingBackend,
+    pub(super) state: State,
 }
 
 #[function_component]
 pub(super) fn QueryingBackend(props: &Props) -> yew::Html {
-    // Retrieve state.
-    let Props { state } = props;
-
-    // Acquire app context.
-    let app_ctx = use_context::<AppContext>()
-        // App context should be available at this point.
-        .expect("no app context");
-
-    // Update context settings.
-    set_default_ctx_settings(app_ctx);
-
     const ROOT_STYLE: &str =
         "height: 100vh; display: flex; justify-content: center; \
         flex-direction: column; text-align: center;";
@@ -29,26 +34,13 @@ pub(super) fn QueryingBackend(props: &Props) -> yew::Html {
         const_format::formatc!("flex: 0; margin-bottom: 1rem; {}", ROOT_STYLE);
     const FOOTER_TEXT: &str =
         const_format::formatc!("chipbox {}", env!("CARGO_PKG_VERSION"));
-    let message_text = match state {
-        glue::app::QueryingBackend::Requesting => "Requesting backend state.",
-        glue::app::QueryingBackend::ReadingSettings => "Reading user settings.",
-        glue::app::QueryingBackend::TimedOut(_) => {
-            "Timed out while waiting for state."
-        }
-    };
+    let message_text = props.state.as_ref();
 
     html! {
         <div style={ROOT_STYLE}>
             <main style={MAIN_STYLE}>
-                if let glue::app::QueryingBackend::TimedOut(_) = state {
-                    <h1 class="drop-shadow primary">
-                        {":("}
-                    </h1>
-                }
-                else {
-                    <Spinner class="drop-shadow secondary" svg_class="primary" />
-                }
-                <h1 class="text drop-shadow secondary">
+                <Spinner container_class="drop-shadow" svg_class="primary" />
+                <h1 class="primary header drop-shadow">
                     {message_text}
                 </h1>
             </main>

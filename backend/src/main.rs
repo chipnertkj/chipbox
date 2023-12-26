@@ -2,59 +2,59 @@
 
 use color_eyre::eyre;
 use glue::handler::BuilderGlue as _;
-use tauri::{async_runtime, Manager};
+
 use {chipbox_backend_lib as backend_lib, chipbox_glue as glue};
+
+mod app_thread;
+
+/// Construct and configure the `tauri_plugin_window_state` plugin.
+fn window_plugin<R>() -> tauri::plugin::TauriPlugin<R>
+where
+    R: tauri::Runtime,
+{
+    tauri_plugin_window_state::Builder::default().build()
+}
 
 /// Construct and configure a `tauri::App`.
 fn tauri_app() -> tauri::App {
-    let window_plugin = tauri_plugin_window_state::Builder::default().build();
     // Create builder.
     tauri::Builder::default()
-        .manage::<backend_lib::ManagedApp>(Default::default())
-        .plugin(window_plugin)
-        .glue_invoke_handler() // See `glue::handler::BuilderGlue`.
+        // Add window plugin.
+        .plugin(window_plugin())
+        // See `glue::handler::BuilderGlue`.
+        .glue_invoke_handler()
+        // Use project context.
         .build(tauri::generate_context!())
-        // Something went wrong while starting up.
-        // Panic.
+        // Something went wrong while building the app.
         .expect("error while building `tauri::App`")
 }
 
-/// Event handler callback for `tauri::App`.
-fn run(tauri_app: &tauri::AppHandle, event: tauri::RunEvent) {
-    match event {
-        tauri::RunEvent::Ready => {
-            let state = tauri_app.state::<backend_lib::ManagedApp>();
-            ready(state.inner().clone());
-        }
-        tauri::RunEvent::Exit => {
-            exit();
-        }
+/// Tauri app is exiting.
+/// Called on `tauri::RunEvent::Exit`
+/// Close the backend lib app thread.
+fn exit(app: &tauri::AppHandle) {
+    tracing::trace!("Tauri app is exiting.");
+    let rt = tauri::async_runtime::handle();
+    rt.block_on(app_thread::close(app));
+}
+
+/// Tauri app is ready.
+/// Called on `tauri::RunEvent::Ready`.
+/// Start the backend lib app thread.
+fn ready(app: &tauri::AppHandle) {
+    let rt = tauri::async_runtime::handle();
+    rt.block_on(app_thread::start(app));
+    // All ok.
+    tracing::trace!("Tauri app is ready.");
+}
+
+/// Tauri app event handler.
+fn run(app: &tauri::AppHandle, ev: tauri::RunEvent) {
+    match ev {
+        tauri::RunEvent::Ready => ready(app),
+        tauri::RunEvent::Exit => exit(app),
         _ => {}
     }
-}
-
-/// Called when the application starts up.
-/// Asynchronously load settings and continue to `backend_lib::App::Setup` state.
-fn ready(managed_app: backend_lib::ManagedApp) {
-    // Init STREAMS thread-local storage.
-    backend_lib::stream_handle::init_streams();
-    // Read settings.
-    let rt = async_runtime::handle();
-    rt.spawn(async move {
-        let setup = backend_lib::Setup::read_settings().await;
-        let mut guard = managed_app.arc.lock().await;
-        *guard = backend_lib::App::Setup(setup);
-    });
-}
-
-// Called when the application exits.
-// Clears STREAMS thread-local storage.
-fn exit() {
-    // Clear thread-local storage on main thread.
-    // This would be done anyways due to the `Drop` implementation,
-    // but dropping streams during exit seems to cause a panic.
-    // This manually gets rid of the streams beforehand.
-    backend_lib::stream_handle::clear_streams();
 }
 
 /// Application entry point.
@@ -67,7 +67,7 @@ fn main() -> eyre::Result<()> {
         .with_max_level(tracing::Level::TRACE)
         .finish();
     tracing::subscriber::set_global_default(subscriber)?;
-    // Start app.
+    // Start tauri app.
     tauri_app().run(run);
     // Tauri calls `std::process::exit(0)` after `RunEvent::Exit`.
     // Modify accordingly if changed in the future.

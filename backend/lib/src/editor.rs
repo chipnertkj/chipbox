@@ -1,6 +1,4 @@
-use crate::ConfiguredState;
 use chipbox_common as common;
-use common::project::ProjectMeta;
 
 pub mod audio_engine;
 
@@ -27,7 +25,6 @@ impl std::fmt::Display for Error {
 }
 
 pub struct Editor {
-    pub settings: common::Settings,
     pub project: common::Project,
     pub audio_engine: audio_engine::AudioEngine,
 }
@@ -42,7 +39,7 @@ impl std::fmt::Debug for Editor {
 impl Editor {
     /// Creates an `Editor` instance from the given app `Settings`.
     pub fn create_project(
-        settings: common::Settings,
+        settings: &common::Settings,
         name: String,
     ) -> Result<Self, Error> {
         let audio_engine =
@@ -50,7 +47,6 @@ impl Editor {
                 .map_err(Error::AudioEngine)?;
         let mut editor = Self {
             audio_engine,
-            settings,
             project: common::Project::new(name),
         };
         let result = editor.audio_engine.play();
@@ -61,15 +57,5 @@ impl Editor {
                 e,
             }),
         }
-    }
-}
-
-impl ConfiguredState for Editor {
-    fn settings(&self) -> &common::Settings {
-        &self.settings
-    }
-
-    fn settings_mut(&mut self) -> &mut common::Settings {
-        &mut self.settings
     }
 }

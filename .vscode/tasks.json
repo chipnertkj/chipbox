@@ -7,9 +7,7 @@
             "label": "tauri-dev",
             "type": "shell",
             "command": "cargo tauri dev",
-            "problemMatcher": [
-                "$rustc-watch",
-            ],
+            "problemMatcher": [],
             "group": {
                 "kind": "build",
                 "isDefault": true

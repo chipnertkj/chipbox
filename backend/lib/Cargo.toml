@@ -20,4 +20,4 @@ home = { workspace = true }
 gen_value = { workspace = true }
 once_cell = { workspace = true }
 rb = { workspace = true }
-tauri.workspace = true
+tauri = { workspace = true }

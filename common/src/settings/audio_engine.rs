@@ -2,28 +2,28 @@ use std::time::Duration;
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub struct Settings {
     pub host: SelectedHost,
     pub output_device: SelectedDevice,
     pub output_stream_config: StreamConfig,
 }
 
-#[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone, Default)]
 pub enum SelectedHost {
     #[default]
     Default,
     Named(String),
 }
 
-#[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone, Default)]
 pub enum SelectedDevice {
     #[default]
     Default,
     Named(String),
 }
 
-#[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone, Default)]
 pub enum StreamConfig {
     #[default]
     Default,

@@ -1,10 +1,9 @@
 use super::themes::ThemeSelector;
 use super::Theme;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(
-    serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Default,
-)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct UserThemes {
     inner: HashMap<String, Theme>,
 }

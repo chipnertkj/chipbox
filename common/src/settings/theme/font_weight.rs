@@ -4,7 +4,9 @@ use self::absolute_weight::AbsoluteWeight;
 use self::relative_weight::RelativeWeight;
 use super::global::Global;
 
+#[allow(unused_imports)]
 pub use absolute_weight::{BOLD_STR, NORMAL_STR};
+#[allow(unused_imports)]
 pub use relative_weight::{BOLDER_STR, LIGHTER_STR};
 
 mod absolute_weight;

@@ -1,11 +1,5 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-use {chipbox_common as common, chipbox_glue as glue};
-
-use editor::Editor;
-use home::Home;
-use querying_backend::QueryingBackend;
-use setup::Setup;
+use crate::{common, glue};
+use common::app::{BackendMsg, FrontendMsg};
 use yew::platform::spawn_local;
 use yew::prelude::*;
 
@@ -14,164 +8,112 @@ mod home;
 mod querying_backend;
 mod setup;
 
-#[derive(PartialEq, Default)]
-enum RenderState {
-    #[default]
-    Requested,
-    Idle,
-}
+use querying_backend::QueryingBackend;
 
-#[derive(Clone, PartialEq)]
-pub struct RerenderCallback {
-    inner: Callback<()>,
-}
+impl From<common::app::State> for State {
+    fn from(value: common::app::State) -> Self {
+        use common::app::{AwaitingConfig, State};
 
-impl RerenderCallback {
-    pub fn emit(&self) {
-        self.inner.emit(());
+        match value {
+            State::ReadingSettings => {
+                Self::QueryingBackend(querying_backend::State::ReadingSettings)
+            }
+            State::AwaitingConfig(awaiting_config) => match awaiting_config {
+                AwaitingConfig::NoConfig => Self::Setup(setup::State::First),
+            },
+            State::Idle => Self::Home(home::State::QueryingSettings),
+            State::Editor => todo!(),
+        }
     }
 }
 
-#[derive(Clone, PartialEq)]
-pub struct AppContext {
-    pub rerender_cb: RerenderCallback,
-    pub settings: Rc<RefCell<common::Settings>>,
+#[derive(PartialEq)]
+enum State {
+    QueryingBackend(querying_backend::State),
+    Setup(setup::State),
+    Home(home::State),
+    BackendClosed,
+}
+
+impl Default for State {
+    fn default() -> Self {
+        Self::QueryingBackend(Default::default())
+    }
+}
+
+fn on_reading_settings(state: UseStateHandle<State>) {
+    state.set(State::QueryingBackend(
+        querying_backend::State::ReadingSettings,
+    ));
+}
+
+fn on_query_app_response(
+    state: UseStateHandle<State>,
+    app_state: common::app::State,
+) {
+    state.set(app_state.into());
+}
+
+fn handle_backend_message(
+    state: UseStateHandle<State>,
+    event: tauri_sys::event::Event<BackendMsg>,
+) {
+    let msg = event.payload;
+    tracing::trace!("Received backend message: {:?}", msg);
+    match msg {
+        common::app::BackendMsg::ReadingSettings => on_reading_settings(state),
+        common::app::BackendMsg::QueryAppResponse(app_state) => {
+            on_query_app_response(state, app_state)
+        }
+    }
+}
+
+fn effect(state: UseStateHandle<State>) {
+    // Add event listener for backend messages.
+    spawn_local({
+        let state = state.clone();
+        async move {
+            // We listen to only one event per render.
+            let res = tauri_sys::event::once(BackendMsg::event_name()).await;
+            match res {
+                Ok(msg) => handle_backend_message(state, msg),
+                Err(err) => tracing::error!(
+                    "Failed to listen for backend messages: {:?}",
+                    err
+                ),
+            }
+        }
+    });
+    // Send `QueryApp` message.
+    spawn_local(async move {
+        if !glue::msg::send(FrontendMsg::QueryApp).await {
+            state.set(State::BackendClosed);
+        }
+    });
 }
 
 #[function_component]
 pub fn App() -> yew::Html {
-    // Set up state.
-    let app_state = use_state(glue::App::default);
-    let render_state = use_state(RenderState::default);
-
-    // Set up app context.
-    let app_ctx = {
-        let render_state = render_state.clone();
-        AppContext {
-            rerender_cb: RerenderCallback {
-                inner: Callback::from(move |_: ()| {
-                    render_state.set(RenderState::Requested);
-                }),
-            },
-            settings: Default::default(),
-        }
-    };
-
-    // Rerender page on RenderState::Requested.
-    use_memo(render_state, |render_state| {
-        handle_rerender(app_state.clone(), render_state.clone())
+    // App state.
+    let state = use_state_eq(State::default);
+    // After rendering, query the backend.
+    use_effect({
+        let state = state.clone();
+        move || effect(state)
     });
 
-    // Render main page content.
-    let content = match &*app_state {
-        glue::App::QueryingBackend(state) => html! {
+    match &*state {
+        State::QueryingBackend(state) => html! {
             <QueryingBackend state={*state} />
         },
-        glue::App::Setup(state) => html! {
-            <Setup state={state.clone()} />
+        State::Setup(state) => html! {
+            <setup::Setup state={*state} />
         },
-        glue::App::Home(state) => html! {
-            <Home state={state.clone()} />
+        State::Home(state) => html! {
+            <home::Home state={state.clone()} />
         },
-        glue::App::Editor(state) => html! {
-            <Editor state={state.clone()} />
+        State::BackendClosed => html! {
+            <p class="text primary">{"Backend thread closed before reply. See backend logs for details."}</p>
         },
-    };
-
-    // Wrap page content in a ContextProvider.
-    html! {
-        // We're using the alternative children syntax due to a bug in
-        // HTML syntax highlighting extensions.
-        <ContextProvider<AppContext> context={app_ctx} children={content}/>
     }
-}
-
-// Rerender page on RenderState::Requested.
-fn handle_rerender(
-    app_state: yew::UseStateHandle<glue::App>,
-    render_state: yew::UseStateHandle<RenderState>,
-) {
-    // Ignore on RenderState::Idle.
-    if *render_state == RenderState::Requested {
-        tracing::trace!("Manual rerender.");
-        spawn_local(async move {
-            // Update app state.
-            let response = glue::app::query().await;
-            match response {
-                Ok(app) => {
-                    app_state.set(app);
-                }
-                Err(e) => {
-                    app_state.set(glue::App::QueryingBackend(
-                        glue::app::QueryingBackend::TimedOut(e),
-                    ));
-                }
-            }
-            // Reset render state.
-            render_state.set(RenderState::Idle);
-        })
-    }
-}
-
-pub fn update_ctx_settings(
-    configured_state: &impl glue::ConfiguredState,
-    app_ctx: AppContext,
-) {
-    // Retrieve settings.
-    let settings = configured_state
-        .settings()
-        .as_ref()
-        .to_owned();
-    // Update settings in app context.
-    tracing::trace!(
-        "Updating app context with settings from configured state: {:?}",
-        settings
-    );
-    *app_ctx.settings.borrow_mut() = settings;
-    // Apply settings to page.
-    apply_settings(app_ctx);
-}
-
-pub fn set_default_ctx_settings(app_ctx: AppContext) {
-    // Retrieve default settings.
-    let settings = Default::default();
-    // Update settings in app context.
-    tracing::trace!(
-        "Updating app context with default settings: {:?}",
-        settings
-    );
-    *app_ctx.settings.borrow_mut() = settings;
-    // Apply settings to page.
-    apply_settings(app_ctx);
-}
-
-fn apply_settings(app_ctx: AppContext) {
-    // Retrieve settings.
-    let settings = app_ctx.settings.borrow_mut();
-    tracing::trace!("Applying settings: {settings:?}");
-    // Retrieve theme.
-    let theme = settings
-        .user_themes
-        .get(&settings.selected_theme);
-    // Apply theme.
-    match theme {
-        Option::Some(theme) => apply_theme(theme),
-        Option::None => {
-            tracing::info!(
-                "Updating backend settings due to invalid theme selection."
-            );
-            update_backend_settings(settings.clone());
-        }
-    }
-}
-
-fn update_backend_settings(settings: common::Settings) {
-    spawn_local(async {
-        let result = glue::set_settings::query(settings).await;
-        tracing::info!("Backend settings update result: {result:?}");
-    })
-}
-
-fn apply_theme(theme: &common::Theme) {
-    tracing::trace!("Applying theme: {theme:?}");
 }

@@ -56,6 +56,9 @@ yew = { version = "0.21", features = ["csr"] }
 wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
 wasm-bindgen-futures = { version = "0.4" }
 wasm-timer = { version = "0.2" }
+tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys", features = [
+    "event",
+] }
 serde-wasm-bindgen = { version = "0.6" }
 js-sys = { version = "0.3" }
 serde = { version = "1.0", features = ["derive", "rc"] }
@@ -73,6 +76,7 @@ web-sys = { version = "0.3", features = [
     "Element",
     "DomTokenList",
     "ResizeObserver",
+    "CustomEvent",
 ] }
 rb = { version = "0.4" }
 gloo = { version = "0.10", features = ["futures"] }
@@ -83,7 +87,6 @@ cssparser-color = { git = "https://github.com/chipnertkj/rust-cssparser/", featu
     "serde",
 ] }
 derive_more = { version = "0.99", features = ["nightly"] }
-
 
 # Low optimization.
 [profile.dev]

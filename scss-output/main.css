@@ -16,7 +16,6 @@ h4,
 h5,
 h6, p,
 li, .code, code {
-  color: var(--cb-text-color-secondary);
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.15rem;
@@ -61,7 +60,7 @@ h4.primary,
 h5.primary,
 h6.primary, p.primary,
 li.primary, .primary.code, code.primary, h1.header, h1, h1.code {
-  color: var(--cb-text-color-primary);
+  color: hsl(0deg, 0%, 80%);
 }
 
 .text.secondary, .secondary.panel-tab-title, .text.panel-tab.active, .panel-tab-title.panel-tab.active, .panel-tab.inactive:hover, .panel-tab.inactive:hover > .panel-tab-title, .secondary.header, .header.panel-tab.active, h1.secondary, h1.panel-tab.active,
@@ -76,7 +75,7 @@ h6.panel-tab.active, p.secondary, p.panel-tab.active,
 li.secondary,
 li.panel-tab.active, .secondary.code, .code.panel-tab.active, code.secondary, code.panel-tab.active, h2.header,
 h2, h2.code {
-  color: var(--cb-text-color-secondary);
+  color: hsl(0deg, 0%, 70%);
 }
 
 .text.tertiary, .tertiary.panel-tab.inactive:hover, .tertiary.panel-tab-title, .panel-tab.inactive > .panel-tab-title, .tertiary.header, h1.tertiary,
@@ -92,7 +91,7 @@ h5.code,
 h6.header,
 h6,
 h6.code {
-  color: var(--cb-text-color-tertiary);
+  color: hsl(0deg, 0%, 50%);
 }
 
 .text.sans, .text, .panel-tab.inactive:hover, .panel-tab-title, .header, h1,
@@ -102,7 +101,7 @@ h4,
 h5,
 h6, p,
 li, .code, code {
-  font-family: var(--cb-font-family-sans);
+  font-family: "Lato", sans-serif;
 }
 
 .text.mono, .mono.panel-tab.inactive:hover, .mono.panel-tab-title, .mono.header, h1.mono,
@@ -112,7 +111,7 @@ h4.mono,
 h5.mono,
 h6.mono, p.mono,
 li.mono, .code, code {
-  font-family: var(--cb-font-family-mono);
+  font-family: "IBM Plex Mono", monospace;
 }
 
 .header, h1,
@@ -121,8 +120,6 @@ h3,
 h4,
 h5,
 h6 {
-  font-size: 1.25rem;
-  line-height: 1.25rem;
   margin: 0.5rem;
 }
 
@@ -137,6 +134,30 @@ h5.primary,
 .panel-tab.active > h5.panel-tab-title,
 h6.primary,
 .panel-tab.active > h6.panel-tab-title, h1 {
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1.5rem;
+}
+
+.header.secondary, .header.panel-tab.active, .header.panel-tab.inactive:hover, .panel-tab.inactive:hover > .header.panel-tab-title, h1.secondary, h1.panel-tab.active, h1.panel-tab.inactive:hover, .panel-tab.inactive:hover > h1.panel-tab-title,
+h3.secondary,
+h3.panel-tab.active,
+h3.panel-tab.inactive:hover,
+.panel-tab.inactive:hover > h3.panel-tab-title,
+h4.secondary,
+h4.panel-tab.active,
+h4.panel-tab.inactive:hover,
+.panel-tab.inactive:hover > h4.panel-tab-title,
+h5.secondary,
+h5.panel-tab.active,
+h5.panel-tab.inactive:hover,
+.panel-tab.inactive:hover > h5.panel-tab-title,
+h6.secondary,
+h6.panel-tab.active,
+h6.panel-tab.inactive:hover,
+.panel-tab.inactive:hover > h6.panel-tab-title,
+h2 {
+  font-size: 1.5rem;
   font-weight: 500;
   line-height: 1.5rem;
 }
@@ -154,12 +175,12 @@ h6.title {
 }
 
 body {
-  background-color: var(--cb-background-color);
+  background-color: hsl(0deg, 0%, 10%);
   margin: 0;
 }
 
 :root {
-  font-size: calc(16px * var(--cb-scale));
+  font-size: 16px;
 }
 
 .drop-shadow, .panel-tab.active {
@@ -283,9 +304,9 @@ body {
 }
 
 .panel-root {
-  border-width: var(--cb-panel-root-border-width);
-  border-color: var(--cb-panel-root-border-color);
-  background-color: var(--cb-panel-root-color);
+  border-width: 0.0625rem;
+  border-color: hsl(0deg, 0%, 0%);
+  background-color: hsl(0deg, 0%, 20%);
   border-style: solid;
   display: flex;
 }
@@ -303,7 +324,7 @@ body {
   display: flex;
   flex-wrap: nowrap;
   align-items: flex-end;
-  height: var(--cb-panel-tab-height);
+  height: 2.25rem;
   margin-right: 3rem;
 }
 
@@ -337,7 +358,7 @@ body {
   min-width: 0;
   width: 49.5%;
   top: 0;
-  height: calc(100% - var(--cb-panel-content-border-width));
+  height: calc(100% - 0.125rem);
 }
 
 .panel-header-gradient.active {
@@ -347,26 +368,26 @@ body {
 
 .panel-header-gradient.right {
   right: 0;
-  background: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, var(--cb-panel-root-color) 99%);
+  background: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, hsl(0deg, 0%, 20%) 99%);
 }
 
 .panel-header-gradient.left {
   left: 0;
-  background: linear-gradient(to left, rgba(0, 0, 0, 0) 0%, var(--cb-panel-root-color) 99%);
+  background: linear-gradient(to left, rgba(0, 0, 0, 0) 0%, hsl(0deg, 0%, 20%) 99%);
 }
 
 .panel-tab {
   margin: 0;
   position: relative;
   border-style: solid;
-  border-width: var(--cb-panel-content-border-width);
-  border-color: var(--cb-panel-content-border-color);
-  border-radius: var(--cb-panel-content-border-radius) var(--cb-panel-content-border-radius) 0 0;
-  background-color: var(--cb-panel-content-background-color);
+  border-width: 0.125rem;
+  border-color: hsl(0deg, 0%, 35%);
+  border-radius: 0.5rem 0.5rem 0 0;
+  background-color: hsl(0deg, 0%, 14%);
 }
 
 .panel-tab.inactive {
-  height: var(--cb-panel-tab-height-lower);
+  height: 2rem;
   border-color: hsl(0deg, 0%, 12%);
   background-color: hsl(0deg, 0%, 12%);
   transition: height 0.15s cubic-bezier(0.12, 0, 0.39, 0), border-radius 0.1s cubic-bezier(0.12, 0, 0.39, 0);
@@ -375,8 +396,8 @@ body {
 .panel-tab.active {
   z-index: 2;
   border-bottom-width: 0;
-  height: var(--cb-panel-tab-height);
-  transition: height 0.15s cubic-bezier(1, 0.5, 0.16, 2.5), border-radius 0.15s cubic-bezier(0.85, 0, 0.15, 1), background-color 0.015s cubic-bezier(0.85, 0, 0.15, 1);
+  height: 2.25rem;
+  transition: height 0.15s cubic-bezier(1, 0.5, 0.16, 1), border-radius 0.15s cubic-bezier(0.85, 0, 0.15, 1), background-color 0.015s cubic-bezier(0.85, 0, 0.15, 1);
 }
 
 .panel-tab.inactive:nth-child(n+2) {
@@ -389,7 +410,7 @@ body {
 }
 
 .panel-tab.inactive:nth-child(1) {
-  border-top-left-radius: var(--cb-panel-content-border-radius);
+  border-top-left-radius: 0.5rem;
 }
 
 .panel-tab.inactive:hover {
@@ -410,35 +431,16 @@ body {
   position: relative;
   display: inline-block;
   margin: 0;
-  top: calc(-1 * var(--cb-panel-content-border-width));
+  top: -0.125rem;
   flex: 1;
   border-style: solid;
-  border-width: var(--cb-panel-content-border-width);
-  border-color: var(--cb-panel-content-border-color);
-  border-radius: 0 var(--cb-panel-content-border-radius) var(--cb-panel-content-border-radius);
-  background-color: var(--cb-panel-content-background-color);
+  border-width: 0.125rem;
+  border-color: hsl(0deg, 0%, 35%);
+  border-radius: 0 0.5rem 0.5rem;
+  background-color: hsl(0deg, 0%, 14%);
 }
 
 button {
   background-color: #181818;
   margin: 0.5rem;
-}
-
-:root {
-  --cb-scale: 1;
-  --cb-font-family-sans: "Lato", sans-serif;
-  --cb-font-family-mono: "IBM Plex Mono", monospace;
-  --cb-background-color: hsl(0, 0%, 10%);
-  --cb-text-color-primary: hsl(0, 0%, 90%);
-  --cb-text-color-secondary: hsl(0, 0%, 80%);
-  --cb-text-color-tertiary: hsl(0, 0%, 50%);
-  --cb-panel-root-color: hsl(0, 0%, 20%);
-  --cb-panel-root-border-width: 0.0625rem;
-  --cb-panel-root-border-color: hsla(0, 0%, 0%, 1);
-  --cb-panel-content-border-width: 0.125rem;
-  --cb-panel-content-border-color: hsl(0, 0%, 35%);
-  --cb-panel-content-border-radius: 0.5rem;
-  --cb-panel-content-background-color: hsl(0, 0%, 14%);
-  --cb-panel-tab-height: 2.25rem;
-  --cb-panel-tab-height-lower: 2rem;
 }

@@ -19,6 +19,8 @@ frontend = [
     "dep:wasm-timer",
     "dep:serde-wasm-bindgen",
     "dep:js-sys",
+    "dep:web-sys",
+    "dep:tauri-sys",
 ]
 
 [dependencies]
@@ -37,10 +39,12 @@ wasm-bindgen-futures = { workspace = true, optional = true }
 wasm-timer = { workspace = true, optional = true }
 serde-wasm-bindgen = { workspace = true, optional = true }
 js-sys = { workspace = true, optional = true }
-tracing = { workspace = true }
+web-sys = { workspace = true, optional = true }
+tauri-sys = { workspace = true, optional = true }
 
 ## common deps
 # workspace deps
 chipbox-common = { workspace = true }
 # deps
+tracing = { workspace = true }
 serde = { workspace = true }
