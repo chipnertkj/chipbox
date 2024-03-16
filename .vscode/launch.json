@@ -5,6 +5,23 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Debug frontend",
+            "type": "msedge",
+            "request": "launch",
+            "port": 9229,
+            "runtimeExecutable": "${workspaceFolder}/target/debug/chipbox.exe",
+            "useWebView": true,
+            "url": "http://localhost:1420",
+            "webRoot": "${workspaceFolder}",
+            "preLaunchTask": "tauri-build-debug"
+        },
+        {
+            "type": "lldb",
+            "request": "attach",
+            "name": "Attach to backend",
+            "program": "${workspaceFolder}/target~/debug/chipbox.exe"
+        },
+        {
             "type": "lldb",
             "request": "launch",
             "name": "Debug unit tests in executable 'chipbox-backend'",
@@ -21,6 +38,9 @@
                 }
             },
             "args": [],
+            "presentation": {
+                "group": "unit"
+            },
             "cwd": "${workspaceFolder}"
         },
         {
@@ -40,6 +60,9 @@
                 }
             },
             "args": [],
+            "presentation": {
+                "group": "unit"
+            },
             "cwd": "${workspaceFolder}"
         },
         {
@@ -59,6 +82,9 @@
                 }
             },
             "args": [],
+            "presentation": {
+                "group": "unit"
+            },
             "cwd": "${workspaceFolder}"
         },
         {
@@ -78,6 +104,9 @@
                 }
             },
             "args": [],
+            "presentation": {
+                "group": "unit"
+            },
             "cwd": "${workspaceFolder}"
         },
         {
@@ -97,6 +126,9 @@
                 }
             },
             "args": [],
+            "presentation": {
+                "group": "unit"
+            },
             "cwd": "${workspaceFolder}"
         },
         {
@@ -116,6 +148,9 @@
                 }
             },
             "args": [],
+            "presentation": {
+                "group": "unit"
+            },
             "cwd": "${workspaceFolder}"
         },
         {
@@ -135,6 +170,9 @@
                 }
             },
             "args": [],
+            "presentation": {
+                "group": "unit"
+            },
             "cwd": "${workspaceFolder}"
         },
         {
@@ -154,7 +192,10 @@
                 }
             },
             "args": [],
+            "presentation": {
+                "group": "unit"
+            },
             "cwd": "${workspaceFolder}"
         }
-    ]
+    ],
 }

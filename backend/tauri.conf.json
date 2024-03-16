@@ -19,7 +19,7 @@
       }
     },
     "bundle": {
-      "active": true,
+      "active": false,
       "targets": "all",
       "identifier": "com.chipnertkj.chipbox",
       "icon": [
@@ -31,7 +31,7 @@
       ]
     },
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'unsafe-inline'; style-src-elem 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;"
     },
     "windows": [
       {

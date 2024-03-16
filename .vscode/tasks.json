@@ -4,6 +4,28 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "tauri-build-debug",
+            "type": "shell",
+            "command": "cargo tauri build --debug",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "runOptions": {
+                "instanceLimit": 1,
+                "reevaluateOnRerun": true
+            }
+        },
+        {
             "label": "tauri-dev",
             "type": "shell",
             "command": "cargo tauri dev",

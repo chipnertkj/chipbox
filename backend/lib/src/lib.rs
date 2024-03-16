@@ -112,7 +112,6 @@ impl AppThread {
     /// Send an `AppMessage` to the client window.
     fn send_message(&self, msg: common::app::BackendMsg) {
         tracing::trace!("Sending message to frontend: {:?}", msg);
-        panic!();
         self.tauri_app
             .emit_all(common::app::BackendMsg::event_name(), msg)
             .expect("Failed to send message");
