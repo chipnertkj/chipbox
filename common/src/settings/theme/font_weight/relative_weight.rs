@@ -15,7 +15,7 @@ impl<'a> TryFrom<&'a str> for RelativeWeight {
     fn try_from(value: &'a str) -> Result<Self, Self::Error> {
         let mut parser_input = cssparser::ParserInput::new(value);
         let mut parser = cssparser::Parser::new(&mut parser_input);
-        let token = parser.try_next()?;
+        let token = parser.next()?;
         if let cssparser::Token::Ident(ident) = token {
             let weight = match ident.as_ref() {
                 LIGHTER_STR => Ok(RelativeWeight::Lighter),
@@ -37,7 +37,7 @@ impl<'a> TryFrom<&'a str> for RelativeWeight {
                 Err(cssparser::ParseError {
                     kind: cssparser::ParseErrorKind::Basic(
                         cssparser::BasicParseErrorKind::UnexpectedToken(
-                            parser.try_next()?.to_owned(),
+                            parser.next()?.to_owned(),
                         ),
                     ),
                     location: parser.current_source_location(),

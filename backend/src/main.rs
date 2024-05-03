@@ -26,51 +26,74 @@ fn tauri_app() -> tauri::App {
         // Use project context.
         .build(tauri::generate_context!())
         // Something went wrong while building the app.
+        // Unrecoverable error.
         .expect("error while building `tauri::App`")
 }
 
 /// Tauri app is exiting.
 /// Called on `tauri::RunEvent::Exit`
-/// Close the backend lib app thread.
-fn exit(app: &tauri::AppHandle) {
-    tracing::trace!("Tauri app is exiting.");
+fn exit(
+    managed_app_thread_handle: &mut app_thread::ManagedJoinHandle,
+    app: &tauri::AppHandle,
+) {
+    tracing::trace!("Tauri app is exiting as requested.");
+
+    // Close the backend lib app thread.
     let rt = tauri::async_runtime::handle();
-    rt.block_on(app_thread::close(app));
+    rt.block_on(app_thread::close(managed_app_thread_handle, app));
 }
 
 /// Tauri app is ready.
 /// Called on `tauri::RunEvent::Ready`.
-/// Start the backend lib app thread.
-fn ready(app: &tauri::AppHandle) {
+fn ready(
+    managed_app_thread_handle: &mut app_thread::ManagedJoinHandle,
+    app: &tauri::AppHandle,
+) {
+    // Start the backend lib app thread.
     let rt = tauri::async_runtime::handle();
-    rt.block_on(app_thread::start(app));
+    rt.block_on(app_thread::start(managed_app_thread_handle, app));
+
     // All ok.
     tracing::trace!("Tauri app is ready.");
 }
 
 /// Tauri app event handler.
-fn run(app: &tauri::AppHandle, ev: tauri::RunEvent) {
-    match ev {
-        tauri::RunEvent::Ready => ready(app),
-        tauri::RunEvent::Exit => exit(app),
+fn run(
+    managed_app_thread_handle: &mut app_thread::ManagedJoinHandle,
+    app: &tauri::AppHandle,
+    event: tauri::RunEvent,
+) {
+    match event {
+        tauri::RunEvent::Ready => ready(managed_app_thread_handle, app),
+        tauri::RunEvent::Exit => exit(managed_app_thread_handle, app),
         _ => {}
     }
 }
 
 /// Application entry point.
-/// Initialize `color_eyre`, `tracing-subscriber` and `tauri`.
 fn main() -> eyre::Result<()> {
     // Install color-eyre.
     color_eyre::install()?;
+
     // Install subscriber.
     let subscriber = tracing_subscriber::fmt()
         .with_max_level(tracing::Level::TRACE)
         .finish();
     tracing::subscriber::set_global_default(subscriber)?;
+
+    // Create managed handle for the app thread.
+    let mut managed_app_thread_handle =
+        app_thread::ManagedJoinHandle::default();
+
     // Start tauri app.
-    tauri_app().run(run);
+    tauri_app()
+        .run(move |app, event| run(&mut managed_app_thread_handle, app, event));
+
     // Tauri calls `std::process::exit(0)` after `RunEvent::Exit`.
     // Modify accordingly if changed in the future.
-    // This is expected behavior as of now.
-    unreachable!("Process should've terminated by now.")
+    // It is expected behavior as of now.
+    tracing::error!(
+        "Process should've terminated after `RunEvent::Exit` but did not."
+    );
+    unreachable!("Process should've terminated by now")
 }

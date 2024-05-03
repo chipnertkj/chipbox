@@ -4,9 +4,11 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-yew = { workspace = true }
+## tracing
 tracing = { workspace = true }
+## wasm frontend
+yew = { workspace = true }
 web-sys = { workspace = true }
-gloo = { workspace = true }
 js-sys = { workspace = true }
 wasm-bindgen = { workspace = true }
+gloo = { workspace = true }

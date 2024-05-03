@@ -3,7 +3,6 @@ pub mod synth;
 pub use self::synth::SynthChannel;
 
 #[derive(Debug, PartialEq, Eq)]
-///
 pub struct OrderFromChannelIdxError {
     idx: ChannelIdx,
 }

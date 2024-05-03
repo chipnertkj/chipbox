@@ -10,7 +10,7 @@ impl<'a> TryFrom<&'a str> for Custom {
         let mut parse_input = cssparser::ParserInput::new(value);
         let mut parser = cssparser::Parser::new(&mut parse_input);
         // Get token.
-        let token = parser.try_next()?;
+        let token = parser.next()?;
         if let cssparser::Token::QuotedString(s) = token {
             // Try to parse token as `QuotedString`.
             let string = format!("\"{}\"", s);
@@ -22,7 +22,7 @@ impl<'a> TryFrom<&'a str> for Custom {
                 Err(cssparser::ParseError {
                     kind: cssparser::ParseErrorKind::Basic(
                         cssparser::BasicParseErrorKind::UnexpectedToken(
-                            parser.try_next()?.to_owned(),
+                            parser.next()?.to_owned(),
                         ),
                     ),
                     location: parser.current_source_location(),

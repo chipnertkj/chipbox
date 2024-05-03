@@ -12,14 +12,14 @@ use querying_backend::QueryingBackend;
 
 impl From<common::app::State> for State {
     fn from(value: common::app::State) -> Self {
-        use common::app::{AwaitingConfig, State};
+        use common::app::{AwaitConfig, State};
 
         match value {
             State::ReadingSettings => {
                 Self::QueryingBackend(querying_backend::State::ReadingSettings)
             }
-            State::AwaitingConfig(awaiting_config) => match awaiting_config {
-                AwaitingConfig::NoConfig => Self::Setup(setup::State::First),
+            State::AwaitConfig(awaiting_config) => match awaiting_config {
+                AwaitConfig::NoConfig => Self::Setup(setup::State::First),
             },
             State::Idle => Self::Home(home::State::QueryingSettings),
             State::Editor => todo!(),

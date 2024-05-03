@@ -38,7 +38,7 @@ impl<'a> TryFrom<&'a str> for Generic {
     fn try_from(value: &'a str) -> Result<Self, Self::Error> {
         let mut parse_input = cssparser::ParserInput::new(value);
         let mut parser = cssparser::Parser::new(&mut parse_input);
-        let token = parser.try_next()?;
+        let token = parser.next()?;
         if let cssparser::Token::Ident(s) = token {
             let first = match s.as_ref() {
                 SERIF_STR => Ok(Generic::Serif),
@@ -69,7 +69,7 @@ impl<'a> TryFrom<&'a str> for Generic {
                 Err(cssparser::ParseError {
                     kind: cssparser::ParseErrorKind::Basic(
                         cssparser::BasicParseErrorKind::UnexpectedToken(
-                            parser.try_next()?.to_owned(),
+                            parser.next()?.to_owned(),
                         ),
                     ),
                     location: parser.current_source_location(),

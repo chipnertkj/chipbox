@@ -2,7 +2,7 @@
 target = "./index.html"
 
 [watch]
-# Ignore these files/folders when watching for frontend rebuild.
+## Ignore these files/folders when watching for frontend rebuild.
 ignore = [
     "backend/",
     ".github/",

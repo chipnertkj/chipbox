@@ -178,6 +178,6 @@ mod thread_local {
         Mutex::new(None);
 
     thread_local! {
-        static STREAMS: RefCell<Option<Streams>> = RefCell::new(None);
+        static STREAMS: RefCell<Option<Streams>> = const { RefCell::new(None) };
     }
 }

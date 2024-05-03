@@ -17,7 +17,7 @@ impl<'a> TryFrom<&'a str> for Dimension {
     fn try_from(value: &'a str) -> Result<Self, Self::Error> {
         let mut parser_input = cssparser::ParserInput::new(value);
         let mut parser = cssparser::Parser::new(&mut parser_input);
-        let token = parser.try_next()?;
+        let token = parser.next()?;
         if let cssparser::Token::Dimension {
             has_sign,
             value,
@@ -36,7 +36,7 @@ impl<'a> TryFrom<&'a str> for Dimension {
             } else {
                 let e = Self::Error {
                     kind: cssparser::BasicParseErrorKind::UnexpectedToken(
-                        parser.try_next()?.to_owned(),
+                        parser.next()?.to_owned(),
                     ),
                     location: parser.current_source_location(),
                 };

@@ -7,7 +7,7 @@ pub enum BackendMsg {
 }
 
 impl BackendMsg {
-    pub fn event_name() -> &'static str {
+    pub const fn event_name() -> &'static str {
         "chipbox-app-message"
     }
 }
@@ -18,7 +18,7 @@ pub enum FrontendMsg {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Default)]
-pub enum AwaitingConfig {
+pub enum AwaitConfig {
     #[default]
     /// It's the first time the application has been started.
     NoConfig,
@@ -27,7 +27,7 @@ pub enum AwaitingConfig {
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub enum State {
     ReadingSettings,
-    AwaitingConfig(AwaitingConfig),
+    AwaitConfig(AwaitConfig),
     Idle,
     Editor,
 }

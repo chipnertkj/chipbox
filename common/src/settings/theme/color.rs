@@ -24,7 +24,7 @@ impl<'a> TryFrom<&'a str> for Color {
                 Err(cssparser::ParseError {
                     kind: cssparser::ParseErrorKind::Basic(
                         cssparser::BasicParseErrorKind::UnexpectedToken(
-                            parser.try_next()?.to_owned(),
+                            parser.next()?.to_owned(),
                         ),
                     ),
                     location: parser.current_source_location(),
@@ -41,7 +41,7 @@ impl<'a> TryFrom<&'a str> for Color {
                 Err(cssparser::ParseError {
                     kind: cssparser::ParseErrorKind::Basic(
                         cssparser::BasicParseErrorKind::UnexpectedToken(
-                            parser.try_next()?.to_owned(),
+                            parser.next()?.to_owned(),
                         ),
                     ),
                     location: parser.current_source_location(),

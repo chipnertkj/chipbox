@@ -17,7 +17,7 @@ impl<'a> TryFrom<&'a str> for AbsoluteWeight {
         let mut parser_input = cssparser::ParserInput::new(value);
         let mut parser = cssparser::Parser::new(&mut parser_input);
         // Try to parse as `Ident`.
-        let token = parser.try_next()?;
+        let token = parser.next()?;
         if let cssparser::Token::Ident(ident) = token {
             // Is an `Ident`.
             let weight = match ident.as_ref() {
@@ -41,7 +41,7 @@ impl<'a> TryFrom<&'a str> for AbsoluteWeight {
                 Err(cssparser::ParseError {
                     kind: cssparser::ParseErrorKind::Basic(
                         cssparser::BasicParseErrorKind::UnexpectedToken(
-                            parser.try_next()?.to_owned(),
+                            parser.next()?.to_owned(),
                         ),
                     ),
                     location: parser.current_source_location(),
@@ -62,7 +62,7 @@ impl<'a> TryFrom<&'a str> for AbsoluteWeight {
                     Err(cssparser::ParseError {
                         kind: cssparser::ParseErrorKind::Basic(
                             cssparser::BasicParseErrorKind::UnexpectedToken(
-                                parser.try_next()?.to_owned(),
+                                parser.next()?.to_owned(),
                             ),
                         ),
                         location: parser.current_source_location(),

@@ -4,14 +4,17 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-# ui
-chipbox-ui-spinner = { workspace = true }
-chipbox-ui-panel = { workspace = true }
-# deps
+## project deps
 chipbox-glue = { workspace = true }
 chipbox-common = { workspace = true }
-yew = { workspace = true }
+## ui deps
+chipbox-ui-spinner = { workspace = true }
+chipbox-ui-panel = { workspace = true }
+## tracing
 tracing = { workspace = true }
+## utils
 const_format = { workspace = true }
+## wasm frontend
+yew = { workspace = true }
 web-sys = { workspace = true }
 tauri-sys = { workspace = true }

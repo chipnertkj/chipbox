@@ -1,3 +1,87 @@
+## ------------------------------------------------
+## workspace config
+[workspace]
+members = [
+    "backend",
+    "glue",
+    "common",
+    ## ui members
+    "ui/app",
+    "ui/panel",
+    "ui/spinner",
+]
+
+[workspace.dependencies]
+## project deps
+chipbox-backend = { path = "backend" }
+chipbox-backend-lib = { path = "backend/lib" }
+chipbox-glue = { path = "glue" }
+chipbox-common = { path = "common" }
+# ui deps
+chipbox-ui-app = { path = "ui/app" }
+chipbox-ui-panel = { path = "ui/panel" }
+chipbox-ui-spinner = { path = "ui/spinner" }
+## utility
+const_format = { version = "0.2", features = ["fmt"] }
+home = { version = "0.5" }
+gen_value = "0.7"
+once_cell = "1.19"
+chrono = { version = "0.4", features = ["serde"] }
+rb = { version = "0.4" }
+derive_more = { version = "0.99", features = ["nightly"] }
+## tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3" }
+tracing-web = "0.1"
+## error handling
+color-eyre = "0.6"
+## multithreading
+tokio = { version = "1.37", features = [
+    "macros",
+    "fs",
+    "tracing",
+    "time",
+    "sync",
+] }
+## serde
+serde-wasm-bindgen = { version = "0.6" }
+serde = { version = "1.0", features = ["derive", "rc"] }
+serde_json = "1.0"
+## tauri
+tauri = { version = "1.6", features = ["shell-open"] }
+tauri-build = "1.5" # build script
+tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys", features = [
+    "event",
+] }
+tauri-plugin-window-state = "0.1" # save window state on app exit
+wasm-bindgen-futures = { version = "0.4" }
+## wasm frontend
+yew = { version = "0.21", features = ["csr"] }
+wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
+wasm-timer = { version = "0.2" }
+js-sys = { version = "0.3" }
+web-sys = { version = "0.3", features = [
+    "Element",
+    "DomTokenList",
+    "ResizeObserver",
+    "CustomEvent",
+] }
+gloo = { version = "0.11", features = ["futures"] }
+## css
+cssparser = { git = "https://github.com/servo/rust-cssparser/", features = [
+    "serde",
+] }
+cssparser-color = { git = "https://github.com/servo/rust-cssparser/", features = [
+    "serde",
+] }
+## audio
+cpal = { git = "https://github.com/RustAudio/cpal", features = [
+    "asio",
+    "jack",
+] }
+
+## ------------------------------------------------
+## package config
 [package]
 name = "chipbox"
 version = "0.0.0"
@@ -14,106 +98,14 @@ description = "Open-source DAW with a node graph system."
 [badges]
 maintenance = { status = "actively-developed" }
 
-[workspace]
-members = [
-    # chipbox members
-    "backend",
-    "glue",
-    "common",
-    # ui members
-    "ui/app",
-    "ui/panel",
-    "ui/spinner",
-]
-
-[workspace.dependencies]
-# chipbox deps
-chipbox-backend = { path = "backend" }
-chipbox-backend-lib = { path = "backend/lib" }
-chipbox-glue = { path = "glue" }
-chipbox-common = { path = "common" }
-# ui deps
-chipbox-ui-app = { path = "ui/app" }
-chipbox-ui-panel = { path = "ui/panel" }
-chipbox-ui-spinner = { path = "ui/spinner" }
-# deps
-tracing = "0.1"
-tracing-subscriber = { version = "0.3" }
-tracing-web = "0.1"
-console_error_panic_hook = "0.1"
-const_format = { version = "0.2", features = ["fmt"] }
-tauri-build = "1.5"
-tauri = { version = "1.5", features = ["shell-open"] }
-tauri-plugin-window-state = "0.1"
-tokio = { version = "1.29", features = [
-    "macros",
-    "fs",
-    "tracing",
-    "time",
-    "sync",
-] }
-yew = { version = "0.21", features = ["csr"] }
-wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
-wasm-bindgen-futures = { version = "0.4" }
-wasm-timer = { version = "0.2" }
-tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys", features = [
-    "event",
-] }
-serde-wasm-bindgen = { version = "0.6" }
-js-sys = { version = "0.3" }
-serde = { version = "1.0", features = ["derive", "rc"] }
-serde_json = "1.0"
-cpal = { git = "https://github.com/RustAudio/cpal", features = [
-    "asio",
-    "jack",
-] }
-color-eyre = "0.6"
-home = { version = "0.5" }
-gen_value = "0.7"
-once_cell = "1.18"
-chrono = { version = "0.4", features = ["serde"] }
-web-sys = { version = "0.3", features = [
-    "Element",
-    "DomTokenList",
-    "ResizeObserver",
-    "CustomEvent",
-] }
-rb = { version = "0.4" }
-gloo = { version = "0.10", features = ["futures"] }
-cssparser = { git = "https://github.com/chipnertkj/rust-cssparser/", features = [
-    "serde",
-] }
-cssparser-color = { git = "https://github.com/chipnertkj/rust-cssparser/", features = [
-    "serde",
-] }
-derive_more = { version = "0.99", features = ["nightly"] }
-
 # Low optimization.
 [profile.dev]
 lto = false
 opt-level = 1
-incremental = false
+incremental = true
 debug = "full"
 
-# All dependencies optimized on dev.
-[profile.dev.package."*"]
-opt-level = 3
-
-# Do not optimize workspace members.
-[profile.dev.package.chipbox-backend]
-opt-level = 1
-[profile.dev.package.chipbox]
-opt-level = 1
-[profile.dev.package.chipbox-glue]
-opt-level = 1
-[profile.dev.package.chipbox-common]
-opt-level = 1
-[profile.dev.package.chipbox-ui-app]
-opt-level = 1
-[profile.dev.package.chipbox-ui-spinner]
-opt-level = 1
-
-# Keep debug info.
+## Keep debug info.
 [profile.release]
 lto = "fat"
 opt-level = 3
@@ -121,15 +113,16 @@ incremental = false
 debug = "full"
 
 [dependencies]
-# workspace deps
+## project deps
 chipbox-common = { workspace = true }
 chipbox-glue = { workspace = true, features = ["frontend"] }
-# ui deps
+## ui deps
 chipbox-ui-app = { workspace = true }
-# deps
-const_format = { workspace = true }
-yew.workspace = true
+## tracing
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 tracing-web = { workspace = true }
-console_error_panic_hook = { workspace = true }
+## wasm frontend
+yew = { workspace = true }
+## utility
+const_format = { workspace = true }

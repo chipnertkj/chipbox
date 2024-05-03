@@ -1,4 +1,4 @@
-# ignore these files/folders when watching for backend rebuild:
+## ignore these files/folders when watching for backend rebuild:
 **/chipbox/src/**
 **/chipbox/ui/**
 **/chipbox/scss-input/**

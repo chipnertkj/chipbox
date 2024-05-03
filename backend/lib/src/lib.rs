@@ -6,7 +6,7 @@ pub use chipbox_common as common;
 pub use editor::audio_engine::stream_handle;
 pub use editor::Editor;
 
-use common::app::AwaitingConfig;
+use common::app::AwaitConfig;
 use tauri::{async_runtime, Manager as _};
 
 pub mod editor;
@@ -14,6 +14,7 @@ mod error;
 mod project_selection;
 mod settings;
 
+/// Messages sent to the app thread.
 #[derive(Debug, PartialEq)]
 pub enum ThreadMsg {
     /// A message from the frontend.
@@ -22,102 +23,134 @@ pub enum ThreadMsg {
     Exit,
 }
 
+/// App thread data.
 pub struct AppThread {
-    app: App,
-    tauri_app: tauri::AppHandle,
+    data: AppData,
     rx: async_runtime::Receiver<ThreadMsg>,
 }
 
-pub enum App {
+pub struct AppData {
+    state: AppState,
+    tauri_app: tauri::AppHandle,
+}
+
+/// Backend state.
+#[derive(Default)]
+pub enum AppState {
+    #[default]
+    ReadingSettings,
     /// Settings read has been attempted, but no valid configuration was found.
-    AwaitingConfig(AwaitingConfig),
+    AwaitConfig(AwaitConfig),
     Idle {
         settings: common::Settings,
     },
-    Editor {
+    Edit {
         inner: Box<Editor>,
         settings: common::Settings,
     },
 }
 
-impl From<&App> for common::app::State {
-    fn from(app: &App) -> Self {
+/// ???
+impl From<&AppState> for common::app::State {
+    fn from(app: &AppState) -> Self {
         match app {
-            App::AwaitingConfig(state) => {
-                common::app::State::AwaitingConfig(state.clone())
+            AppState::ReadingSettings => common::app::State::ReadingSettings,
+            AppState::AwaitConfig(state) => {
+                common::app::State::AwaitConfig(state.clone())
             }
-            App::Idle { .. } => common::app::State::Idle,
-            App::Editor { .. } => common::app::State::Editor,
+            AppState::Idle { .. } => common::app::State::Idle,
+            AppState::Edit { .. } => common::app::State::Editor,
         }
     }
 }
 
 impl AppThread {
-    /// Creates a new instance of `Self`.
+    /// Create a new instance of `Self`.
     ///
-    /// Requires a `ThreadMessage` RX from a parent thread.
-    ///
-    /// Initial state is `App::Setup(Setup::First)`.
+    /// Requires a RX from the parent thread.
     pub fn new(
         rx: async_runtime::Receiver<ThreadMsg>,
         tauri_app: tauri::AppHandle,
     ) -> Self {
-        AppThread {
-            app: App::AwaitingConfig(AwaitingConfig::NoConfig),
+        let data = AppData {
+            state: Default::default(),
             tauri_app,
-            rx,
-        }
+        };
+
+        AppThread { data, rx }
     }
 
-    /// Runs the app thread.
+    /// Run the app thread.
     ///
-    /// Loads settings and enters the message loop.
+    /// Load settings and enter the message loop.
     pub async fn run(mut self) {
         tracing::trace!("App thread started.");
+
         // Read settings.
         tracing::trace!("Reading settings.");
         let result = read_settings().await;
+
         // Handle the result.
         match result {
-            Ok(after_read_settings) => {
-                // Found config and converted to `AfterReadSettings`.
+            // Read attempt succeeded.
+            Ok(settings_opt) => {
                 tracing::trace!("Settings ok.");
+
                 // Send message to client.
-                self.send_message(common::app::BackendMsg::ReadingSettings);
-                // Convert to `App`.
-                self.app = after_read_settings.into();
+                Self::send_message(
+                    &self.data.tauri_app,
+                    common::app::BackendMsg::ReadingSettings,
+                );
+
+                // Update state based on whether there was a valid config.
+                self.data.state = match settings_opt {
+                    Some(settings) => AppState::Idle { settings },
+                    None => AppState::AwaitConfig(AwaitConfig::NoConfig),
+                };
+
                 // Enter message loop.
                 self.poll_messages().await
             }
+            // Something went wrong while reading settings.
             Err(e) => {
-                // Something went wrong while reading settings.
                 tracing::error!("Settings read failed: {}", e);
-                // Poll for exit message.
-                let _result =
-                    Self::poll_message_until(&mut self.rx, |msg| match msg {
-                        ThreadMsg::Exit => Some(()),
-                        _ => None,
-                    })
-                    // We don't actually care about the result - we exit either way.
-                    // If result is `Some(_)`, we received an exit message.
-                    // If result is `None`, the channel has already been closed,
-                    // which means RX will never receive another message.
+
+                // Wait for exit message.
+                self.poll_until_exit_message()
                     .await;
             }
         }
+
         // Exit.
-        tracing::trace!("App thread exiting.");
+        tracing::trace!("App thread finished.");
     }
 
-    /// Send an `AppMessage` to the client window.
-    fn send_message(&self, msg: common::app::BackendMsg) {
-        tracing::trace!("Sending message to frontend: {:?}", msg);
-        self.tauri_app
-            .emit_all(common::app::BackendMsg::event_name(), msg)
-            .expect("Failed to send message");
+    // Wait for exit message.
+    async fn poll_until_exit_message(&mut self) {
+        // Await exit message.
+        let result = Self::poll_message_until(&mut self.rx, |msg| match msg {
+            ThreadMsg::Exit => Some(()),
+            _ => None,
+        })
+        .await;
+
+        // Handle result.
+        match result {
+            // All good.
+            Some(_) => {
+                tracing::trace!("Received exit message.");
+            }
+            // Channel was closed.
+            None => {
+                // Fail gracefully.
+                tracing::error!(
+                    "Channel was closed before the app thread received an exit message."
+                );
+            }
+        }
     }
 
-    /// Polls messages from the `Receiver` in a loop.
+    /// Polls messages from the channel in a loop.
     /// The given closure is called to process the message.
     /// If the closure returns `None`, the next message is polled.
     /// If the closure returns `Some(T)`, the loop ends.
@@ -133,12 +166,12 @@ impl AppThread {
     /// until the channel is closed.
     async fn poll_message_until<F, T>(
         rx: &mut async_runtime::Receiver<ThreadMsg>,
-        f: F,
+        mut f: F,
     ) -> Option<T>
     where
-        F: Fn(ThreadMsg) -> Option<T>,
+        F: FnMut(ThreadMsg) -> Option<T>,
     {
-        tracing::trace!("Waiting for messages.");
+        tracing::trace!("Polling for messages.");
         // Wait for messages, stop when the channel is closed.
         while let Some(msg) = rx.recv().await {
             // Call the closure.
@@ -153,32 +186,39 @@ impl AppThread {
         None
     }
 
-    /// Polls messages from the `Receiver` in a loop.
-    /// The messages are handled in a synchronous manner -
-    /// their order is preserved.
+    /// Polls messages from the channel in a loop.
     async fn poll_messages(&mut self) {
-        #[allow(clippy::never_loop)]
-        // Wait for messages, stop when the channel is closed.
-        while let Some(msg) = self.rx.recv().await {
-            tracing::trace!("App thread received message: {:?}", msg);
-            let quit = self.handle_msg(msg).await;
-            if quit {
-                break;
-            }
-        }
-        // Channel is closed.
-        tracing::trace!("Channel was closed.");
+        Self::poll_message_until(&mut self.rx, |msg| {
+            self.data
+                .handle_msg(msg)
+                .into()
+        })
+        .await;
+        // Channel was closed.
+        tracing::trace!("Channel closed.");
     }
 
+    /// Send an `AppMessage` to the client window.
+    fn send_message(
+        tauri_app: &tauri::AppHandle,
+        msg: common::app::BackendMsg,
+    ) {
+        tracing::trace!("Sending message to frontend: {:?}", msg);
+        tauri_app
+            .emit_all(common::app::BackendMsg::event_name(), msg)
+            .unwrap_or_else(|err| {
+                tracing::error!("Failed to send message to frontend: {}", err);
+            })
+    }
+}
+
+impl AppData {
     /// Handles a message from the parent thread.
     /// Returns `true` if the app should quit.
-    async fn handle_msg(&mut self, msg: ThreadMsg) -> bool {
+    fn handle_msg(&mut self, msg: ThreadMsg) -> bool {
         match msg {
             // Handle frontend message.
-            ThreadMsg::Frontend(msg) => {
-                self.handle_frontend_msg(msg)
-                    .await;
-            }
+            ThreadMsg::Frontend(msg) => self.handle_frontend_msg(msg),
             // Quit.
             ThreadMsg::Exit => return true,
         };
@@ -186,44 +226,31 @@ impl AppThread {
     }
 
     /// Handles a frontend message.
-    async fn handle_frontend_msg(&mut self, msg: common::app::FrontendMsg) {
+    fn handle_frontend_msg(&mut self, msg: common::app::FrontendMsg) {
         match msg {
-            common::app::FrontendMsg::QueryApp => self.send_message(
-                common::app::BackendMsg::QueryAppResponse((&self.app).into()),
+            common::app::FrontendMsg::QueryApp => AppThread::send_message(
+                &self.tauri_app,
+                common::app::BackendMsg::QueryAppResponse((&self.state).into()),
             ),
         }
     }
 }
 
-pub enum AfterReadSettings {
-    ConfigOk { settings: common::Settings },
-    NoConfig,
-}
-
-impl From<AfterReadSettings> for App {
-    fn from(after_read_settings: AfterReadSettings) -> Self {
-        match after_read_settings {
-            AfterReadSettings::NoConfig => {
-                Self::AwaitingConfig(AwaitingConfig::NoConfig)
-            }
-            AfterReadSettings::ConfigOk { settings } => Self::Idle { settings },
-        }
-    }
-}
-
 /// Read settings from the config file.
-pub async fn read_settings() -> Result<AfterReadSettings, settings::Error> {
+/// Returns `Ok(None)` if the config file does not exist.
+pub async fn read_settings() -> Result<Option<common::Settings>, settings::Error>
+{
     use settings::SettingsExt as _;
 
     match common::Settings::read().await {
         // Settings found.
-        Ok(settings) => Ok(AfterReadSettings::ConfigOk { settings }),
+        Ok(settings) => Ok(Some(settings)),
         // We catch `std::io::ErrorKind::NotFound`.
+        // Not having a config file is a valid state.
         Err(settings::Error::Io(ref e))
             if e.inner.kind() == std::io::ErrorKind::NotFound =>
         {
-            // We return `Ok` because not having a config file is a valid state.
-            Ok(AfterReadSettings::NoConfig)
+            Ok(None)
         }
         // Something else went wrong.
         Err(e) => Err(e),
