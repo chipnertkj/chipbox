@@ -6,7 +6,8 @@ pub use chipbox_common as common;
 pub use editor::audio_engine::stream_handle;
 pub use editor::Editor;
 
-use common::app::AwaitConfig;
+use common::app::AwaitConfigReason;
+use settings::SettingsExt as _;
 use tauri::{async_runtime, Manager as _};
 
 pub mod editor;
@@ -14,11 +15,12 @@ mod error;
 mod project_selection;
 mod settings;
 
-/// Messages sent to the app thread.
+/// Messages received by the app thread.
 #[derive(Debug, PartialEq)]
 pub enum ThreadMsg {
-    /// A message from the frontend.
+    /// Tauri forwarded a message from the frontend.
     Frontend(common::app::FrontendMsg),
+    /// Main requested to exit.
     /// Immediatelly closes the app thread.
     Exit,
 }
@@ -40,7 +42,9 @@ pub enum AppState {
     #[default]
     ReadingSettings,
     /// Settings read has been attempted, but no valid configuration was found.
-    AwaitConfig(AwaitConfig),
+    AwaitConfig {
+        reason: AwaitConfigReason,
+    },
     Idle {
         settings: common::Settings,
     },
@@ -50,16 +54,29 @@ pub enum AppState {
     },
 }
 
+impl From<Option<common::Settings>> for AppState {
+    fn from(settings_opt: Option<common::Settings>) -> Self {
+        match settings_opt {
+            Some(settings) => AppState::Idle { settings },
+            None => AppState::AwaitConfig {
+                reason: AwaitConfigReason::NoConfig,
+            },
+        }
+    }
+}
+
 /// ???
-impl From<&AppState> for common::app::State {
+impl From<&AppState> for common::app::BackendAppState {
     fn from(app: &AppState) -> Self {
         match app {
-            AppState::ReadingSettings => common::app::State::ReadingSettings,
-            AppState::AwaitConfig(state) => {
-                common::app::State::AwaitConfig(state.clone())
+            AppState::ReadingSettings => {
+                common::app::BackendAppState::ReadingSettings
             }
-            AppState::Idle { .. } => common::app::State::Idle,
-            AppState::Edit { .. } => common::app::State::Editor,
+            AppState::AwaitConfig { ref reason } => {
+                common::app::BackendAppState::AwaitConfig { reason: *reason }
+            }
+            AppState::Idle { .. } => common::app::BackendAppState::Idle,
+            AppState::Edit { .. } => common::app::BackendAppState::Editor,
         }
     }
 }
@@ -103,10 +120,7 @@ impl AppThread {
                 );
 
                 // Update state based on whether there was a valid config.
-                self.data.state = match settings_opt {
-                    Some(settings) => AppState::Idle { settings },
-                    None => AppState::AwaitConfig(AwaitConfig::NoConfig),
-                };
+                self.data.state = settings_opt.into();
 
                 // Enter message loop.
                 self.poll_messages().await
@@ -189,9 +203,10 @@ impl AppThread {
     /// Polls messages from the channel in a loop.
     async fn poll_messages(&mut self) {
         Self::poll_message_until(&mut self.rx, |msg| {
-            self.data
-                .handle_msg(msg)
-                .into()
+            match self.data.handle_msg(msg) {
+                true => Some(()),
+                false => None,
+            }
         })
         .await;
         // Channel was closed.
@@ -228,10 +243,34 @@ impl AppData {
     /// Handles a frontend message.
     fn handle_frontend_msg(&mut self, msg: common::app::FrontendMsg) {
         match msg {
-            common::app::FrontendMsg::QueryApp => AppThread::send_message(
-                &self.tauri_app,
-                common::app::BackendMsg::QueryAppResponse((&self.state).into()),
-            ),
+            common::app::FrontendMsg::Query(query) => match query {
+                common::app::FrontendQuery::BackendAppState => {
+                    AppThread::send_message(
+                        &self.tauri_app,
+                        common::app::BackendMsg::Response(
+                            common::app::BackendResponse::BackendAppState(
+                                (&self.state).into(),
+                            ),
+                        ),
+                    )
+                }
+                common::app::FrontendQuery::Settings => {
+                    let settings_opt = match self.state {
+                        AppState::Idle { ref settings } => {
+                            Some(settings.clone())
+                        }
+                        _ => None,
+                    };
+                    AppThread::send_message(
+                        &self.tauri_app,
+                        common::app::BackendMsg::Response(
+                            common::app::BackendResponse::Settings(
+                                settings_opt,
+                            ),
+                        ),
+                    )
+                }
+            },
         }
     }
 }
@@ -240,8 +279,6 @@ impl AppData {
 /// Returns `Ok(None)` if the config file does not exist.
 pub async fn read_settings() -> Result<Option<common::Settings>, settings::Error>
 {
-    use settings::SettingsExt as _;
-
     match common::Settings::read().await {
         // Settings found.
         Ok(settings) => Ok(Some(settings)),

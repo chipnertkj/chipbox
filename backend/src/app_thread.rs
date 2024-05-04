@@ -1,5 +1,5 @@
 use crate::backend_lib::{AppThread, ThreadMsg};
-use crate::glue::msg::BackendLibTx;
+use crate::glue::msg::BackendAppTx;
 use tauri::async_runtime::{self, JoinHandle, Mutex};
 use tauri::Manager as _;
 
@@ -54,7 +54,7 @@ pub async fn start(
     let (tx, rx) = async_runtime::channel::<ThreadMsg>(128);
 
     // Store the message TX in the app state.
-    app.manage(BackendLibTx(tx));
+    app.manage(BackendAppTx(tx));
 
     // Start the app thread.
     let join_handle =
@@ -74,11 +74,11 @@ pub async fn close(
     tracing::trace!("Sending exit message to app thread.");
 
     // Get message sender.
-    match app.try_state::<BackendLibTx>() {
+    match app.try_state::<BackendAppTx>() {
         // Message sender state is available.
         Some(state) => {
             // Get message sender.
-            let BackendLibTx(ref tx) = state.inner();
+            let BackendAppTx(ref tx) = state.inner();
 
             // Send exit message.
             match tx.send(ThreadMsg::Exit).await {
@@ -104,5 +104,5 @@ pub async fn close(
     };
 
     // All ok.
-    tracing::trace!("App thread closed.");
+    tracing::trace!("App closed.");
 }

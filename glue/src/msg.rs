@@ -7,22 +7,23 @@ use {crate::backend_lib::ThreadMsg, tauri::async_runtime::Sender};
 /// Wrapper around a `async_runtime::Sender` for the backend lib app thread.
 /// Used as a managed state in the tauri app.
 #[cfg(feature = "backend")]
-pub struct BackendLibTx(pub Sender<ThreadMsg>);
+pub struct BackendAppTx(pub Sender<ThreadMsg>);
 
 #[cfg(feature = "backend")]
-impl BackendLibTx {
+impl BackendAppTx {
     fn inner_tx_from_app<R>(app: &tauri::AppHandle<R>) -> &Sender<ThreadMsg>
     where
         R: tauri::Runtime,
     {
         use tauri::Manager as _;
-        let BackendLibTx(tx) = app
-            .state::<BackendLibTx>()
+        let BackendAppTx(tx) = app
+            .state::<BackendAppTx>()
             .inner();
         tx
     }
 }
 
+/// Send frontend message to backend app thread.
 #[cfg(feature = "backend")]
 #[tauri::command]
 pub(crate) async fn frontend_msg<R>(
@@ -32,16 +33,26 @@ pub(crate) async fn frontend_msg<R>(
 where
     R: tauri::Runtime,
 {
-    let res = BackendLibTx::inner_tx_from_app(&app)
+    use tokio::sync::mpsc::error::SendError;
+
+    tracing::trace!("Forwarding frontend message to backend thread: {:?}", msg);
+
+    // Send frontend message to backend thread.
+    let result = BackendAppTx::inner_tx_from_app(&app)
         .send(ThreadMsg::Frontend(msg))
         .await;
-    if res.is_err() {
-        tracing::error!(
-            "Main -> app thread message failed. Has it panicked? Result: {:?}",
-            res
-        );
+
+    // Handle result.
+    match result {
+        Ok(()) => true,
+        Err(SendError(msg)) => {
+            // Fail gracefully.
+            tracing::error!(
+                "Failed to deliver frontend message to backend. Channel was closed. Original message: {msg:?}",
+            );
+            false
+        }
     }
-    res.is_ok()
 }
 
 #[cfg(feature = "frontend")]
