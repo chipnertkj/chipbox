@@ -1,19 +1,19 @@
 use yew::prelude::*;
 
 #[derive(PartialEq, Clone, Copy)]
-pub(super) enum State {
+pub(super) enum SetupState {
     First,
 }
 
 #[derive(Properties, PartialEq)]
 pub(super) struct Props {
-    pub(super) state: State,
+    pub(super) state: SetupState,
 }
 
 #[function_component]
 pub(super) fn Setup(props: &Props) -> yew::Html {
     match props.state {
-        State::First => html_first(),
+        SetupState::First => html_first(),
     }
 }
 

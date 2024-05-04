@@ -34,22 +34,22 @@ impl<'a> TryFrom<&'a str> for Dimension {
             if parser.is_exhausted() {
                 Ok(dimension)
             } else {
-                let e = Self::Error {
+                let err = Self::Error {
                     kind: cssparser::BasicParseErrorKind::UnexpectedToken(
                         parser.next()?.to_owned(),
                     ),
                     location: parser.current_source_location(),
                 };
-                Err(e)
+                Err(err)
             }
         } else {
-            let e = Self::Error {
+            let err = Self::Error {
                 kind: cssparser::BasicParseErrorKind::UnexpectedToken(
                     token.to_owned(),
                 ),
                 location: parser.current_source_location(),
             };
-            Err(e)
+            Err(err)
         }
     }
 }

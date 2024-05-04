@@ -6,6 +6,7 @@ use glue::handler::BuilderGlue as _;
 use {chipbox_backend_lib as backend_lib, chipbox_glue as glue};
 
 mod app_thread;
+mod tracing_setup;
 
 /// Construct and configure the `tauri_plugin_window_state` plugin.
 fn window_plugin<R>() -> tauri::plugin::TauriPlugin<R>
@@ -75,11 +76,9 @@ fn main() -> eyre::Result<()> {
     // Install color-eyre.
     color_eyre::install()?;
 
-    // Install subscriber.
-    let subscriber = tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::TRACE)
-        .finish();
-    tracing::subscriber::set_global_default(subscriber)?;
+    // Initialize tracing.
+    let rt = tauri::async_runtime::handle();
+    let _guard = tracing_setup::init(rt)?;
 
     // Create managed handle for the app thread.
     let mut managed_app_thread_handle =
@@ -92,8 +91,7 @@ fn main() -> eyre::Result<()> {
     // Tauri calls `std::process::exit(0)` after `RunEvent::Exit`.
     // Modify accordingly if changed in the future.
     // It is expected behavior as of now.
-    tracing::error!(
-        "Process should've terminated after `RunEvent::Exit` but did not."
+    eyre::bail!(
+        "Process should've terminated after `RunEvent::Exit` but did not"
     );
-    unreachable!("Process should've terminated by now")
 }

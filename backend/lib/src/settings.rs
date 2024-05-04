@@ -1,56 +1,67 @@
-use crate::error;
+use crate::dir::{self, DataDirError};
+use crate::error::io::IoError;
+use crate::error::serde::SerdeError;
 use chipbox_common as common;
+use common::Settings;
 use std::path::PathBuf;
 use tokio::fs;
 
-/// Result type alias for module error type.
-pub(crate) type Result<T> = std::result::Result<T, Error>;
-
 #[derive(Debug)]
 /// Describes an error that occurred while reading the settings file.
-pub enum Error {
+pub enum SettingsError {
     /// An I/O error occurred.
-    Io(error::io::Error),
+    Io(IoError),
     /// A serialization/deserialization error occurred.
-    Serde(error::serde::Error),
-    /// The `HOME` environment variable was not set.
-    HomeDir,
+    Serde(SerdeError),
+    /// A data-dir operation failed. See `dir` module.
+    DataDir(DataDirError),
 }
 
 /// Convenience conversion.
-impl From<error::io::Error> for Error {
-    fn from(e: error::io::Error) -> Self {
-        Error::Io(e)
+impl From<IoError> for SettingsError {
+    fn from(err: IoError) -> Self {
+        SettingsError::Io(err)
     }
 }
 
 /// Convenience conversion.
-impl From<error::serde::Error> for Error {
-    fn from(e: error::serde::Error) -> Self {
-        Error::Serde(e)
+impl From<SerdeError> for SettingsError {
+    fn from(err: SerdeError) -> Self {
+        SettingsError::Serde(err)
+    }
+}
+
+/// Convenience conversion.
+impl From<DataDirError> for SettingsError {
+    fn from(err: DataDirError) -> Self {
+        SettingsError::DataDir(err)
     }
 }
 
 /// Error implementation.
-impl std::error::Error for Error {
+impl std::error::Error for SettingsError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
-            Error::Io(e) => Some(e),
-            Error::Serde(e) => Some(e),
-            _ => None,
+            SettingsError::Io(err) => Some(err),
+            SettingsError::Serde(err) => Some(err),
+            SettingsError::DataDir(err) => Some(err),
         }
     }
 }
 
 /// Display implementation.
-impl std::fmt::Display for Error {
+impl std::fmt::Display for SettingsError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Error::Io(e) => write!(f, "io error during settings read: {}", e),
-            Error::Serde(e) => {
-                write!(f, "serde error during settings read: {}", e)
+            SettingsError::Io(err) => {
+                write!(f, "io error during settings read: {}", err)
             }
-            _ => write!(f, "`HOME` env variable not set"),
+            SettingsError::Serde(err) => {
+                write!(f, "serde error during settings read: {}", err)
+            }
+            SettingsError::DataDir(err) => {
+                write!(f, "data-dir error during settings read: {}", err)
+            }
         }
     }
 }
@@ -61,79 +72,63 @@ impl std::fmt::Display for Error {
 pub trait SettingsExt<S> {
     /// Returns the path to the settings file.
     /// Ensures the directory exists.
-    async fn file_path() -> Result<PathBuf>;
+    async fn file_path() -> Result<PathBuf, DataDirError>;
+
     /// Reads the settings file.
-    async fn read() -> Result<S>;
+    async fn read() -> Result<S, SettingsError>;
+
     /// Writes the settings file.
-    async fn write(&self) -> Result<()>;
+    async fn write(&self) -> Result<(), SettingsError>;
 }
 
 /// Extends `common::Settings` with methods for reading and writing a
 /// settings file.
-impl SettingsExt<common::Settings> for common::Settings {
-    async fn file_path() -> Result<PathBuf> {
-        /// Name of the directory where settings are stored.
-        const DATA_DIR: &str = ".chipbox";
-        /// Name of the settings file.
+impl SettingsExt<Settings> for Settings {
+    /// Constructs the path to the settings file.
+    async fn file_path() -> Result<PathBuf, DataDirError> {
         const FILENAME: &str = "settings.json";
-
-        // Retrieve the path to the HOME directory.
-        let home_path = home::home_dir().ok_or(Error::HomeDir)?;
-        // Construct the path to the settings file.
-        let path = home_path
-            .join(DATA_DIR)
+        let path = dir::data_path()
+            .await?
             .join(FILENAME);
-
-        // Ensure the directory exists.
-        fs::create_dir_all(path.parent().unwrap())
-            .await
-            .map_err(|e| error::io::Error {
-                inner: e,
-                path: path.clone(),
-            })?;
-
-        // Convert the path to a canonical path.
-        let canonical = path
-            .canonicalize()
-            .map_err(|e| error::io::Error { inner: e, path })?;
-        // Return path to settings file.
-        Ok(canonical)
+        Ok(path)
     }
 
-    async fn read() -> Result<Self> {
+    /// Reads the settings file.
+    async fn read() -> Result<Self, SettingsError> {
         // Retrieve the path to the settings file.
         let path = Self::file_path().await?;
 
         // Read the settings file.
         let data = fs::read_to_string(&path)
             .await
-            .map_err(|e| {
+            .map_err(|err| {
                 let path = path.to_owned();
-                error::io::Error { inner: e, path }
+                IoError { err, path }
             })?;
 
         // Parse the settings file.
         let settings = serde_json::from_str(&data)
-            .map_err(|e| error::serde::Error { e, path })?;
+            .map_err(|err| SerdeError { err, path })?;
 
         // Return settings.
         Ok(settings)
     }
 
-    async fn write(&self) -> Result<()> {
+    /// Writes the settings file.
+    async fn write(&self) -> Result<(), SettingsError> {
         // Retrieve the path to the settings file.
         let path = Self::file_path().await?;
 
         // Serialize the settings file.
-        let data = serde_json::to_string(&self).map_err(|e| {
+        let data = serde_json::to_string(&self).map_err(|err| {
             let path = path.to_owned();
-            error::serde::Error { e, path }
+            SerdeError { err, path }
         })?;
 
         // Write the settings file.
         fs::write(&path, data)
             .await
-            .map_err(|e| error::io::Error { inner: e, path })?;
+            .map_err(|err| IoError { err, path })?;
 
         // All done.
         Ok(())

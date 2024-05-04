@@ -103,8 +103,8 @@ where
             let right_gradient_ref = self
                 .right_gradient_ref
                 .clone();
-            Callback::from(move |ev: Event| {
-                let target: web_sys::Element = ev
+            Callback::from(move |event: Event| {
+                let target: web_sys::Element = event
                     .target()
                     .expect("should have target")
                     .dyn_into()

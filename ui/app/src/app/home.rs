@@ -1,30 +1,27 @@
-use super::querying_backend::{self, QueryingBackend};
-use crate::common::Settings;
+use super::backend_query::{BackendQuery, BackendQueryState};
 use const_format::formatc;
 use yew::prelude::*;
 
 #[derive(PartialEq, Clone)]
-pub(super) enum State {
-    QueryingSettings,
-    Welcome(Settings),
+pub(super) enum HomeState {
+    Welcome,
 }
 
 #[derive(Properties, PartialEq)]
 pub(super) struct Props {
-    pub(super) state: State,
+    pub(super) state: HomeState,
 }
 
 #[function_component]
 pub(super) fn Home(props: &Props) -> yew::Html {
     match &props.state {
-        State::QueryingSettings => html_querying_settings(),
-        State::Welcome(settings) => html_welcome(),
+        HomeState::Welcome => html_welcome(),
     }
 }
 
 fn html_querying_settings() -> yew::Html {
     html! {
-        <QueryingBackend state={querying_backend::State::QueryingSettings} />
+        <BackendQuery state={BackendQueryState::QueryingSettings} />
     }
 }
 

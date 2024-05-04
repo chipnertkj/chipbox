@@ -1,19 +1,19 @@
 use std::path::PathBuf;
 
 #[derive(Debug)]
-pub struct Error {
-    pub e: serde_json::Error,
+pub struct SerdeError {
+    pub err: serde_json::Error,
     pub path: PathBuf,
 }
 
-impl std::error::Error for Error {
+impl std::error::Error for SerdeError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        Some(&self.e)
+        Some(&self.err)
     }
 }
 
-impl std::fmt::Display for Error {
+impl std::fmt::Display for SerdeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.e)
+        write!(f, "{}", self.err)
     }
 }

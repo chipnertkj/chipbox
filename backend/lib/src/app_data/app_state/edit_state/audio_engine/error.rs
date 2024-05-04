@@ -10,9 +10,9 @@ pub enum SettingsError {
 impl std::error::Error for SettingsError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
-            SettingsError::StreamConfigParse(e) => Some(e),
-            SettingsError::HostIdParse(e) => Some(e),
-            SettingsError::InvalidStreamConfig(e) => Some(e),
+            SettingsError::StreamConfigParse(err) => Some(err),
+            SettingsError::HostIdParse(err) => Some(err),
+            SettingsError::InvalidStreamConfig(err) => Some(err),
         }
     }
 }
@@ -20,9 +20,9 @@ impl std::error::Error for SettingsError {
 impl std::fmt::Display for SettingsError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            SettingsError::StreamConfigParse(e) => e.fmt(f),
-            SettingsError::HostIdParse(e) => e.fmt(f),
-            SettingsError::InvalidStreamConfig(e) => e.fmt(f),
+            SettingsError::StreamConfigParse(err) => err.fmt(f),
+            SettingsError::HostIdParse(err) => err.fmt(f),
+            SettingsError::InvalidStreamConfig(err) => err.fmt(f),
         }
     }
 }
@@ -36,8 +36,8 @@ pub enum ResetStreamError {
 impl std::error::Error for ResetStreamError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
-            ResetStreamError::Config(e) => Some(e),
-            ResetStreamError::Play(e) => Some(e),
+            ResetStreamError::Config(err) => Some(err),
+            ResetStreamError::Play(err) => Some(err),
         }
     }
 }
@@ -45,8 +45,8 @@ impl std::error::Error for ResetStreamError {
 impl std::fmt::Display for ResetStreamError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ResetStreamError::Config(e) => e.fmt(f),
-            ResetStreamError::Play(e) => e.fmt(f),
+            ResetStreamError::Config(err) => err.fmt(f),
+            ResetStreamError::Play(err) => err.fmt(f),
         }
     }
 }
@@ -60,8 +60,8 @@ pub enum ResetDeviceError {
 impl std::error::Error for ResetDeviceError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
-            ResetDeviceError::Stream(e) => Some(e),
-            ResetDeviceError::Device(e) => Some(e),
+            ResetDeviceError::Stream(err) => Some(err),
+            ResetDeviceError::Device(err) => Some(err),
         }
     }
 }
@@ -69,8 +69,8 @@ impl std::error::Error for ResetDeviceError {
 impl std::fmt::Display for ResetDeviceError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ResetDeviceError::Stream(e) => e.fmt(f),
-            ResetDeviceError::Device(e) => e.fmt(f),
+            ResetDeviceError::Stream(err) => err.fmt(f),
+            ResetDeviceError::Device(err) => err.fmt(f),
         }
     }
 }

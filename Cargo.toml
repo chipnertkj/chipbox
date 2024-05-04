@@ -33,9 +33,11 @@ derive_more = { version = "0.99", features = ["nightly"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3" }
 tracing-web = "0.1"
+tracing-appender = "0.2"
 ## error handling
 color-eyre = "0.6"
-## multithreading
+## concurrency
+futures = { version = "0.3" }
 tokio = { version = "1.37", features = [
     "macros",
     "fs",

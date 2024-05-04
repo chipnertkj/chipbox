@@ -19,7 +19,8 @@ chipbox-backend-lib = { workspace = true }
 ## tracing
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
-## multithreading
+tracing-appender = { workspace = true }
+## concurrency
 tokio = { workspace = true }
 ## tauri
 tauri = { workspace = true }

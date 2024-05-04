@@ -4,7 +4,9 @@ use serde::{Deserialize, Serialize};
 /// Messages sent by the backend app thread.
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub enum BackendMsg {
+    /// Backend app is currently reading user config.
     ReadingSettings,
+    /// Response to a frontend request.
     Response(BackendResponse),
 }
 
@@ -22,29 +24,34 @@ pub enum BackendResponse {
     BackendAppState(BackendAppState),
     /// Respond with current `Settings`.
     Settings(Option<Settings>),
+    /// Respond with default `Settings`.
+    UseDefaultSettings(Settings),
 }
 
 /// Messages sent by the frontend app thread.
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub enum FrontendMsg {
     /// Query information from the backend.
-    Query(FrontendQuery),
+    Request(FrontendRequest),
 }
 
 /// Messages sent by the frontend app thread requesting information from the backend.
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
-pub enum FrontendQuery {
+pub enum FrontendRequest {
     /// Query current `BackendAppState`.
     BackendAppState,
     /// Query current `Settings`.
     Settings,
+    /// Use default settings and query a copy from the backend.
+    UseDefaultSettings,
 }
 
-/// Reason why the user config is not ready.
+/// The reason why the user config is not ready.
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy, Default)]
 pub enum AwaitConfigReason {
     #[default]
-    /// It's the first time the application has been started.
+    /// This is the first time the application has been started.
+    ///
     /// The user has not yet configured the application.
     NoConfig,
 }

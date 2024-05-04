@@ -5,7 +5,8 @@ mod theme;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
+/// User configuration for the entire application.
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Default)]
 pub struct Settings {
     pub user_themes: UserThemes,
     pub selected_theme: ThemeSelector,

@@ -44,8 +44,8 @@ pub enum Error {
 impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
-            Self::Settings(e) => Some(e),
-            Self::HostUnavailable(e) => Some(e),
+            Self::Settings(err) => Some(err),
+            Self::HostUnavailable(err) => Some(err),
         }
     }
 }
@@ -53,8 +53,8 @@ impl std::error::Error for Error {
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Settings(e) => e.fmt(f),
-            Self::HostUnavailable(e) => e.fmt(f),
+            Self::Settings(err) => err.fmt(f),
+            Self::HostUnavailable(err) => err.fmt(f),
         }
     }
 }
@@ -64,31 +64,31 @@ impl AudioEngine {
     pub fn from_settings(settings: &Settings) -> Result<Self, Error> {
         // Read HostId and open Host.
         let host_id = HostId::try_from(&settings.host)
-            .map_err(|e| Error::Settings(SettingsError::HostIdParse(e)))?;
+            .map_err(|err| Error::Settings(SettingsError::HostIdParse(err)))?;
         let host = cpal::host_from_id(host_id.into())
             .map_err(Error::HostUnavailable)?;
 
         // Open output device.
         let output_device = Self::output_device(&host, &settings.output_device)
-            .map_err(|e| {
+            .map_err(|err| {
                 Error::Settings(SettingsError::InvalidStreamConfig(
-                    stream_config::Error::Device(e),
+                    stream_config::Error::Device(err),
                 ))
             })?;
 
         // Get output stream config.
         let output_stream_config =
             StreamConfig::from_settings(&settings.output_stream_config)
-                .map_err(|e| {
-                    Error::Settings(SettingsError::StreamConfigParse(e))
+                .map_err(|err| {
+                    Error::Settings(SettingsError::StreamConfigParse(err))
                 })?;
         let supported_output_stream_config =
             Self::supported_output_stream_config(
                 &output_device,
                 &output_stream_config,
             )
-            .map_err(|e| {
-                Error::Settings(SettingsError::InvalidStreamConfig(e))
+            .map_err(|err| {
+                Error::Settings(SettingsError::InvalidStreamConfig(err))
             })?;
 
         // Calculate frame count in buffer.
@@ -138,7 +138,9 @@ impl AudioEngine {
             &supported_output_stream_config,
             consumer,
         )
-        .map_err(|e| Error::Settings(SettingsError::InvalidStreamConfig(e)))?;
+        .map_err(|err| {
+            Error::Settings(SettingsError::InvalidStreamConfig(err))
+        })?;
         let output_stream_handle = Self::add_thread_local_stream(output_stream);
 
         // Construct.
@@ -250,9 +252,9 @@ impl AudioEngine {
             // Get default output device config.
             StreamConfig::Default => output_device
                 .default_output_config()
-                .map_err(|e| {
+                .map_err(|err| {
                     stream_config::Error::Device(device::Error::Other(
-                        Box::new(e),
+                        Box::new(err),
                     ))
                 })?,
             // Read custom output stream config.

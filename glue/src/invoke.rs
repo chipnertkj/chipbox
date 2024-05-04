@@ -82,7 +82,7 @@ where
 
     // End perf timer.
     let elapsed = Instant::now().duration_since(instant_begin);
-    tracing::trace!("{cmd_pretty}: Elapsed: {elapsed:?}");
+    tracing::trace!("{cmd_pretty}: elapsed: {elapsed:?}");
     tracing::trace!("{cmd_pretty}: Response: `{backend_result:?}`");
 
     // Handle response.
@@ -90,10 +90,10 @@ where
         Ok(js_value) => {
             // Deserialize `Ok(T)` response.
             let value = serde_wasm_bindgen::from_value(js_value)
-                .unwrap_or_else(|e| {
+                .unwrap_or_else(|err| {
                     // Type mismatch.
                     tracing::error!(
-                        "{cmd_pretty}: Unable to deserialize `Ok(T)`: {e}"
+                        "{cmd_pretty}: Unable to deserialize `Ok(T)`: {err}"
                     );
                     panic!(
                         "{cmd_pretty}: Invalid response - type mismatch. \
@@ -106,16 +106,16 @@ where
             Ok(value)
         }
         Err(js_value) => {
-            // Deserialize `Err(E)` response.
+            // Deserialize error response.
             // `js_value` is cloned so that we can later print the error trace
             // in case of a missing command handler.
             let value = serde_wasm_bindgen::from_value(js_value.clone())
-                .unwrap_or_else(|e| {
+                .unwrap_or_else(|err| {
                     // Error cause may be either type mismatch or missing
                     // command handler. A missing command handler will
                     // cause `invoke` to return a JS Promise error.
                     tracing::error!(
-                        "{cmd_pretty}: Unable to deserialize `Err(E)`: {e}"
+                        "{cmd_pretty}: Unable to deserialize error response: {err}"
                     );
                     // The fallback is needed due to command jank.
                     // See comment at scope root.

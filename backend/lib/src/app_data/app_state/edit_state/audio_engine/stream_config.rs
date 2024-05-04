@@ -15,17 +15,17 @@ pub enum Error {
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Error::Device(e) => write!(f, "{e}"),
+            Error::Device(err) => write!(f, "{err}"),
             Error::NoMatchingConfig => {
                 write!(
                     f,
                     "unable to find a matching stream config for this device"
                 )
             }
-            Error::UnsupportedChannelCount(e) => {
-                write!(f, "unsupported channel count: {e}")
+            Error::UnsupportedChannelCount(err) => {
+                write!(f, "unsupported channel count: {err}")
             }
-            Error::Other(e) => write!(f, "{e}"),
+            Error::Other(err) => write!(f, "{err}"),
         }
     }
 }
@@ -33,10 +33,10 @@ impl std::fmt::Display for Error {
 impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
-            Error::Device(e) => Some(e),
+            Error::Device(err) => Some(err),
             Error::NoMatchingConfig => None,
             Error::UnsupportedChannelCount(_) => None,
-            Error::Other(e) => Some(e.as_ref()),
+            Error::Other(err) => Some(err.as_ref()),
         }
     }
 }
@@ -68,8 +68,8 @@ pub enum ParseError {
 impl std::fmt::Display for ParseError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ParseError::SampleFormat(e) => {
-                write!(f, "unable to parse sample format: {e}")
+            ParseError::SampleFormat(err) => {
+                write!(f, "unable to parse sample format: {err}")
             }
         }
     }
@@ -78,7 +78,7 @@ impl std::fmt::Display for ParseError {
 impl std::error::Error for ParseError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
-            ParseError::SampleFormat(e) => Some(e),
+            ParseError::SampleFormat(err) => Some(err),
         }
     }
 }

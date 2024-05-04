@@ -2,14 +2,14 @@ use chipbox_ui_spinner::Spinner;
 use yew::prelude::*;
 
 #[derive(PartialEq, Default, Clone, Copy)]
-pub(super) enum State {
+pub(super) enum BackendQueryState {
     #[default]
     WaitingForBackend,
     ReadingSettings,
     QueryingSettings,
 }
 
-impl AsRef<str> for State {
+impl AsRef<str> for BackendQueryState {
     fn as_ref(&self) -> &str {
         match self {
             Self::WaitingForBackend => "Waiting for backend...",
@@ -21,11 +21,11 @@ impl AsRef<str> for State {
 
 #[derive(Properties, PartialEq)]
 pub(super) struct Props {
-    pub(super) state: State,
+    pub(super) state: BackendQueryState,
 }
 
 #[function_component]
-pub(super) fn QueryingBackend(props: &Props) -> yew::Html {
+pub(super) fn BackendQuery(props: &Props) -> yew::Html {
     const ROOT_STYLE: &str =
         "height: 100vh; display: flex; justify-content: center; \
         flex-direction: column; text-align: center;";

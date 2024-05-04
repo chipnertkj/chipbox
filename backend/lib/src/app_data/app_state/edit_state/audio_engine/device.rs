@@ -14,10 +14,10 @@ impl std::fmt::Display for Error {
                 "unable to find a default device or no default device is set"
             ),
             Error::NoMatch => write!(f, "no matching device"),
-            Error::Disconnected(e) => {
-                write!(f, "device was disconnected: {e}")
+            Error::Disconnected(err) => {
+                write!(f, "device was disconnected: {err}")
             }
-            Error::Other(e) => write!(f, "{e}"),
+            Error::Other(err) => write!(f, "{err}"),
         }
     }
 }
@@ -27,8 +27,8 @@ impl std::error::Error for Error {
         match self {
             Error::NoDefault => None,
             Error::NoMatch => None,
-            Error::Disconnected(e) => Some(e.as_ref()),
-            Error::Other(e) => Some(e.as_ref()),
+            Error::Disconnected(err) => Some(err.as_ref()),
+            Error::Other(err) => Some(err.as_ref()),
         }
     }
 }
