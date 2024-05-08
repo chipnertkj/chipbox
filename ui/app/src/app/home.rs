@@ -21,7 +21,7 @@ pub(super) fn Home(props: &Props) -> yew::Html {
 
 fn html_querying_settings() -> yew::Html {
     html! {
-        <BackendQuery state={BackendQueryState::QueryingSettings} />
+        <BackendQuery state={BackendQueryState::QuerySettings} />
     }
 }
 

@@ -4,17 +4,17 @@ use yew::prelude::*;
 #[derive(PartialEq, Default, Clone, Copy)]
 pub(super) enum BackendQueryState {
     #[default]
-    WaitingForBackend,
-    ReadingSettings,
-    QueryingSettings,
+    WaitForBackend,
+    ReadSettings,
+    QuerySettings,
 }
 
 impl AsRef<str> for BackendQueryState {
     fn as_ref(&self) -> &str {
         match self {
-            Self::WaitingForBackend => "Waiting for backend...",
-            Self::ReadingSettings => "Reading settings...",
-            Self::QueryingSettings => "Querying settings...",
+            Self::WaitForBackend => "Waiting for backend...",
+            Self::ReadSettings => "Reading settings...",
+            Self::QuerySettings => "Querying settings...",
         }
     }
 }

@@ -1,4 +1,5 @@
 use chipbox_common as common;
+use cowstr::CowStr;
 use std::str::FromStr;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -13,20 +14,20 @@ impl From<HostId> for cpal::HostId {
 
 #[derive(Debug)]
 pub enum ParseError {
-    Invalid(String),
-    WrongPlatform(String),
+    Invalid { value: CowStr },
+    WrongPlatform { value: CowStr },
 }
 
 impl std::fmt::Display for ParseError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ParseError::Invalid(s) => {
-                write!(f, "`{s}` is not convertible to a valid host id")
+            ParseError::Invalid { value } => {
+                write!(f, "`{value}` is not convertible to a valid host id")
             }
-            ParseError::WrongPlatform(s) => {
+            ParseError::WrongPlatform { value } => {
                 write!(
                     f,
-                    "host `{s}` is not supported on this platform ({platform})",
+                    "host `{value}` is not supported on this platform ({platform})",
                     platform = std::env::consts::OS
                 )
             }
@@ -38,7 +39,7 @@ impl std::error::Error for ParseError {}
 
 impl FromStr for HostId {
     type Err = ParseError;
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         const WASAPI: &str = "wasapi";
         const ASIO: &str = "asio";
         const JACK: &str = "jack";
@@ -53,7 +54,7 @@ impl FromStr for HostId {
             NULL,
         ];
 
-        match s.to_lowercase().as_str() {
+        match value.to_lowercase().as_str() {
             #[cfg(target_os = "windows")]
             WASAPI => Ok(Self(cpal::HostId::Wasapi)),
             #[cfg(target_os = "windows")]
@@ -94,10 +95,14 @@ impl FromStr for HostId {
             )))]
             NULL => Ok(Self(cpal::HostId::Null)),
             _ => {
-                if SUPPORTED_BACKENDS.contains(&s) {
-                    Err(ParseError::WrongPlatform(s.into()))
+                if SUPPORTED_BACKENDS.contains(&value) {
+                    Err(ParseError::WrongPlatform {
+                        value: value.into(),
+                    })
                 } else {
-                    Err(ParseError::Invalid(s.into()))
+                    Err(ParseError::Invalid {
+                        value: value.into(),
+                    })
                 }
             }
         }

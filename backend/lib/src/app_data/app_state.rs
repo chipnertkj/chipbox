@@ -40,7 +40,9 @@ impl From<&AppState> for BackendAppState {
         match app {
             AppState::ReadingSettings => BackendAppState::ReadingSettings,
             AppState::AwaitConfig { ref reason } => {
-                BackendAppState::AwaitConfig { reason: *reason }
+                BackendAppState::AwaitConfig {
+                    reason: reason.clone(),
+                }
             }
             AppState::Idle { .. } => BackendAppState::Idle,
             AppState::Edit { .. } => BackendAppState::Editor,

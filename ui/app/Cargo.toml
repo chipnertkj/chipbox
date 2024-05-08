@@ -14,11 +14,12 @@ chipbox-ui-panel = { workspace = true }
 tracing = { workspace = true }
 ## concurrency
 futures = { workspace = true }
-tokio = { version = "1.37", features = [], default-features = false }
+tokio = { version = "*", features = [], default-features = false }
 ## serde
 serde = { workspace = true }
 ## utils
 const_format = { workspace = true }
+cowstr = { workspace = true }
 ## wasm frontend
 yew = { workspace = true }
 web-sys = { workspace = true }

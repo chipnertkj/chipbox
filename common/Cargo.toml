@@ -10,3 +10,4 @@ once_cell = { workspace = true }
 cssparser = { workspace = true }
 derive_more = { workspace = true }
 cssparser-color = { workspace = true }
+cowstr = { workspace = true }

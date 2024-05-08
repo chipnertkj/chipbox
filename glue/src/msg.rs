@@ -1,5 +1,5 @@
 use crate::common;
-use common::app::FrontendMsg;
+use common::app::msg::FrontendMsg;
 
 #[cfg(feature = "backend")]
 use {crate::backend_lib::ThreadMsg, tauri::async_runtime::Sender};

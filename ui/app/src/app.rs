@@ -12,9 +12,11 @@ mod state;
 
 #[function_component]
 pub fn App() -> yew::Html {
-    // App state.
+    // Initial state of the application.
+    // Rerender on state change.
     let app_state = use_state_eq(AppState::default);
-    // After rendering, query the backend.
+
+    // After each render, query the backend.
     use_effect({
         let app_state = app_state.clone();
         move || query_backend_app_state(app_state)
@@ -25,7 +27,7 @@ pub fn App() -> yew::Html {
             <BackendQuery state={*backend_query_state} />
         },
         AppState::Setup(ref setup_state) => html! {
-            <Setup state={*setup_state} />
+            <Setup state={setup_state.clone()} />
         },
         AppState::Home(ref home_state) => html! {
             <Home state={home_state.clone()} />

@@ -6,7 +6,10 @@
 pub use chipbox_common as common;
 pub mod dir;
 
-use app_data::AppData;
+use app_data::{msg, AppData};
+use common::app::msg::cmd::BackendCmd;
+use common::app::msg::{BackendMsg, FrontendMsg};
+use common::app::AwaitConfigReason;
 use settings::SettingsExt as _;
 use tauri::{async_runtime, Manager as _};
 mod app_data;
@@ -18,7 +21,7 @@ mod settings;
 /// Messages received by the app thread.
 pub enum ThreadMsg {
     /// Tauri forwarded a message from the frontend.
-    Frontend(common::app::FrontendMsg),
+    Frontend(FrontendMsg),
     /// Main requested to exit.
     /// Immediatelly closes the app thread.
     Exit,
@@ -55,7 +58,7 @@ impl AppThread {
 
         // Read settings.
         tracing::trace!("Reading settings.");
-        let result = read_settings().await;
+        let result = Self::read_settings().await;
 
         // Handle the result.
         match result {
@@ -63,11 +66,14 @@ impl AppThread {
             Ok(settings_opt) => {
                 tracing::trace!("Settings ok.");
 
+                // Prepare settings update message.
+                let msg = BackendCmd::UpdateSettings(match settings_opt {
+                    Some(ref settings) => Ok(settings.clone()),
+                    None => Err(AwaitConfigReason::NoConfig),
+                });
+
                 // Send message to client.
-                Self::send_message(
-                    self.data.tauri_app(),
-                    common::app::BackendMsg::ReadingSettings,
-                );
+                Self::send_message(self.data.tauri_app(), msg.into());
 
                 // Update state based on whether there was a valid config.
                 self.data.state = settings_opt.into();
@@ -77,13 +83,21 @@ impl AppThread {
             }
             // Something went wrong while reading settings.
             Err(err) => {
-                tracing::error!("Settings read failed: {}", err);
+                // Prepare error message.
+                let err_msg = format!("Settings read failed: {}", err);
+                tracing::error!(err_msg);
+
+                // Send message to client.
+                let msg = BackendCmd::UpdateSettings(Err(
+                    AwaitConfigReason::Error(err_msg.into()),
+                ));
+                Self::send_message(self.data.tauri_app(), msg.into());
 
                 // Wait for exit message.
                 self.poll_until_exit_message()
                     .await;
             }
-        }
+        };
 
         // Exit.
         tracing::trace!("App thread finished.");
@@ -153,7 +167,7 @@ impl AppThread {
     /// Polls messages from the channel in a loop.
     async fn poll_messages(&mut self) {
         Self::poll_message_until(&mut self.rx, |msg| {
-            match self.data.handle_msg(msg) {
+            match msg::handle_thread_msg(&mut self.data, msg) {
                 true => Some(()),
                 false => None,
             }
@@ -164,34 +178,31 @@ impl AppThread {
     }
 
     /// Send an `AppMessage` to the client window.
-    fn send_message(
-        tauri_app: &tauri::AppHandle,
-        msg: common::app::BackendMsg,
-    ) {
+    fn send_message(tauri_app: &tauri::AppHandle, msg: BackendMsg) {
         tracing::trace!("Sending message to frontend: {:?}", msg);
         tauri_app
-            .emit_all(common::app::BackendMsg::event_name(), msg)
+            .emit_all(BackendMsg::event_name(), msg)
             .unwrap_or_else(|err| {
                 tracing::error!("Failed to send message to frontend: {}", err);
             })
     }
-}
 
-/// Read settings from the config file.
-/// Returns `Ok(None)` if the config file does not exist.
-pub async fn read_settings(
-) -> Result<Option<common::Settings>, settings::SettingsError> {
-    match common::Settings::read().await {
-        // Settings found.
-        Ok(settings) => Ok(Some(settings)),
-        // We catch `std::io::ErrorKind::NotFound`.
-        // Not having a config file is a valid state.
-        Err(settings::SettingsError::Io(ref e))
-            if e.err.kind() == std::io::ErrorKind::NotFound =>
-        {
-            Ok(None)
+    /// Read settings from the config file.
+    /// Returns `Ok(None)` if the config file does not exist.
+    async fn read_settings(
+    ) -> Result<Option<common::Settings>, settings::SettingsError> {
+        match common::Settings::read().await {
+            // Settings found.
+            Ok(settings) => Ok(Some(settings)),
+            // We catch `std::io::ErrorKind::NotFound`.
+            // Not having a config file is a valid state.
+            Err(settings::SettingsError::Io(ref e))
+                if e.err.kind() == std::io::ErrorKind::NotFound =>
+            {
+                Ok(None)
+            }
+            // Something else went wrong.
+            Err(err) => Err(err),
         }
-        // Something else went wrong.
-        Err(err) => Err(err),
     }
 }

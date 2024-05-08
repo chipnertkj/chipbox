@@ -418,6 +418,7 @@ version = "0.0.0"
 dependencies = [
  "chipbox-common",
  "color-eyre",
+ "cowstr",
  "cpal",
  "gen_value",
  "home",
@@ -436,6 +437,7 @@ name = "chipbox-common"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "cowstr",
  "cssparser 0.33.0",
  "cssparser-color",
  "derive_more",
@@ -472,6 +474,7 @@ dependencies = [
  "chipbox-ui-panel",
  "chipbox-ui-spinner",
  "const_format",
+ "cowstr",
  "futures",
  "serde",
  "tauri-sys",
@@ -558,6 +561,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "code-product"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9feea482d196b435bb8857c2ec1274926993bc3342953515620eb9641337ee01"
+dependencies = [
+ "code-product-lib",
+ "code-product-macro",
+]
+
+[[package]]
+name = "code-product-lib"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5938681371198e7a690aa008843d39bd3b3b65f17b0101518c388f453c0aaf4e"
+dependencies = [
+ "proc-macro2",
+]
+
+[[package]]
+name = "code-product-macro"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0371403e32bb895fc60f96b3b76a46a17b99a9ff85b3dbff0e1c5ff0f1ec8e13"
+dependencies = [
+ "code-product-lib",
+ "proc-macro2",
+]
+
+[[package]]
 name = "color-eyre"
 version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -632,6 +664,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "constptr"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9f6b816ec3d57d4febea032f3ce2bf9dca119f999a865f9f24d7020d9eb5167e"
+
+[[package]]
 name = "convert_case"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -695,6 +733,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f01585027057ff5f0a5bf276174ae4c1594a2c5bde93d5f46a016d76270f5a9"
 dependencies = [
  "bindgen",
+]
+
+[[package]]
+name = "cowstr"
+version = "1.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "613de46416b29f30c0c581b5f4cd7dfc01991f59c416b30aa85a0a82af7c791e"
+dependencies = [
+ "code-product",
+ "constptr",
+ "mutants",
+ "serde",
+ "serde_test",
 ]
 
 [[package]]
@@ -2503,6 +2554,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "mutants"
+version = "0.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bc0287524726960e07b119cebd01678f852f147742ae0d925e6a520dca956126"
+
+[[package]]
 name = "ndk"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3517,6 +3574,15 @@ name = "serde_spanned"
 version = "0.6.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "eb3622f419d1296904700073ea6cc23ad690adbd66f13ea683df73298736f0c1"
+dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "serde_test"
+version = "1.0.176"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5a2f49ace1498612d14f7e0b8245519584db8299541dfe31a06374a828d620ab"
 dependencies = [
  "serde",
 ]

@@ -8,10 +8,13 @@ impl From<BackendAppState> for AppState {
     fn from(value: BackendAppState) -> Self {
         match value {
             BackendAppState::ReadingSettings => {
-                Self::BackendQuery(BackendQueryState::ReadingSettings)
+                Self::BackendQuery(BackendQueryState::ReadSettings)
             }
             BackendAppState::AwaitConfig { reason } => match reason {
                 AwaitConfigReason::NoConfig => Self::Setup(SetupState::First),
+                AwaitConfigReason::Error(err) => {
+                    Self::Setup(SetupState::Error(err))
+                }
             },
             BackendAppState::Idle => Self::Home(HomeState::Welcome),
             BackendAppState::Editor => todo!(),

@@ -21,3 +21,4 @@ gen_value = { workspace = true }
 once_cell = { workspace = true }
 rb = { workspace = true }
 tauri = { workspace = true }
+cowstr.workspace = true
