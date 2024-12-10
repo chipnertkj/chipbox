@@ -1,3 +1,4 @@
-chain_width = 30
-max_width = 80
-imports_granularity = "Module"
+edition = "2021"
+format_code_in_doc_comments = true
+normalize_comments = true
+normalize_doc_attributes = true

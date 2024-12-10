@@ -1,15 +1,14 @@
-pub use theme::{Theme, ThemeSelector, UserThemes};
-pub mod audio_engine;
+//! User configuration.
 
-mod theme;
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
 
-/// User configuration for the entire application.
-#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Default)]
+/// User configuration.
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Settings {
-    pub user_themes: UserThemes,
-    pub selected_theme: ThemeSelector,
-    pub recent_projects: Vec<PathBuf>,
-    pub audio_engine: audio_engine::Settings,
+    /// Unrecognized keys from the settings file.
+    ///
+    /// Kept so that fields removed in newer versions of the software
+    /// can still be serialized back into the same file.
+    #[serde(flatten)]
+    unrecognized: serde_json::Value,
 }

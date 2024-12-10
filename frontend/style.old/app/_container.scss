@@ -1,0 +1,138 @@
+@use "../scaled-px" as *;
+
+$border-width: scaled-px(1px);
+$header-height: scaled-px(37px);
+$icon-size: scaled-px(18px);
+
+@mixin container-border($styles) {
+    border: #000 none $border-width;
+    border-style: $styles;
+}
+
+@mixin container-inner-border($styles) {
+    border: #3d3d3d none $border-width;
+    border-style: $styles;
+}
+
+@mixin containers-horizontal {
+    display: flex;
+    flex-direction: row;
+    .container {
+        border-right-style: solid;
+    }
+    .container:last-child {
+        border-right-style: none;
+    }
+}
+
+@mixin containers-vertical {
+    display: flex;
+    flex-direction: column;
+    .container {
+        border-bottom-style: solid;
+    }
+    .container:last-child {
+        border-bottom-style: none;
+    }
+}
+
+.containers {
+    @include container-border(solid);
+    .containers {
+        border-style: none;
+    }
+}
+
+.containers.horizontal {
+    @include containers-horizontal;
+}
+
+.containers.vertical {
+    @include containers-vertical;
+}
+
+.container {
+    flex: 1 1;
+    background-color: #222;
+    padding: scaled-px(6px);
+    @include container-border(none);
+}
+
+.container-inner {
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    height: 100%;
+}
+
+.container-header {
+    position: relative;
+    flex-direction: row;
+    margin-right: scaled-px(48px);
+    height: $header-height;
+}
+
+.container-header-clip {
+    position: absolute;
+    width: 100%;
+    overflow: clip;
+}
+
+.container-header-overflow {
+    display: flex;
+    flex-direction: row;
+    height: $header-height;
+    overflow-x: scroll;
+}
+
+.container-header-overflow::-webkit-scrollbar {
+    display: none;
+}
+
+.container-tab {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+    z-index: 1;
+    background-color: #131313;
+    padding: scaled-px(8px);
+    @include container-inner-border(solid solid none solid);
+
+    .icon {
+        width: $icon-size;
+        height: $icon-size;
+        color: #808080;
+    }
+    .close-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: scaled-px(8px);
+
+        .close-icon {
+            width: $icon-size;
+            height: $icon-size;
+            color: #808080;
+        }
+    }
+    .close-button:hover {
+        .close-icon {
+            color: #fff;
+        }
+    }
+    p {
+        margin: scaled-px(2px) scaled-px(8px) 0;
+        color: #cccccc;
+        font-family: "Questrial", sans-serif;
+        user-select: none;
+    }
+}
+
+.container-content {
+    box-sizing: border-box;
+    flex-grow: 1;
+    margin-top: -$border-width;
+    background-color: #131313;
+    width: 100%;
+    @include container-inner-border(solid);
+}

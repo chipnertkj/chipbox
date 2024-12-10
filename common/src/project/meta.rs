@@ -1,28 +1,42 @@
-use serde::{Deserialize, Serialize};
+//! Additional information about a [`project`](crate::project) that isn't directly modifiable
+//! by the user.
+//!
+//! This information is primarily used in
+//! [`AnyProject::from_json_str`](crate::project::any::AnyProject::from_json_str)
+//! for deserializing a project file into the appropriate
+//! version of the format.
+//! It must remain stable between different versions of the software,
+//! although future versions may add optional fields.
+//!
+//! See the [`project`](crate::project) module documentation
+//! for more information.
 
-/// Metadata about a project.
-#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+use serde::{Deserialize, Serialize};
+pub use version::ProjectVersion;
+
+mod version;
+
+/// A stable representation of a project file's metadata.
+/// Future versions may add optional fields.
+///
+/// See the [`meta`](self) module documentation for more information.
+#[derive(Serialize, Deserialize, PartialEq, Clone, Copy, Debug)]
 pub struct ProjectMeta {
-    /// Name of the project.
-    pub name: String,
-    /// Description of the project.
-    pub description: Option<String>,
-    /// Name of the author of the project.
-    pub author: Option<String>,
-    /// Date when the project was created.
-    pub creation_date: chrono::DateTime<chrono::Utc>,
-    /// `None` if the project hasn't been modified since creation.
-    pub modification_date: Option<chrono::DateTime<chrono::Utc>>,
+    /// The version identifier used for determining
+    /// the version of the format to use for deserialization.
+    version: ProjectVersion,
 }
 
 impl ProjectMeta {
-    pub fn new(name: String) -> Self {
-        Self {
-            name,
-            description: None,
-            author: None,
-            creation_date: chrono::Utc::now(),
-            modification_date: None,
+    /// Get the version identifier describing a project.
+    pub fn version(&self) -> ProjectVersion {
+        self.version
+    }
+
+    /// Get the metadata used for the [`v1`](crate::project::v1) project format.
+    pub(crate) const fn v1() -> &'static Self {
+        &Self {
+            version: ProjectVersion::V1,
         }
     }
 }

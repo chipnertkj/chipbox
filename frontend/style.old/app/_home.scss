@@ -1,0 +1,23 @@
+@use "container";
+
+#home {
+    height: 100%;
+}
+
+@media (max-aspect-ratio: 1/1) {
+    #home {
+        @include container.containers-vertical;
+    }
+    #release-notes-container {
+        flex: 0 1 40%;
+    }
+}
+
+@media not (max-aspect-ratio: 1/1) {
+    #home {
+        @include container.containers-horizontal;
+    }
+    #release-notes-container {
+        flex: 0 1 30%;
+    }
+}

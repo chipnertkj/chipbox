@@ -1,12 +1,19 @@
+//! Glue code used for communication between the frontend and backend.
+
+#![warn(
+    missing_docs,
+    unreachable_pub,
+    missing_debug_implementations,
+    rust_2018_idioms
+)]
+#![deny(unsafe_op_in_unsafe_fn)]
 #![feature(never_type)]
-
-pub use chipbox_common as common;
-
-#[cfg(feature = "backend")]
-pub use chipbox_backend_lib as backend_lib;
 
 #[cfg(feature = "backend")]
 pub mod handler;
+#[cfg(feature = "backend")]
+pub mod loaded_project;
 #[cfg(feature = "frontend")]
-mod invoke;
-pub mod msg;
+pub(crate) mod tauri_api;
+
+pub mod cmd;

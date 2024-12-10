@@ -1,0 +1,21 @@
+[package]
+name = "chipbox-frontend"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+## member deps
+chipbox-glue = { workspace = true, features = ["frontend"] }
+chipbox-common.workspace = true
+## frontend deps
+leptos.workspace = true
+leptos-use.workspace = true
+wasm-bindgen.workspace = true
+wasm-bindgen-futures.workspace = true
+serde.workspace = true
+serde-wasm-bindgen.workspace = true
+console_error_panic_hook.workspace = true
+tracing-subscriber.workspace = true
+tracing-web.workspace = true
+tracing.workspace = true
+eyre.workspace = true

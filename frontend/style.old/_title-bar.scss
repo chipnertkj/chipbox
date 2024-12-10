@@ -1,0 +1,78 @@
+@use "scaled-px" as *;
+
+#title-bar {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    border-bottom: #000 solid scaled-px(1px);
+    background-color: hsl(0, 0%, 7%);
+    width: 100vw;
+    height: scaled-px(38px);
+    -webkit-app-region: drag;
+    user-select: none;
+}
+
+#title-bar-content {
+    flex: 1;
+    height: 100%;
+}
+
+#title-bar-buttons {
+    display: flex;
+    height: 100%;
+}
+
+.title-bar-separator {
+    background-color: #3d3d3d;
+    width: scaled-px(1px);
+    height: 100%;
+}
+
+.title-bar-button {
+    display: flex;
+    align-items: center;
+    border: none;
+    background-color: #131313;
+    width: scaled-px(50px);
+    height: 100%;
+    -webkit-app-region: no-drag;
+    svg {
+        margin: 0 auto;
+        width: scaled-px(18px);
+        height: scaled-px(18px);
+
+        path {
+            color: #7f7f7f;
+            stroke-width: 2;
+        }
+    }
+}
+
+.title-bar-button:hover {
+    background-color: #303030;
+    svg > path {
+        color: #fff;
+    }
+}
+
+.title-bar-button:hover:active {
+    background-color: #3e3e3e;
+    svg > path {
+        color: #ddd;
+    }
+}
+
+.title-bar-button-close {
+    @extend .title-bar-button;
+}
+
+.title-bar-button-close:hover {
+    background-color: #f00;
+    svg > path {
+        color: #fff;
+    }
+}
+
+.title-bar-button-close:hover:active {
+    background-color: #a00;
+}

@@ -4,10 +4,15 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-chrono = { workspace = true }
-serde = { workspace = true }
-once_cell = { workspace = true }
-cssparser = { workspace = true }
-derive_more = { workspace = true }
-cssparser-color = { workspace = true }
-cowstr = { workspace = true }
+chrono.workspace = true
+derive_more.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+delegate.workspace = true
+tracing.workspace = true
+csscolorparser.workspace = true
+itertools.workspace = true
+slotmap.workspace = true
+url.workspace = true
+email_address.workspace = true

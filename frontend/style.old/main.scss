@@ -1,0 +1,43 @@
+@use "title-bar";
+@use "app";
+@use "design";
+
+// HTML spans the entire window.
+// Overflow will be clipped.
+html {
+    width: 100vw;
+    height: 100vh;
+    overflow: clip;
+}
+
+// Body spans the entire window.
+// It's a flex container containing the title bar and the main content.
+// Overflow will be clipped.
+body {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    background-color: #000;
+    width: 100vw;
+    height: 100vh;
+    overflow: clip;
+}
+
+// Main is the actual content of the window.
+// This primarily excludes the title bar.
+// The content may overflow if the window is too small.
+main {
+    flex: 1 1 auto;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+// A button does not have a default style.
+// It is transparent, has no border or padding, and shows a pointer.
+button {
+    border: 0;
+    background-color: transparent;
+    cursor: pointer;
+    padding: 0;
+}

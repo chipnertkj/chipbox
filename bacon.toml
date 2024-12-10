@@ -1,0 +1,13 @@
+default_job = "clippy"
+
+# Run clippy on the default target
+[jobs.clippy]
+command = [
+    "cargo",
+    "clippy",
+    "--color",
+    "always",
+    "--target-dir",
+    "tmp/bacon-check",
+]
+need_stdout = false

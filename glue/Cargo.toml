@@ -1,50 +1,42 @@
 [package]
 name = "chipbox-glue"
-version = "0.0.0"
+version = "0.1.0"
 edition = "2021"
 
 [features]
 backend = [
-    # workspace deps
-    "dep:chipbox-backend-lib",
     # deps
     "dep:tauri",
     "dep:tokio",
+    "dep:parking_lot",
 ]
 frontend = [
     # deps
-    "dep:yew",
+    "dep:leptos",
     "dep:wasm-bindgen",
     "dep:wasm-bindgen-futures",
-    "dep:wasm-timer",
+    "dep:web-time",
     "dep:serde-wasm-bindgen",
-    "dep:js-sys",
-    "dep:web-sys",
-    "dep:tauri-sys",
 ]
 
 [dependencies]
 ## backend only deps
-# workspace deps
-chipbox-backend-lib = { workspace = true, optional = true }
 # deps
 tauri = { workspace = true, optional = true }
 tokio = { workspace = true, optional = true }
+parking_lot = { workspace = true, optional = true }
 
 ## fronted only deps
 # deps
-yew = { workspace = true, optional = true }
+leptos = { workspace = true, optional = true }
 wasm-bindgen = { workspace = true, optional = true }
 wasm-bindgen-futures = { workspace = true, optional = true }
-wasm-timer = { workspace = true, optional = true }
+web-time = { workspace = true, optional = true }
 serde-wasm-bindgen = { workspace = true, optional = true }
-js-sys = { workspace = true, optional = true }
-web-sys = { workspace = true, optional = true }
-tauri-sys = { workspace = true, optional = true }
 
 ## common deps
-# workspace deps
-chipbox-common = { workspace = true }
 # deps
+chipbox-common = { workspace = true }
 tracing = { workspace = true }
 serde = { workspace = true }
+thiserror = { workspace = true }

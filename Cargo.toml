@@ -1,131 +1,69 @@
-## ------------------------------------------------
-## workspace config
 [workspace]
-members = [
-    "backend",
-    "glue",
-    "common",
-    ## ui members
-    "ui/app",
-    "ui/panel",
-    "ui/spinner",
-]
+resolver = "2"
+members = ["frontend", "backend", "glue", "common"]
+package.edition = "2021"
 
-[workspace.dependencies]
-## project deps
-chipbox-backend = { path = "backend" }
-chipbox-backend-lib = { path = "backend/lib" }
-chipbox-glue = { path = "glue" }
-chipbox-common = { path = "common" }
-# ui deps
-chipbox-ui-app = { path = "ui/app" }
-chipbox-ui-panel = { path = "ui/panel" }
-chipbox-ui-spinner = { path = "ui/spinner" }
-## utility
-const_format = { version = "0.2", features = ["fmt"] }
-home = { version = "0.5" }
-gen_value = "0.7"
-once_cell = "1.19"
-chrono = { version = "0.4", features = ["serde"] }
-rb = { version = "0.4" }
-derive_more = { version = "0.99", features = ["nightly"] }
-cowstr = { version = "1.3", features = ["serde"] }
-## tracing
-tracing = "0.1"
-tracing-subscriber = { version = "0.3" }
-tracing-web = "0.1"
-tracing-appender = "0.2"
-## error handling
-color-eyre = "0.6"
-## concurrency
-futures = { version = "0.3" }
-tokio = { version = "1.37", features = [
-    "macros",
-    "fs",
-    "tracing",
-    "time",
-    "sync",
-] }
-## serde
-serde-wasm-bindgen = { version = "0.6" }
-serde = { version = "1.0", features = ["derive", "rc"] }
-serde_json = "1.0"
-## tauri
-tauri = { version = "1.6", features = ["shell-open"] }
-tauri-build = "1.5" # build script
-tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys", features = [
-    "event",
-] }
-tauri-plugin-window-state = "0.1" # save window state on app exit
-wasm-bindgen-futures = { version = "0.4" }
-## wasm frontend
-yew = { version = "0.21", features = ["csr"] }
-wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
-wasm-timer = { version = "0.2" }
-js-sys = { version = "0.3" }
-web-sys = { version = "0.3", features = [
-    "Element",
-    "DomTokenList",
-    "ResizeObserver",
-    "CustomEvent",
-] }
-gloo = { version = "0.11", features = ["futures"] }
-## css
-cssparser = { git = "https://github.com/servo/rust-cssparser/", features = [
-    "serde",
-] }
-cssparser-color = { git = "https://github.com/servo/rust-cssparser/", features = [
-    "serde",
-] }
-## audio
-cpal = { git = "https://github.com/RustAudio/cpal", features = [
-    "asio",
-    "jack",
-] }
-
-## ------------------------------------------------
-## package config
-[package]
-name = "chipbox"
-version = "0.0.0"
-authors = ["chipnertkj <domekaij@gmail.com>"]
-exclude = ["target/", ".github/"]
-readme = "README.md"
-edition = "2021"
-license = "MPL-2.0"
-repository = "https://github.com/chipnertkj/chipbox"
-categories = ["multimedia::audio"]
-keywords = ["daw", "music", "vst", "clap", "audio"]
-description = "Open-source DAW with a node graph system."
-
-[badges]
-maintenance = { status = "actively-developed" }
-
-# Low optimization.
 [profile.dev]
-lto = false
 opt-level = 1
-incremental = true
-debug = "full"
+incremental = true # incremental causes so many issues with tauri...
 
-## Keep debug info.
 [profile.release]
-lto = "fat"
 opt-level = 3
 incremental = false
 debug = "full"
 
-[dependencies]
-## project deps
-chipbox-common = { workspace = true }
-chipbox-glue = { workspace = true, features = ["frontend"] }
-## ui deps
-chipbox-ui-app = { workspace = true }
-## tracing
-tracing = { workspace = true }
-tracing-subscriber = { workspace = true }
-tracing-web = { workspace = true }
-## wasm frontend
-yew = { workspace = true }
-## utility
-const_format = { workspace = true }
+[workspace.dependencies]
+## workspace deps
+chipbox-common = { path = "common" }
+chipbox-glue = { path = "glue" }
+
+## common deps
+serde = { version = "1.0.215", features = ["derive", "unstable"] }
+tracing = { version = "0.1.40" }
+thiserror = { version = "2.0.3" }
+derive_more = { version = "1.0.0", features = [
+    "from",
+    "as_ref",
+    "display",
+    "not",
+    "add",
+] }
+chrono = { version = "0.4.38", features = ["serde"] }
+serde_json = { version = "1.0.133", features = ["preserve_order"] }
+delegate = { version = "0.13.1" }
+eyre = { version = "0.6.12" }
+csscolorparser = { version = "0.7.0", features = ["serde", "lab"] }
+itertools = { version = "0.13.0" }
+slotmap = { version = "1.0.7", features = ["serde"] }
+url = { version = "2.5.4", features = ["serde"] }
+email_address = { version = "0.2.9", features = ["serde"] }
+parking_lot = { version = "0.12.3" }
+
+## backend deps
+color-eyre = { version = "0.6.3" }
+tauri = { version = "2.1.1", features = [] }
+tauri-build = { version = "2.0.3", features = [] }
+tauri-plugin-shell = "2.0.2"
+tokio = { version = "1.41.1", features = [
+    "rt-multi-thread",
+    "macros",
+    "fs",
+    "io-util",
+] }
+tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
+tracing-appender = "0.2.3"
+home = { version = "0.5.9" }
+fs4 = { version = "0.11.1", features = ["tokio"] }
+
+## frontend deps
+leptos = { version = "0.7.0-rc2", features = ["csr", "nightly"] }
+leptos-use = { version = "0.14.0-rc3", features = [
+    "use_window",
+    "use_event_listener",
+] }
+wasm-bindgen = "=0.2.95"
+wasm-bindgen-futures = "=0.4.45"
+serde-wasm-bindgen = "0.6.5"
+console_error_panic_hook = "0.1.7"
+web-time = "1.1.0"
+tracing-web = "0.1.3"

@@ -1,21 +1,14 @@
 [build]
-target = "./index.html"
+target = "./frontend/index.html"
 
 [watch]
-## Ignore these files/folders when watching for frontend rebuild.
-ignore = [
-    "backend/",
-    ".github/",
-    "scss-input/",
-    ".gitignore",
-    "LICENSE.txt",
-    "README.md",
-    "rustfmt.toml",
-    ".taurignore",
-    "Trunk.toml",
-]
+ignore = []
 
 [serve]
-address = "127.0.0.1"
+addresses = ["127.0.0.1"]
 port = 1420
 open = false
+ws_protocol = "ws"
+
+[tools]
+wasm_bindgen = "0.2.95"
