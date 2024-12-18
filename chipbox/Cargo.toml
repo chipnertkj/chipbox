@@ -1,0 +1,15 @@
+[package]
+name = "chipbox"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+default = ["not-hot"]
+# Disable hot-reloading. Use `chipbox-hot` directly instead.
+not-hot = ["dep:chipbox-hot"]
+# Enable hot-reloading. Reload `chipbox-hot` on changes.
+hot = ["dep:hot-lib-reloader"]
+
+[dependencies]
+chipbox-hot = { workspace = true, optional = true }
+hot-lib-reloader = { version = "0.7.0", optional = true }

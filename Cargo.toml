@@ -1,0 +1,15 @@
+[workspace]
+members = [
+    "chipbox",
+    "chipbox-synth",
+    "chipbox-song",
+    "chipbox-hot",
+    "chipbox-dev",
+    "chipnertkj-ui",
+    "chipnertkj-ui-render",
+    "chipnertkj-ui-desktop",
+]
+resolver = "2"
+
+[workspace.dependencies]
+chipbox-hot = { path = "chipbox-hot" }
