@@ -3,4 +3,29 @@ name = "chipbox-synth"
 version = "0.1.0"
 edition = "2021"
 
+[dev-dependencies]
+cpal = { version = "0.15.3", features = ["asio"] }
+eframe = "0.30.0"
+
 [dependencies]
+ambassador = "0.4.1"
+delegate = "0.13.1"
+derive_more = { version = "1.0.0", features = [
+    "display",
+    "from",
+    "into",
+    "as_ref",
+    "index",
+    "index_mut",
+    "mul",
+    "mul_assign",
+    "into_iterator",
+] }
+enum-as-inner = "0.6.1"
+enum_delegate = "0.2.0"
+enum_dispatch = "0.3.13"
+num = "0.4.3"
+petgraph = { version = "0.6.5", features = ["rayon"] }
+rb = "0.4.1"
+static_assertions = "1.1.0"
+thiserror = "2.0.9"
