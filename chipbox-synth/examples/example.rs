@@ -2,11 +2,10 @@
 #![allow(rustdoc::missing_crate_level_docs)]
 #![feature(never_type)]
 
-use chipbox_synth::synth;
 use eframe::egui;
 
 fn main() -> eframe::Result {
-    let _synth = synth::Graph::<!, u32>::with_capacity(0, 0);
+    let _synth = chipbox_synth::Graph::<!, u8>::with_capacity(0, 0);
 
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default().with_inner_size([800.0, 600.0]),

@@ -3,3 +3,5 @@
 pub mod block;
 pub mod frame;
 pub mod synth;
+
+pub use synth::{cmd, Graph, GraphError};
