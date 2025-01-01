@@ -19,6 +19,7 @@ pub use stereo::StereoFrame;
     derive_more::Mul,
     derive_more::MulAssign,
 )]
-pub struct Frame<T, const N: usize> {
-    data: [T; N],
+#[repr(transparent)]
+pub struct Frame<SampleT, const CHANNEL_COUNT: usize> {
+    data: [SampleT; CHANNEL_COUNT],
 }

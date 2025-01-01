@@ -1,21 +1,21 @@
 use crate::frame::Frame;
 
-pub type MonoFrame<T> = Frame<T, 1>;
+pub type MonoFrame<SampleT> = Frame<SampleT, 1>;
 
-impl<T> MonoFrame<T> {
+impl<SampleT> MonoFrame<SampleT> {
     pub const VALUE_IDX: usize = 0;
 
-    pub fn value(&self) -> &T {
+    pub fn value(&self) -> &SampleT {
         &self[Self::VALUE_IDX]
     }
 
-    pub fn value_mut(&mut self) -> &mut T {
+    pub fn value_mut(&mut self) -> &mut SampleT {
         &mut self[Self::VALUE_IDX]
     }
 }
 
-impl<T> AsRef<T> for MonoFrame<T> {
-    fn as_ref(&self) -> &T {
+impl<SampleT> AsRef<SampleT> for MonoFrame<SampleT> {
+    fn as_ref(&self) -> &SampleT {
         self.value()
     }
 }

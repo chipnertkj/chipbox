@@ -13,12 +13,17 @@
     derive_more::Mul,
     derive_more::MulAssign,
 )]
-pub struct Block<T, const N: usize> {
-    data: [T; N],
+#[repr(transparent)]
+pub struct Block<FrameT, const FRAME_COUNT: usize> {
+    data: [FrameT; FRAME_COUNT],
 }
 
-impl<T, const N: usize> Block<T, N> {
-    pub fn new(frames: [T; N]) -> Self {
+impl<FrameT, const FRAME_COUNT: usize> Block<FrameT, FRAME_COUNT> {
+    pub fn new(frames: [FrameT; FRAME_COUNT]) -> Self {
         Self::from(frames)
+    }
+
+    pub fn as_slice(&self) -> &[FrameT] {
+        &self.data
     }
 }

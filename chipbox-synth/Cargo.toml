@@ -8,7 +8,6 @@ cpal = { version = "0.15.3", features = ["asio"] }
 eframe = "0.30.0"
 
 [dependencies]
-ambassador = "0.4.1"
 delegate = "0.13.1"
 derive_more = { version = "1.0.0", features = [
     "display",
@@ -20,12 +19,12 @@ derive_more = { version = "1.0.0", features = [
     "mul",
     "mul_assign",
     "into_iterator",
+    "debug",
 ] }
 enum-as-inner = "0.6.1"
 enum_delegate = "0.2.0"
-enum_dispatch = "0.3.13"
 num = "0.4.3"
-petgraph = { version = "0.6.5", features = ["rayon"] }
+petgraph = { version = "0.7.0", features = ["rayon"] }
 rb = "0.4.1"
 static_assertions = "1.1.0"
 thiserror = "2.0.9"
