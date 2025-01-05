@@ -23,3 +23,18 @@ pub use stereo::StereoFrame;
 pub struct Frame<SampleT, const CHANNEL_COUNT: usize> {
     data: [SampleT; CHANNEL_COUNT],
 }
+
+impl<SampleT, const CHANNEL_COUNT: usize> Default for Frame<SampleT, CHANNEL_COUNT>
+where
+    SampleT: Default + Copy,
+{
+    fn default() -> Self {
+        Self::from([SampleT::default(); CHANNEL_COUNT])
+    }
+}
+
+impl<SampleT, const CHANNEL_COUNT: usize> Frame<SampleT, CHANNEL_COUNT> {
+    pub const fn channel_count(&self) -> usize {
+        CHANNEL_COUNT
+    }
+}

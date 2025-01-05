@@ -5,7 +5,6 @@ edition = "2021"
 
 [dev-dependencies]
 cpal = { version = "0.15.3", features = ["asio"] }
-eframe = "0.30.0"
 
 [dependencies]
 delegate = "0.13.1"
@@ -26,5 +25,7 @@ enum_delegate = "0.2.0"
 num = "0.4.3"
 petgraph = { version = "0.7.0", features = ["rayon"] }
 rb = "0.4.1"
+slotmap = "1.0.7"
 static_assertions = "1.1.0"
 thiserror = "2.0.9"
+rand = "0.8.5"

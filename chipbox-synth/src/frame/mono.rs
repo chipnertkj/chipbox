@@ -19,3 +19,9 @@ impl<SampleT> AsRef<SampleT> for MonoFrame<SampleT> {
         self.value()
     }
 }
+
+impl<SampleT> AsMut<SampleT> for MonoFrame<SampleT> {
+    fn as_mut(&mut self) -> &mut SampleT {
+        self.value_mut()
+    }
+}
