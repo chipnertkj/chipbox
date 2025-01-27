@@ -1,5 +1,7 @@
 //! Imports hot-reloadable code.
 
+// Cargo features are additive so this shouldn't be done normally,
+// but isn't a problem in binary crates.
 // Ensure hot-reload features are mutually exclusive and at least one is enabled.
 #[cfg(all(not(feature = "hot"), not(feature = "not-hot")))]
 compile_error!("one of features `hot` or `not-hot` must be enabled");

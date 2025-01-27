@@ -1,7 +1,5 @@
-pub mod mono;
-pub mod stereo;
+mod stereo;
 
-pub use mono::MonoFrame;
 pub use stereo::StereoFrame;
 
 #[derive(
@@ -34,7 +32,7 @@ where
 }
 
 impl<SampleT, const CHANNEL_COUNT: usize> Frame<SampleT, CHANNEL_COUNT> {
-    pub const fn channel_count(&self) -> usize {
+    pub const fn channel_count() -> usize {
         CHANNEL_COUNT
     }
 }

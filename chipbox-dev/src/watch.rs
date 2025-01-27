@@ -8,6 +8,21 @@ use watchexec::{
 
 pub(crate) type CrateNames = &'static [&'static str];
 
+pub(crate) const fn bin_crates() -> CrateNames {
+    &[
+        "chipbox",
+        "chipbox-synth",
+        "chipbox-song",
+        "chipnertkj-ui",
+        "chipnertkj-ui-desktop",
+        "chipnertkj-ui-render",
+    ]
+}
+
+pub(crate) const fn hot_crates() -> CrateNames {
+    &["chipbox-hot", "chipnertkj-ui"]
+}
+
 #[derive(Copy, Clone, Debug)]
 pub(crate) enum WxRtType {
     Bin,
@@ -45,21 +60,6 @@ impl WxRtType {
             job.restart();
         }
     }
-}
-
-pub(crate) const fn bin_crates() -> CrateNames {
-    &[
-        "chipbox",
-        "chipbox-synth",
-        "chipbox-song",
-        "chipnertkj-ui",
-        "chipnertkj-ui-desktop",
-        "chipnertkj-ui-render",
-    ]
-}
-
-pub(crate) const fn hot_crates() -> CrateNames {
-    &["chipbox-hot", "chipnertkj-ui"]
 }
 
 fn has_crates(parent: impl AsRef<Path>, crates: CrateNames) -> bool {

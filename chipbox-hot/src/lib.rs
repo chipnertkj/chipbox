@@ -1,2 +1,7 @@
 //! # Note
-//! **All** public exports have to be #[no_mangle] for hot-reload to work.
+//! **All** public exports must:
+//! - Be `#[no_mangle]`.
+//! - Keep the same function signature between reloads.
+//!
+//! Failure to follow may result in undefined behavior and/or crashes.
+//! This only applies to builds with the `hot` feature enabled.

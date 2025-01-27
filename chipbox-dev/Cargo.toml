@@ -6,8 +6,8 @@ edition = "2021"
 [dependencies]
 miette = { version = "7.4.0", features = ["fancy"] }
 ratatui = "0.29.0"
-clap = { version = "4.5.23", features = ["derive"] }
-tokio = { version = "1.42.0", features = ["rt-multi-thread", "macros"] }
+clap = { version = "4.5.26", features = ["derive"] }
+tokio = { version = "1.43.0", features = ["rt-multi-thread", "macros"] }
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = [
     "env-filter",

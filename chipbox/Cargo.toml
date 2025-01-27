@@ -5,11 +5,13 @@ edition = "2021"
 
 [features]
 default = ["not-hot"]
-# Disable hot-reloading. Use `chipbox-hot` directly instead.
+# Disable hot-reloading. Use crate `chipbox-hot` directly instead.
 not-hot = ["dep:chipbox-hot"]
-# Enable hot-reloading. Reload `chipbox-hot` on changes.
+# Enable hot-reloading. Reload crate `chipbox-hot` on changes.
 hot = ["dep:hot-lib-reloader"]
 
 [dependencies]
 chipbox-hot = { workspace = true, optional = true }
 hot-lib-reloader = { version = "0.7.0", optional = true }
+cpal = { version = "0.15.3", features = ["asio"] }
+rb = "0.4.1"
