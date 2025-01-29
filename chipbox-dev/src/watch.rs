@@ -14,7 +14,6 @@ pub(crate) const fn bin_crates() -> CrateNames {
         "chipbox-synth",
         "chipbox-song",
         "chipnertkj-ui",
-        "chipnertkj-ui-desktop",
         "chipnertkj-ui-render",
     ]
 }
@@ -32,10 +31,14 @@ pub(crate) enum WxRtType {
 impl WxRtType {
     pub(crate) fn handle_changes(&self, action: &mut ActionHandler, job_id: watchexec::Id) {
         let (prog, args) = match self {
-            WxRtType::Bin => (
-                "cargo",
-                vec!["run", "-p", "chipbox", "-F", "hot", "--no-default-features"],
-            ),
+            WxRtType::Bin => ("cargo", vec![
+                "run",
+                "-p",
+                "chipbox",
+                "-F",
+                "hot",
+                "--no-default-features",
+            ]),
             WxRtType::Hot => ("cargo", vec!["build", "-p", "chipbox-hot"]),
         };
         let job = action.get_or_create_job(job_id, || {

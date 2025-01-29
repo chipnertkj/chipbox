@@ -7,7 +7,6 @@ members = [
     "chipbox-dev",
     "chipnertkj-ui",
     "chipnertkj-ui-render",
-    "chipnertkj-ui-desktop",
 ]
 resolver = "2"
 

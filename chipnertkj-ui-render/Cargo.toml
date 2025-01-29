@@ -1,6 +1,12 @@
 [package]
 name = "chipnertkj-ui-render"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
+chipnertkj-ui = { path = "../chipnertkj-ui" }
+miette = "7.4.0"
+mint = "0.5.9"
+nalgebra = "0.33.2"
+nalgebra-glm = { version = "0.19.0", features = ["convert-mint"] }
+wgpu = "24.0.1"
