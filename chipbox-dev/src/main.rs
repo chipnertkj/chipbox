@@ -95,7 +95,7 @@ fn init_tracing(verbosity: Verbosity) -> miette::Result<()> {
 fn directives(verbosity: Verbosity) -> Vec<String> {
     let crate_name = env!("CARGO_CRATE_NAME");
     match verbosity {
-        Verbosity::Normal => vec![],
+        Verbosity::Normal => vec![format!("{crate_name}=info")],
         Verbosity::Debug { .. } => vec![format!("{crate_name}=debug")],
         Verbosity::Trace => vec![format!("{crate_name}=trace")],
     }
