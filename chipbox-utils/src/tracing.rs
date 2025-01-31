@@ -1,4 +1,4 @@
-use miette::{Context as _, IntoDiagnostic as _};
+use miette::{Context as _, IntoDiagnostic as _, miette};
 use tracing_subscriber::{EnvFilter, fmt::SubscriberBuilder};
 
 /// Initialize tracing capabilities with [`tracing_subscriber`].
@@ -26,6 +26,8 @@ pub fn init_subscriber(
         .with_env_filter(env_filter)
         .without_time()
         .try_init()
-        .map_err(|e| miette::miette!("init subscriber: {e}"))?;
+        // Error is type-erased, need to map to valid diagnostic.
+        .map_err(|e| miette!("{}", e.to_string()))
+        .wrap_err("install")?;
     Ok(())
 }
