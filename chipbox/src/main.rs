@@ -4,7 +4,7 @@ use miette::Context as _;
 
 fn main() -> miette::Result<()> {
     let directives = tracing_directives();
-    chipbox_utils::init_tracing(directives).wrap_err("init tracing")?;
+    chipbox_utils::tracing::init_subscriber(directives).wrap_err("init subscriber")?;
     let mut app = chipbox::App::new();
     app.run()
 }

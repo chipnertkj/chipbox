@@ -1,11 +1,14 @@
 use miette::{Context as _, IntoDiagnostic as _};
 use tracing_subscriber::{EnvFilter, fmt::SubscriberBuilder};
 
-/// Initialize tracing capabilities.
+/// Initialize tracing capabilities with [`tracing_subscriber`].
+/// Subscriber is configured not to include timestamps.
 ///
 /// # Arguments
-/// * `directives` - list of directives to add to the env filter.
-pub fn init(directives: impl IntoIterator<Item = impl AsRef<str>>) -> miette::Result<()> {
+/// * `directives` - list of directives to apply to the env filter.
+pub fn init_subscriber(
+    directives: impl IntoIterator<Item = impl AsRef<str>>,
+) -> miette::Result<()> {
     // Generate env filter.
     let mut env_filter = EnvFilter::from_default_env();
     let directives = directives
