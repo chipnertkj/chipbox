@@ -1,3 +1,5 @@
+#[cfg(feature = "hot")]
+use crate::hot::ObserverHandle;
 use const_format::concatcp;
 use miette::{Context as _, IntoDiagnostic};
 use render_window::RenderWindow;
@@ -8,43 +10,31 @@ use winit::window::WindowAttributes;
 
 mod render_window;
 
-pub(crate) struct App<'app> {
+pub struct App<'app> {
     rt: tokio::runtime::Runtime,
     main_window: Option<RenderWindow<'app>>,
+    #[cfg(feature = "hot")]
+    observer: Option<ObserverHandle>,
 }
 
 impl App<'_> {
-    /// The title of the main window.
-    const MAIN_WINDOW_TITLE: &'static str =
-        concatcp!(env!("CARGO_PKG_NAME"), " ", env!("CARGO_PKG_VERSION"));
-
-    /// Initialize the main window.
-    fn init_main_window(&mut self, event_loop: &ActiveEventLoop) -> miette::Result<()> {
-        let mut attributes = WindowAttributes::default();
-        attributes.title = Self::MAIN_WINDOW_TITLE.to_string();
-        let fut = RenderWindow::with_ev_loop(event_loop, attributes);
-        let render_window = self.rt.block_on(fut)?;
-        self.main_window = Some(render_window);
-        Ok(())
-    }
-
-    /// Handle close request for the main window.
-    fn main_close_request(&mut self, event_loop: &ActiveEventLoop) {
-        self.main_window = None;
-        event_loop.exit();
-    }
-
     /// Initialize the application.
-    pub(crate) fn new() -> Self {
+    pub fn new() -> Self {
         let rt = tokio::runtime::Runtime::new().expect("init tokio");
+        // Init hot-reload event observer.
+        #[cfg(feature = "hot")]
+        let tx = ObserverHandle::init(&rt, Self::on_hot_reload);
         Self {
             rt,
             main_window: None,
+            // Add join handle to close thread on exit.
+            #[cfg(feature = "hot")]
+            observer: Some(tx),
         }
     }
 
     /// Run the application.
-    pub(crate) fn run(&mut self) -> miette::Result<()> {
+    pub fn run(&mut self) -> miette::Result<()> {
         let event_loop = EventLoop::new()
             .into_diagnostic()
             .wrap_err("failed to create winit event loop")?;
@@ -53,6 +43,38 @@ impl App<'_> {
             .into_diagnostic()
             .wrap_err("failed to run winit app")?;
         Ok(())
+    }
+
+    #[cfg(feature = "hot")]
+    fn on_hot_reload() {
+        tracing::info!("hot reload");
+    }
+
+    /// Initialize the main window.
+    fn init_main_window(&mut self, event_loop: &ActiveEventLoop) -> miette::Result<()> {
+        const MAIN_WINDOW_TITLE: &str =
+            concatcp!(env!("CARGO_PKG_NAME"), " ", env!("CARGO_PKG_VERSION"));
+        let mut attributes = WindowAttributes::default();
+        attributes.title = MAIN_WINDOW_TITLE.to_string();
+        let fut = RenderWindow::with_ev_loop("main-window", event_loop, attributes);
+        let render_window = self.rt.block_on(fut)?;
+        self.main_window = Some(render_window);
+        Ok(())
+    }
+
+    /// Handle close request for the main window.
+    fn main_close_request(&mut self, event_loop: &ActiveEventLoop) {
+        self.main_window = None;
+        // Close hot-reload event observer thread.
+        #[cfg(feature = "hot")]
+        self.observer.take().map(|tx| tx.abort());
+        event_loop.exit();
+    }
+}
+
+impl Default for App<'_> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

@@ -1,0 +1,11 @@
+[output]
+path = "target/chipbox-dev"
+
+[bin.chipbox]
+path = "chipbox"
+enabled_features = ["hot"]
+default_features = false
+run = true
+
+[hot.chipbox-hot]
+path = "chipbox-hot"

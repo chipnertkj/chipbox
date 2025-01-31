@@ -6,7 +6,8 @@ pub struct Renderer<'target> {
     adapter: wgpu::Adapter,
     device: wgpu::Device,
     queue: wgpu::Queue,
-    config: Option<wgpu::SurfaceConfiguration>,
+    cached_config: Option<wgpu::SurfaceConfiguration>,
+    is_surface_configured: bool,
     size: nalgebra_glm::U32Vec2,
 }
 
@@ -20,7 +21,12 @@ impl<'target> Renderer<'target> {
         let surface = Self::create_surface(&instance, target)?;
         let adapter = Self::request_adapter(&instance, &surface).await?;
         let (device, queue) = Self::request_device(&adapter).await?;
-        let config = Self::surface_configuration(&adapter, &surface, size)?;
+        let cached_config = Self::surface_configuration(&adapter, &surface, size)?;
+        let mut is_surface_configured = false;
+        if let Some(ref config) = cached_config {
+            surface.configure(&device, config);
+            is_surface_configured = true;
+        };
         Ok(Self {
             size,
             instance,
@@ -28,11 +34,20 @@ impl<'target> Renderer<'target> {
             adapter,
             device,
             queue,
-            config,
+            cached_config,
+            is_surface_configured,
         })
     }
 
-    pub fn render_pass(&self) -> Result<(), wgpu::SurfaceError> {
+    /// Attempts to render a frame to the surface.
+    ///
+    /// Returns `Ok(true)` if the frame was rendered successfully, `Ok(false)` if rendering was skipped
+    /// due to invalid configuration or size.
+    /// Returns a [`wgpu::SurfaceError`] if encountered an error accessing the surface.
+    pub fn render_pass(&self) -> Result<bool, wgpu::SurfaceError> {
+        if !self.is_surface_configured {
+            return Ok(false);
+        }
         let surface_texture = self.surface.get_current_texture()?;
         let view = Self::surface_texture_view(&surface_texture);
         let mut encoder = self.render_encoder();
@@ -60,21 +75,24 @@ impl<'target> Renderer<'target> {
         let command_buffer = std::iter::once(encoder.finish());
         let _ix = self.queue.submit(command_buffer);
         surface_texture.present();
-        Ok(())
+        Ok(true)
     }
 
     pub fn set_size(&mut self, size: impl Into<mint::Vector2<u32>>) {
-        let size = size.into();
-        self.size = size.into();
-        if let Some(ref mut config) = self.config {
-            config.width = size.x;
-            config.height = size.y;
-            self.surface.configure(&self.device, config);
+        self.is_surface_configured = false;
+        self.size = size.into().into();
+        if let Some(ref mut config) = self.cached_config {
+            config.width = self.size.x;
+            config.height = self.size.y;
+            if Self::is_surface_size_vaild(&self.size) {
+                self.surface.configure(&self.device, config);
+                self.is_surface_configured = true
+            }
         };
     }
 
-    pub fn is_configured(&self) -> bool {
-        self.config.is_some()
+    fn is_surface_size_vaild(size: &nalgebra_glm::U32Vec2) -> bool {
+        size.x != 0 && size.y != 0
     }
 
     fn render_encoder(&self) -> wgpu::CommandEncoder {

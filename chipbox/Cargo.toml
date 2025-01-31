@@ -11,7 +11,8 @@ not-hot = ["dep:chipbox-hot"]
 hot = ["dep:hot-lib-reloader"]
 
 [dependencies]
-chipbox-hot = { workspace = true, optional = true }
+chipbox-utils = { path = "../chipbox-utils" }
+chipbox-hot = { path = "../chipbox-hot", optional = true }
 hot-lib-reloader = { version = "0.7.0", optional = true }
 chipnertkj-ui-render = { path = "../chipnertkj-ui-render" }
 chipnertkj-ui = { path = "../chipnertkj-ui" }
@@ -20,4 +21,13 @@ rb = "0.4.1"
 const_format = { version = "0.2.34" }
 winit = { version = "0.30.8", features = ["mint"] }
 miette = { version = "7.4.0", features = ["fancy"] }
-tokio = { version = "1.43.0", features = ["rt-multi-thread", "tracing"] }
+tokio = { version = "1.43.0", features = [
+    "rt-multi-thread",
+    "tracing",
+    "sync",
+] }
+tracing-subscriber = { version = "0.3.19", features = [
+    "env-filter",
+    "parking_lot",
+] }
+tracing = "0.1.41"

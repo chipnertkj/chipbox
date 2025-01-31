@@ -1,0 +1,9 @@
+[package]
+name = "chipbox-utils"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+miette = { version = "7.2.0", features = ["fancy"] }
+tracing = "0.1.40"
+tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }

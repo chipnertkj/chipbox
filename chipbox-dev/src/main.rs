@@ -1,90 +1,79 @@
-use std::{sync::Arc, time::Duration};
+//! [`chipbox`](https://github.com/chipnertkj/chipbox) development tool.
 
+use chipbox_dev::Verbosity;
 use clap::Parser as _;
 use miette::{Context as _, IntoDiagnostic as _};
-use watchexec::Watchexec;
-use watchexec_events::{Event, Priority};
-
-mod cargo_util;
-mod cli;
-mod quit;
-mod tracing_util;
-mod watch;
-
-fn force_working_dir() -> miette::Result<()> {
-    cargo_util::project_to_working_dir()?;
-    let (is_chipbox_root, _) = watch::is_chipbox_root()?;
-    if !is_chipbox_root {
-        Err(miette::miette!(
-            help = format!("make sure you're in the root directory of the project"),
-            "not in repo root"
-        ))
-    } else {
-        tracing::debug!("working dir is repo root");
-        Ok(())
-    }
-}
-
-fn new_wx_rt(
-    crates: watch::CrateNames,
-    rt_type: watch::WxRtType,
-) -> miette::Result<Arc<Watchexec>> {
-    let job_id = Default::default();
-    let wx = Watchexec::new(move |mut action| {
-        quit::handle(&mut action);
-        rt_type.handle_changes(&mut action, job_id);
-        action
-    })?;
-    wx.config.throttle(Duration::from_millis(50));
-    wx.config.on_error(|hook| {
-        tracing::error!("watchexec error: {}", hook.error);
-    });
-    let pathset: Vec<_> = crates
-        .iter()
-        .flat_map(|name| {
-            tracing::debug!("rt `{rt_type:?}` is watching crate `{name}`");
-            watch::crate_name_to_pathset(name)
-        })
-        .collect();
-    wx.config.pathset(pathset);
-    Ok(wx)
-}
+use std::path::Path;
+use tokio::fs;
 
 #[tokio::main]
 async fn main() -> miette::Result<()> {
-    let args = cli::Args::parse();
-    tracing_util::init(args.verbose)?;
-    force_working_dir()?;
-
-    let wx_bin = new_wx_rt(watch::bin_crates(), watch::WxRtType::Bin)?;
-    let wx_hot = new_wx_rt(watch::hot_crates(), watch::WxRtType::Hot)?;
-
-    let send_msg = |wx: Arc<Watchexec>| async move {
-        wx.send_event(Event::default(), Priority::Urgent)
-            .await
-            .unwrap();
-    };
-
-    tracing::info!("starting dev tool");
-    let (bin_result, hot_result, _, _) = tokio::join!(
-        wx_bin.main(),
-        wx_hot.main(),
-        send_msg(wx_bin),
-        send_msg(wx_hot)
-    );
-    bin_result
-        .into_diagnostic()
-        .wrap_err("failed to join bin rt")?
-        .into_diagnostic()
-        .wrap_err("bin rt failed")?;
-    tracing::debug!("bin rt exited");
-    hot_result
-        .into_diagnostic()
-        .wrap_err("failed to join hot rt")?
-        .into_diagnostic()
-        .wrap_err("hot rt failed")?;
-    tracing::debug!("hot rt exited");
-
-    // tracing::info!("starting ui");
+    let args = chipbox_dev::Args::parse();
+    init_tracing(args.verbosity())?;
+    print_working_dir()?;
+    let config_path = Path::new("chipbox-dev.toml");
+    let config_string = read_config_file(config_path).await?;
+    let config = parse_config(&config_string)?;
+    validate_config(&config, config_path)?;
     Ok(())
+}
+
+/// Validate provided config.
+/// Path parameter is used for error reporting.
+fn validate_config(config: &chipbox_dev::Config, config_path: &Path) -> miette::Result<()> {
+    config
+        .validate()
+        .wrap_err_with(|| format!("validate config: {}", config_path.display()))?;
+    tracing::debug!("config validated");
+    Ok(())
+}
+
+/// Parse provided config string.
+fn parse_config(config_string: &str) -> miette::Result<chipbox_dev::Config> {
+    let config = toml::from_str(config_string)
+        .into_diagnostic()
+        .wrap_err("parse config")?;
+    tracing::trace!("parsed config: {:#?}", config);
+    Ok(config)
+}
+
+/// Read config file at provided path.
+async fn read_config_file(path: &Path) -> miette::Result<String> {
+    fs::read_to_string(path)
+        .await
+        .into_diagnostic()
+        .wrap_err("read config file")
+}
+
+/// Print current working directory.
+fn print_working_dir() -> miette::Result<()> {
+    let working_dir = std::env::current_dir()
+        .into_diagnostic()
+        .wrap_err("get working dir")?;
+    tracing::debug!("working dir: {}", working_dir.display());
+    Ok(())
+}
+
+/// Initialize tracing capabilities with verbosity level.
+fn init_tracing(verbosity: Verbosity) -> miette::Result<()> {
+    let default_verbosity = cfg!(debug_assertions)
+        .then(|| Verbosity::Debug)
+        .unwrap_or(Verbosity::Normal);
+    let verbosity = verbosity.max(default_verbosity);
+    let directives = directives(verbosity);
+    chipbox_utils::init_tracing(directives).wrap_err("init tracing")?;
+    if verbosity > Verbosity::Normal {
+        tracing::debug!("running in verbose ({}) mode", verbosity);
+    }
+    Ok(())
+}
+
+/// Generate tracing directives based on verbosity level.
+fn directives(verbosity: Verbosity) -> Vec<String> {
+    let crate_name = env!("CARGO_CRATE_NAME");
+    match verbosity {
+        Verbosity::Normal => vec![],
+        Verbosity::Debug => vec![format!("{crate_name}=debug")],
+        Verbosity::Trace => vec![format!("{crate_name}=trace")],
+    }
 }

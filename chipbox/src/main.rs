@@ -1,7 +1,16 @@
-mod app;
-pub mod hot;
+//! Desktop DAW built around a visual node graph synthesizer.
+
+use miette::Context as _;
 
 fn main() -> miette::Result<()> {
-    let mut app = app::App::new();
+    let directives = tracing_directives();
+    chipbox_utils::init_tracing(directives).wrap_err("init tracing")?;
+    let mut app = chipbox::App::new();
     app.run()
+}
+
+/// Generate tracing directives.
+fn tracing_directives() -> impl IntoIterator<Item = String> {
+    let crate_name = env!("CARGO_CRATE_NAME");
+    [format!("{crate_name}=trace")]
 }

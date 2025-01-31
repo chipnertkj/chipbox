@@ -4,17 +4,21 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-chipbox-utils = { path = "../chipbox-utils" }
 miette = { version = "7.4.0", features = ["fancy"] }
 ratatui = "0.29.0"
 clap = { version = "4.5.27", features = ["derive"] }
-tokio = { version = "1.43.0", features = ["rt-multi-thread", "macros", "fs"] }
+tokio = { version = "1.43.0", features = ["rt-multi-thread", "macros"] }
 tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.19", features = [
+    "env-filter",
+    "parking_lot",
+] }
+watchexec = "5.0.0"
+watchexec-signals = "4.0.0"
+watchexec-events = "4.0.0"
 goblin = "0.9.3"
 rustc-hash = "2.1.0"
 thiserror = "2.0.11"
 serde = { version = "1.0.217", features = ["derive"] }
 serde_json = "1.0.138"
 derive_more = { version = "1.0.0", features = ["display"] }
-notify = "8.0.0"
-toml = { version = "0.8.19", features = ["preserve_order"] }

@@ -3,11 +3,13 @@ use std::sync::Arc;
 
 pub(crate) struct RenderWindow<'window> {
     inner: Arc<winit::window::Window>,
+    label: &'static str,
     renderer: Renderer<'window>,
 }
 
 impl RenderWindow<'_> {
     pub(crate) async fn with_ev_loop(
+        label: &'static str,
         event_loop: &winit::event_loop::ActiveEventLoop,
         attributes: winit::window::WindowAttributes,
     ) -> miette::Result<Self> {
@@ -17,6 +19,7 @@ impl RenderWindow<'_> {
         let window = Arc::new(window);
         let renderer = Renderer::new(window.clone(), window.inner_size()).await?;
         Ok(Self {
+            label,
             inner: window,
             renderer,
         })
@@ -27,10 +30,12 @@ impl RenderWindow<'_> {
     }
 
     pub(crate) fn redraw(&mut self) {
-        self.inner.request_redraw();
-        if self.renderer.is_configured() {
-            let result = self.renderer.render_pass();
-            result.expect("surface error")
+        let rendered = self.renderer.render_pass().unwrap_or_else(|e| {
+            tracing::error!("{}: renderer error: {e:?}", self.label);
+            false
+        });
+        if !rendered {
+            tracing::warn!("{}: skipped frame", self.label);
         }
     }
 

@@ -7,8 +7,6 @@ members = [
     "chipbox-dev",
     "chipnertkj-ui",
     "chipnertkj-ui-render",
+    "chipbox-utils",
 ]
 resolver = "2"
-
-[workspace.dependencies]
-chipbox-hot = { path = "chipbox-hot" }
