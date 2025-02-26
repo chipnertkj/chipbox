@@ -1,0 +1,7 @@
+{
+    // Enable hot-reload features with rust-analyzer.
+    // We assume that if things work with `hot`, they work with `not-hot` as well.
+    "rust-analyzer.cargo.features": [
+        "hot"
+    ],
+}

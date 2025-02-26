@@ -10,6 +10,7 @@ use winit::window::WindowAttributes;
 
 mod render_window;
 
+/// Application state.
 pub struct App<'app> {
     rt: tokio::runtime::Runtime,
     main_window: Option<RenderWindow<'app>>,
@@ -67,7 +68,9 @@ impl App<'_> {
         self.main_window = None;
         // Close hot-reload event observer thread.
         #[cfg(feature = "hot")]
-        self.observer.take().map(|tx| tx.abort());
+        if let Some(tx) = self.observer.take() {
+            tx.abort();
+        }
         event_loop.exit();
     }
 }
@@ -94,7 +97,7 @@ impl ApplicationHandler for App<'_> {
                 match event {
                     WindowEvent::CloseRequested => self.main_close_request(event_loop),
                     WindowEvent::RedrawRequested => {
-                        render_window.redraw();
+                        render_window.render_frame();
                     }
                     WindowEvent::Resized(physical_size) => {
                         render_window.update_renderer_size(physical_size);

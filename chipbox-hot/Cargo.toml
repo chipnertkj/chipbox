@@ -7,3 +7,4 @@ edition = "2024"
 crate-type = ["rlib", "dylib"]
 
 [dependencies]
+no-mangle-if-debug = "0.1.0"

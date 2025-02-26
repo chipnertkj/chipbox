@@ -3,7 +3,7 @@ path = "target/chipbox-dev"
 
 [bin.chipbox]
 path = "chipbox"
-enabled_features = ["hot"]
+features = ["hot"]
 default_features = false
 run = true
 

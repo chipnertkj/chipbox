@@ -4,7 +4,6 @@ version = "0.1.0"
 edition = "2024"
 
 [features]
-default = ["not-hot"]
 # Disable hot-reloading. Use crate `chipbox-hot` directly instead.
 not-hot = ["dep:chipbox-hot"]
 # Enable hot-reloading. Reload crate `chipbox-hot` on changes.
@@ -19,8 +18,8 @@ chipnertkj-ui = { path = "../chipnertkj-ui" }
 cpal = { version = "0.15.3", features = ["asio"] }
 rb = "0.4.1"
 const_format = { version = "0.2.34" }
-winit = { version = "0.30.8", features = ["mint"] }
-miette = { version = "7.4.0", features = ["fancy"] }
+winit = { version = "0.30.9", features = ["mint"] }
+miette = { version = "7.5.0", features = ["fancy"] }
 tokio = { version = "1.43.0", features = [
     "rt-multi-thread",
     "tracing",

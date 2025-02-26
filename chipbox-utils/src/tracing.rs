@@ -5,7 +5,7 @@ use tracing_subscriber::{EnvFilter, fmt::SubscriberBuilder};
 /// Subscriber is configured not to include timestamps.
 ///
 /// # Arguments
-/// * `directives` - list of directives to apply to the env filter.
+/// - `directives` - list of directives to apply to the [`EnvFilter`].
 pub fn init_subscriber(
     directives: impl IntoIterator<Item = impl AsRef<str>>,
 ) -> miette::Result<()> {

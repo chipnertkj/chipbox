@@ -15,7 +15,7 @@ pub struct Args {
 }
 
 impl Args {
-    /// Get verbosity level as [`Verbosity`] enum.
+    /// Get declared verbosity level as [`Verbosity`] enum.
     pub fn verbosity(&self) -> Verbosity {
         self.verbosity_raw.into()
     }

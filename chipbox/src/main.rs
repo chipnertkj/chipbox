@@ -12,5 +12,6 @@ fn main() -> miette::Result<()> {
 /// Generate tracing directives.
 fn tracing_directives() -> impl IntoIterator<Item = String> {
     let crate_name = env!("CARGO_CRATE_NAME");
-    [format!("{crate_name}=trace")]
+    let trace_crates = [crate_name, "chipnertkj_ui_render"];
+    trace_crates.map(|c| format!("{c}=trace"))
 }

@@ -5,8 +5,10 @@ edition = "2024"
 
 [dependencies]
 chipnertkj-ui = { path = "../chipnertkj-ui" }
-miette = "7.4.0"
+miette = "7.5.0"
 mint = "0.5.9"
 nalgebra = "0.33.2"
 nalgebra-glm = { version = "0.19.0", features = ["convert-mint"] }
+thiserror = "2.0.11"
+tracing = "0.1.41"
 wgpu = "24.0.1"

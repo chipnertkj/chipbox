@@ -65,7 +65,7 @@ pub struct BuildItem {
     pub path: PathBuf,
     /// Enabled features.
     #[serde(default)]
-    pub enabled_features: Vec<String>,
+    pub features: Vec<String>,
     /// Whether to disable default features.
     #[serde(default = "BuildItem::default_default_features")]
     pub default_features: bool,
