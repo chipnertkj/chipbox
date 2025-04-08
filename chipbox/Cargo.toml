@@ -20,7 +20,7 @@ rb = "0.4.1"
 const_format = { version = "0.2.34" }
 winit = { version = "0.30.9", features = ["mint"] }
 miette = { version = "7.5.0", features = ["fancy"] }
-tokio = { version = "1.43.0", features = [
+tokio = { version = "1.43.1", features = [
     "rt-multi-thread",
     "tracing",
     "sync",
