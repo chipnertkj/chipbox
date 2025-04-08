@@ -8,7 +8,7 @@ chipbox-utils = { path = "../chipbox-utils" }
 miette = { version = "7.5.0", features = ["fancy"] }
 ratatui = "0.29.0"
 clap = { version = "4.5.29", features = ["derive"] }
-tokio = { version = "1.43.0", features = ["rt-multi-thread", "macros", "fs"] }
+tokio = { version = "1.43.1", features = ["rt-multi-thread", "macros", "fs"] }
 tracing = "0.1.41"
 thiserror = "2.0.11"
 serde = { version = "1.0.217", features = ["derive"] }
