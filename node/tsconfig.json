@@ -1,0 +1,11 @@
+{
+    "files": [],
+    "references": [
+        {
+            "path": "./chipbox-frontend"
+        },
+        {
+            "path": "./chipbox-solid-render"
+        },
+    ],
+}

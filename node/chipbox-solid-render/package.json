@@ -1,0 +1,35 @@
+{
+	"name": "chipbox-solid-render",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"engines": {
+		"node": ">=11",
+		"pnpm": ">=10"
+	},
+	"scripts": {
+		"check": "tsc --noEmit",
+		"build": "pnpm run clean ; tsc -b",
+		"build:lib": "pnpm run build"
+	},
+	"main": "src/index.ts",
+	"module": "src/index.ts",
+	"types": "src/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./src/index.d.ts",
+			"import": "./src/index.ts"
+		},
+		"./jsx-runtime": {
+			"types": "./src/jsx-runtime.d.ts",
+			"import": "./src/jsx-runtime.ts"
+		}
+	},
+	"peerDependencies": {
+		"solid-js": "^1.8.0"
+	},
+	"devDependencies": {
+		"typescript": "^5.0.0"
+	},
+	"packageManager": "pnpm@10.15.1"
+}

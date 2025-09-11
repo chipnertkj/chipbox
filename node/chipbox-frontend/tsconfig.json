@@ -1,0 +1,22 @@
+{
+    "extends": "../tsconfig.base.json",
+    "compilerOptions": {
+        "allowImportingTsExtensions": true,
+        "noEmit": true,
+        "rootDir": "src",
+        "outDir": "dist",
+        "jsx": "preserve",
+    },
+    "include": [
+        "./src/**/*.ts",
+    ],
+    "references": [
+        {
+            "path": "../chipbox-solid-render"
+        }
+    ],
+    "exclude": [
+        "./node_modules",
+        "./dist"
+    ]
+}

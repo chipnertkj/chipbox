@@ -1,0 +1,19 @@
+[package]
+name = "chipbox-render"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+chipbox-scene = { path = "../chipbox-scene" }
+tracing = "0.1.41"
+# Affects used `wgpu` version.
+vello = "0.5.1"
+# `wgpu` version must match `vello` dependencies.
+wgpu = { version = "24.0.5", features = ["serde"] }
+
+[build-dependencies]
+cargo-lock = "10.1.0"
+miette = { version = "7.6.0", features = ["fancy"] }
+
+[lints]
+workspace = true

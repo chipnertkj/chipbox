@@ -1,0 +1,4 @@
+# Build output.
+dist/
+# Incremental compilation info.
+tsconfig.tsbuildinfo

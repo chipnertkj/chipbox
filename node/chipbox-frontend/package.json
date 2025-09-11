@@ -1,0 +1,26 @@
+{
+    "name": "chipbox-frontend",
+    "version": "0.1.0",
+    "private": true,
+    "main": "main.tsx",
+    "engines": {
+        "node": ">=11",
+        "pnpm": ">=10"
+    },
+    "dependencies": {
+        "chipbox-solid-render": "workspace:*",
+        "solid-js": "^1.8.0"
+    },
+    "devDependencies": {
+        "@types/node": "^24.3.1",
+        "typescript": "^5.0.0",
+        "vite": "^7.1.3",
+        "vite-plugin-solid": "^2.11.8"
+    },
+    "scripts": {
+        "check": "tsc --noEmit",
+        "dev": "vite dev --clearScreen false",
+        "build": "vite build --clearScreen false"
+    },
+    "packageManager": "pnpm@10.15.1"
+}

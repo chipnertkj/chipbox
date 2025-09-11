@@ -1,0 +1,6 @@
+packages:
+  - node/chipbox-solid-render
+  - node/chipbox-frontend
+
+ignoredBuiltDependencies:
+  - esbuild

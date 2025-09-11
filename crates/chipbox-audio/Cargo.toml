@@ -1,0 +1,20 @@
+[package]
+name = "chipbox-audio"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+cpal = { version = "0.16.0", features = ["asio", "audio_thread_priority"] }
+bytemuck = { version = "1.23.2", features = ["derive"] }
+derive_more = { version = "2.0.1", features = [
+    "debug",
+    "display",
+    "from",
+    "try_into",
+] }
+ringbuf = "0.4.8"
+thiserror = "2.0.16"
+
+
+[lints]
+workspace = true

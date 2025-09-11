@@ -1,0 +1,36 @@
+{
+    "compilerOptions": {
+        // JavaScript support
+        "allowJs": false,
+        // Projects
+        "composite": true,
+        // Modules and imports
+        "module": "esnext",
+        "moduleResolution": "bundler",
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        // Language and Environment
+        "target": "es2020",
+        "lib": [
+            "ES2020"
+        ],
+        "useDefineForClassFields": true,
+        // Filesystem map
+        "baseUrl": ".",
+        // Emit
+        "outDir": "./dist",
+        "declaration": true,
+        "declarationMap": true,
+        // Completeness
+        "skipLibCheck": true,
+        // Interop Constraints
+        "forceConsistentCasingInFileNames": true,
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        // Type checking
+        "strict": true,
+        "noUnusedLocals": false,
+        "noFallthroughCasesInSwitch": true,
+        "noUnusedParameters": false,
+    }
+}

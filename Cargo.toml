@@ -1,0 +1,17 @@
+[workspace]
+resolver = "3"
+members = ["crates/chipbox","crates/chipbox-audio", "crates/chipbox-dsp","crates/chipbox-render","crates/chipbox-scene"]
+
+[workspace.lints]
+# Useful but conservative lints - use #[allow] attributes on false positives.
+clippy.pedantic = { level = "warn", priority = -1 }
+# Experimental lints, use #[allow] to disable annoying ones.
+clippy.nursery = { level = "warn", priority = -1 }
+# Using `expect` shows intent better.
+clippy.unwrap_used = { level = "deny" }
+# Use commonly agreed on standards.
+rust.nonstandard_style = { level = "deny" }
+# Provides easier maintenance.
+rust.future_incompatible = { level = "deny" }
+# Better safety guarantees.
+rust.deprecated_safe_2024 = { level = "deny" }

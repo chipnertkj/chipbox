@@ -1,0 +1,17 @@
+[package]
+name = "chipbox"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+chipbox-audio = { path = "../chipbox-audio" }
+chipbox-dsp = { path = "../chipbox-dsp" }
+chipbox-render = { path = "../chipbox-render" }
+chipbox-scene = { path = "../chipbox-scene" }
+miette = { version = "7.6.0", features = ["fancy"] }
+thiserror = "2.0.16"
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.20", features = ["env-filter"] }
+
+[lints]
+workspace = true
