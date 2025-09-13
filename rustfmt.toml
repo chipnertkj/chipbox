@@ -1,4 +1,4 @@
 edition = "2024"
 imports_granularity = "Crate"
 group_imports = "StdExternalCrate"
-chain_width = 80
+chain_width = 60
