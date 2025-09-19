@@ -8,12 +8,11 @@ chipbox-scene = { path = "../chipbox-scene" }
 tracing = "0.1.41"
 # Affects used `wgpu` version.
 vello = "0.5.1"
-# `wgpu` version must match `vello` dependencies.
+# `wgpu` version must match `vello` dependency.
 wgpu = { version = "24.0.5", features = ["serde"] }
 
 [build-dependencies]
-cargo-lock = "10.1.0"
-miette = { version = "7.6.0", features = ["fancy"] }
+chipbox-build = { path = "../chipbox-build" }
 
 [lints]
 workspace = true
