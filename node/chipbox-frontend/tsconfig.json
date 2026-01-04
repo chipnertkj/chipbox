@@ -1,14 +1,22 @@
 {
     "extends": "../tsconfig.base.json",
     "compilerOptions": {
+        "baseUrl": ".",
         "allowImportingTsExtensions": true,
         "noEmit": true,
         "rootDir": "src",
         "outDir": "dist",
-        "jsx": "preserve",
+        "jsx": "react-jsx",
+        "jsxImportSource": "chipbox-solid-render",
+        "paths": {
+            "@bindings/*": [
+                "../chipbox-solid-render/generated/*"
+            ]
+        }
     },
     "include": [
         "./src/**/*.ts",
+        "./src/**/*.tsx"
     ],
     "references": [
         {

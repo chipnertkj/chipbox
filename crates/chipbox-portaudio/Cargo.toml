@@ -1,0 +1,14 @@
+[package]
+name = "chipbox-portaudio"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+asio = ["chipbox-portaudio-sys/asio"]
+
+[dependencies]
+chipbox-portaudio-sys = { path = "../chipbox-portaudio-sys" }
+thiserror = "2.0.17"
+
+[lints]
+workspace = true

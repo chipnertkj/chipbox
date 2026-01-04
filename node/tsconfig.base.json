@@ -15,8 +15,6 @@
             "ES2020"
         ],
         "useDefineForClassFields": true,
-        // Filesystem map
-        "baseUrl": ".",
         // Emit
         "outDir": "./dist",
         "declaration": true,
@@ -32,5 +30,5 @@
         "noUnusedLocals": false,
         "noFallthroughCasesInSwitch": true,
         "noUnusedParameters": false,
-    }
+    },
 }

@@ -1,9 +1,13 @@
-import { render, scene } from "chipbox-solid-render";
+import { render } from "chipbox-solid-render";
+import { createSignal } from "solid-js";
+import { info } from "chipbox:tracing";
+
+info(`test`);
 
 function App() {
-    return (
-        <box width="100su" />
-    );
+    return <grid array_limit={3} />;
 }
 
-render(() => <App />, scene.root());
+const result = App();
+info(`App returned: ${result}`);
+render(() => <App />, <box width="100su" height="100su" />);

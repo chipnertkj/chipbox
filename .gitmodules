@@ -1,0 +1,4 @@
+[submodule "portaudio"]
+	path = portaudio
+	url = https://github.com/PortAudio/portaudio
+	branch = v19.7

@@ -9,19 +9,19 @@
 	},
 	"scripts": {
 		"check": "tsc --noEmit",
-		"build": "pnpm run clean ; tsc -b",
-		"build:lib": "pnpm run build"
+		"build": "tsc -b",
+		"build:watch": "tsc -b --watch"
 	},
 	"main": "src/index.ts",
 	"module": "src/index.ts",
-	"types": "src/index.d.ts",
+	"types": "dist/index.d.ts",
 	"exports": {
 		".": {
-			"types": "./src/index.d.ts",
+			"types": "./dist/index.d.ts",
 			"import": "./src/index.ts"
 		},
 		"./jsx-runtime": {
-			"types": "./src/jsx-runtime.d.ts",
+			"types": "./dist/jsx-runtime.d.ts",
 			"import": "./src/jsx-runtime.ts"
 		}
 	},

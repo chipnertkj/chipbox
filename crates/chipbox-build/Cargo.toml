@@ -3,9 +3,19 @@ name = "chipbox-build"
 version = "0.1.0"
 edition = "2024"
 
+[features]
+build-script = []
+lockfile = ["dep:cargo-lock"]
+fs = ["dep:tokio", "tokio/fs", "dep:get_dir", "get_dir/tokio"]
+
 [dependencies]
-cargo-lock = "10.1.0"
+cargo-lock = { version = "11.0.0", optional = true }
 miette = { version = "7.6.0", features = ["fancy"] }
+tokio = { version = "1.48.0", optional = true }
+get_dir = { version = "0.5.0", optional = true }
+thiserror = "2.0.17"
+derive_more = { version = "2.1.0", features = ["from", "into", "display"] }
+dunce = "1.0.5"
 
 [lints]
 workspace = true

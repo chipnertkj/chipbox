@@ -5,10 +5,10 @@ edition = "2024"
 
 [dependencies]
 delegate-match = "0.2.0"
-derive_more = { version = "2.0.1", features = ["from"] }
+derive_more = { version = "2.1.0", features = ["from"] }
 rustc-hash = "2.1.1"
-petgraph = "0.8.2"
-thiserror = "2.0.16"
+petgraph = "0.8.3"
+thiserror = "2.0.17"
 
 [lints]
 workspace = true

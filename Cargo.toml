@@ -1,17 +1,56 @@
 [workspace]
+members = [
+    "crates/chipbox",
+    "crates/chipbox-portaudio",
+    "crates/chipbox-portaudio-sys",
+    "crates/chipbox-audio",
+    "crates/chipbox-build",
+    "crates/chipbox-dsp",
+    "crates/chipbox-render",
+    "crates/chipbox-scene",
+    "crates/xtask",
+]
 resolver = "3"
-members = ["crates/chipbox","crates/chipbox-audio", "crates/chipbox-dsp","crates/chipbox-render","crates/chipbox-scene"]
 
-[workspace.lints]
-# Useful but conservative lints - use #[allow] attributes on false positives.
-clippy.pedantic = { level = "warn", priority = -1 }
-# Experimental lints, use #[allow] to disable annoying ones.
-clippy.nursery = { level = "warn", priority = -1 }
-# Using `expect` shows intent better.
-clippy.unwrap_used = { level = "deny" }
-# Use commonly agreed on standards.
-rust.nonstandard_style = { level = "deny" }
-# Provides easier maintenance.
-rust.future_incompatible = { level = "deny" }
-# Better safety guarantees.
-rust.deprecated_safe_2024 = { level = "deny" }
+[workspace.lints.clippy.nursery]
+level = "warn"
+priority = -1
+
+[workspace.lints.clippy.pedantic]
+level = "warn"
+priority = -1
+
+[workspace.lints.clippy.unwrap_used]
+level = "deny"
+priority = 0
+
+[workspace.lints.clippy.undocumented_unsafe_blocks]
+level = "deny"
+priority = 0
+
+[workspace.lints.rust.deprecated_safe_2024]
+level = "deny"
+priority = 0
+
+[workspace.lints.rust.future_incompatible]
+level = "deny"
+priority = 0
+
+[workspace.lints.rust.nonstandard_style]
+level = "deny"
+priority = 0
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
+
+[profile.wasm-dev]
+inherits = "dev"
+opt-level = 1
+
+[profile.server-dev]
+inherits = "dev"
+
+[profile.android-dev]
+inherits = "dev"

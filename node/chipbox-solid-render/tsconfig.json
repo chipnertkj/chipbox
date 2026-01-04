@@ -1,15 +1,23 @@
 {
     "extends": "../tsconfig.base.json",
     "compilerOptions": {
-        "rootDir": "src",
+        "baseUrl": ".",
+        "rootDir": ".",
         "outDir": "dist",
+        "paths": {
+            "@bindings/*": [
+                "generated/*"
+            ]
+        },
+        "incremental": true
     },
     "include": [
-        "./src/**/*.ts",
-        "./src/**/*.tsx"
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "generated/**/*.ts",
     ],
     "exclude": [
-        "./node_modules",
-        "./dist"
+        "node_modules",
+        "dist"
     ]
 }

@@ -1,0 +1,43 @@
+[package]
+name = "xtask"
+edition = "2024"
+publish = false
+description = "Automation utilities for chipbox."
+
+[dependencies]
+# Affects used `crossterm` version.
+ratatui = "=0.29.0"
+# `crossterm` version must match `ratatui` dependency.
+crossterm = { version = "=0.28.1", features = ["event-stream"] }
+Inflector = { version = "0.11.4" }
+ansi-to-tui = "7.0.0"
+clap = { version = "4.5.52", features = ["derive"] }
+derive_more = { version = "2.0.1", features = ["debug", "display", "from"] }
+get_dir = { version = "0.5.0", features = ["tokio"] }
+miette = { version = "7.6.0", features = ["fancy"] }
+ringbuf = "0.4.8"
+strip-ansi-escapes = "0.2.1"
+textwrap = "0.16.2"
+thiserror = "2.0.17"
+tokio = { version = "1.48.0", features = [
+    "fs",
+    "macros",
+    "process",
+    "rt",
+    "rt-multi-thread",
+    "sync",
+    "time",
+] }
+vte = "0.15.0"
+futures = "0.3.31"
+humantime = "2.3.0"
+chipbox-build = { path = "../chipbox-build", features = ["fs"] }
+
+[build-dependencies]
+chipbox-build = { path = "../chipbox-build", features = [
+    "build-script",
+    "lockfile",
+] }
+
+[lints]
+workspace = true

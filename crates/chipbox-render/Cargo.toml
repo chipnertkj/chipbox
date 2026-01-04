@@ -5,14 +5,17 @@ edition = "2024"
 
 [dependencies]
 chipbox-scene = { path = "../chipbox-scene" }
-tracing = "0.1.41"
+tracing = "0.1.44"
 # Affects used `wgpu` version.
-vello = "0.5.1"
+vello = "0.6.0"
 # `wgpu` version must match `vello` dependency.
-wgpu = { version = "24.0.5", features = ["serde"] }
+wgpu = { version = "26.0.1", features = ["serde"] }
 
 [build-dependencies]
-chipbox-build = { path = "../chipbox-build" }
+chipbox-build = { path = "../chipbox-build", features = [
+    "build-script",
+    "lockfile",
+] }
 
 [lints]
 workspace = true
