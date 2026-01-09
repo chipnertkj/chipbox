@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "crates/chipbox",
+    "crates/chipbox-js",
     "crates/chipbox-portaudio",
     "crates/chipbox-portaudio-sys",
     "crates/chipbox-audio",
@@ -11,6 +12,62 @@ members = [
     "crates/xtask",
 ]
 resolver = "3"
+
+[workspace.dependencies]
+# Workspace dependencies
+chipbox-build = { path = "crates/chipbox-build" }
+chipbox-audio = { path = "crates/chipbox-audio" }
+chipbox-dsp = { path = "crates/chipbox-dsp" }
+chipbox-js = { path = "crates/chipbox-js" }
+chipbox-render = { path = "crates/chipbox-render" }
+chipbox-scene = { path = "crates/chipbox-scene" }
+chipbox-portaudio = { path = "crates/chipbox-portaudio" }
+chipbox-portaudio-sys = { path = "crates/chipbox-portaudio-sys" }
+# Error handling
+thiserror = "2.0.17"
+miette = "7.6.0"
+# Logging
+tracing = "0.1.44"
+tracing-subscriber = "0.3.22"
+# Concurrency and async
+tokio = "1.49.0"
+futures = "0.3.31"
+tokio-util = "0.7.18"
+# Rust utilities
+bytemuck = "1.24.0"
+derive_more = "2.1.0"
+delegate-match = "0.2.0"
+rustc-hash = "2.1.1"
+# Cargo utilities
+cargo-lock = "11.0.0"
+# Data structures
+ringbuf = "0.4.8"
+petgraph = "0.8.3"
+# File system
+get_dir = "0.5.0"
+dunce = "1.0.5"
+# Time
+chrono = "0.4.42"
+# Networking
+reqwest = "0.13.1"
+ureq = "3.1.4"
+tokio-tungstenite = "0.28.0"
+url = "2.5.8"
+# JavaScript
+rquickjs = "0.11.0"
+# Serialization
+serde = "1.0.228"
+serde_json = "1.0.149"
+# Rendering
+vello = "0.6.0"
+wgpu = "26.0.1"
+# Cross-compilation
+cc = "1.2.51"
+bindgen = "0.72.1"
+cmake = "0.1.54"
+# Compression
+zip = "7.0.0"
+
 
 [workspace.lints.clippy.nursery]
 level = "warn"

@@ -2,15 +2,12 @@ use std::io::Write as _;
 
 use miette::{Context as _, IntoDiagnostic as _};
 
-use crate::js::{
-    DisplayJsValue as _,
-    runtime::{JsRuntime, JsRuntimeError},
-};
+use crate::{DisplayJsValue as _, runtime::Runtime};
 
 /// ## `!Send`
 /// This function uses a `QuickJS` runtime, which is `!Send`.
 #[allow(clippy::future_not_send, reason = "rquickjs runtime is !Send")]
-pub async fn repl(js_runtime: &JsRuntime) -> miette::Result<()> {
+pub async fn repl(js_runtime: &Runtime) -> miette::Result<()> {
     loop {
         print!("js > ");
         std::io::stdout()
@@ -41,17 +38,14 @@ pub async fn repl(js_runtime: &JsRuntime) -> miette::Result<()> {
             .await;
         let value = match result {
             Ok(result) => result,
-            Err(JsRuntimeError::EvalException(ref e)) => {
-                let e = e.clone();
-                let diagnostic = result
-                    .into_diagnostic()
-                    .wrap_err("eval js")
-                    .expect_err("just checked for err");
-                eprintln!("{diagnostic:?}");
-                e.print_stack_trace();
+            Err(e) => {
+                let stack_trace = e.stack_trace().map(ToString::to_string);
+                eprintln!("{:?}", miette::Report::from_err(e));
+                if let Some(stack_trace) = stack_trace {
+                    eprintln!("stack trace: {stack_trace}");
+                }
                 continue;
             }
-            Err(_) => result.into_diagnostic().wrap_err("eval js")?,
         };
         println!("{value}");
     }

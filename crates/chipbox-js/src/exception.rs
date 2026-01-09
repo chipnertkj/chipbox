@@ -1,5 +1,5 @@
 #[derive(Debug, thiserror::Error, Clone)]
-#[error("{}", self.display_message())]
+#[error("{}", self.message())]
 pub enum JsException {
     Exception {
         message: Option<String>,
@@ -24,19 +24,15 @@ impl JsException {
         }
     }
 
-    pub fn print_stack_trace(&self) {
+    pub fn stack_trace(&self) -> Option<&str> {
         // TODO: this doesnt account for source maps... implement source mapping
         match self {
-            Self::Exception { stack, .. } => {
-                if let Some(stack) = stack {
-                    eprintln!("Stack trace:\n{stack}");
-                }
-            }
-            Self::Value { .. } => {}
+            Self::Exception { stack, .. } => stack.as_deref(),
+            Self::Value { .. } => None,
         }
     }
 
-    fn display_message(&self) -> &str {
+    fn message(&self) -> &str {
         match self {
             Self::Exception { message, .. } => {
                 message.as_deref().unwrap_or("(exception without message)")

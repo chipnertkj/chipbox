@@ -6,7 +6,9 @@
 
 use rquickjs::loader::{BuiltinResolver, ModuleLoader};
 
-macro_rules! builtin_modules {
+pub mod tracing;
+
+macro_rules! modules {
     ($($name:ident),* $(,)?) => {
         /// Create a resolver for all native `chipbox:*` modules.
         pub fn resolver() -> BuiltinResolver {
@@ -23,7 +25,7 @@ macro_rules! builtin_modules {
             $(
                 loader.add_module(
                     concat!("/@id/chipbox:", stringify!($name)),
-                    crate::js::builtin::$name::JsModule {}
+                    self::$name::JsModule {}
                 );
             )*
             loader
@@ -31,4 +33,4 @@ macro_rules! builtin_modules {
     };
 }
 
-builtin_modules!(tracing);
+modules!(tracing);

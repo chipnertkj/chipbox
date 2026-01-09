@@ -1,14 +1,9 @@
-use chipbox_build::{
-    build_script, lockfile,
-    miette::{self, Context as _},
-};
+use chipbox_build::{build_script, lockfile, miette};
 
 /// # Responsibilities:
-/// - Verify `wgpu` and `vello/wgpu` versions match.
+/// - Verify all immediate dependency versions are consistent with transitive deps.
 fn main() -> miette::Result<()> {
     build_script::rerun_on_lockfile_change();
-    let lockfile = lockfile::load_workspace().wrap_err("failed to read lockfile")?;
-    lockfile::assert_versions_match(&lockfile, "wgpu", "vello/wgpu")
-        .wrap_err("failed to verify wgpu versions match")?;
+    lockfile::assert_deps_consistency(&lockfile::load_workspace()?)?;
     Ok(())
 }

@@ -4,11 +4,14 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-delegate-match = "0.2.0"
-derive_more = { version = "2.1.0", features = ["from"] }
-rustc-hash = "2.1.1"
-petgraph = "0.8.3"
-thiserror = "2.0.17"
+delegate-match = { workspace = true }
+derive_more = { workspace = true, features = ["from"] }
+rustc-hash = { workspace = true }
+petgraph = { workspace = true }
+thiserror = { workspace = true }
+
+[build-dependencies]
+chipbox-build = { workspace = true, features = ["build-script", "lockfile"] }
 
 [lints]
 workspace = true

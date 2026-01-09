@@ -7,8 +7,11 @@ edition = "2024"
 asio = ["chipbox-portaudio-sys/asio"]
 
 [dependencies]
-chipbox-portaudio-sys = { path = "../chipbox-portaudio-sys" }
-thiserror = "2.0.17"
+chipbox-portaudio-sys = { workspace = true }
+thiserror = { workspace = true }
+
+[build-dependencies]
+chipbox-build = { workspace = true, features = ["build-script", "lockfile"] }
 
 [lints]
 workspace = true

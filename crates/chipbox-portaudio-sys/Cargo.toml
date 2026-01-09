@@ -4,15 +4,12 @@ version = "0.1.0"
 edition = "2024"
 
 [features]
-asio = ["dep:reqwest", "dep:tokio-util", "dep:futures", "dep:zip"]
+asio = ["dep:ureq", "dep:zip"]
 
 [build-dependencies]
-chipbox-build = { path = "../chipbox-build", features = ["build-script", "fs"] }
-cc = { version = "1.2.47", features = ["parallel"] }
-bindgen = "0.72.1"
-cmake = "0.1.54"
-reqwest = { version = "0.12.26", features = ["stream"], optional = true }
-tokio = { version = "1.48.0", features = ["macros", "rt-multi-thread"] }
-tokio-util = { version = "0.7.17", optional = true }
-futures = { version = "0.3.31", optional = true }
-zip = { version = "7.0.0", optional = true }
+chipbox-build = { workspace = true, features = ["build-script", "fs"] }
+cc = { workspace = true, features = ["parallel"] }
+bindgen = { workspace = true }
+cmake = { workspace = true }
+ureq = { workspace = true, optional = true }
+zip = { workspace = true, optional = true }

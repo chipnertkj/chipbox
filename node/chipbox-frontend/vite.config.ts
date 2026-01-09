@@ -1,13 +1,25 @@
 import { defineConfig, Plugin, UserConfig, } from 'vite';
 import solidPlugin from 'vite-plugin-solid';
 import { fileURLToPath } from 'url';
-import { readFileSync } from 'fs';
 import { dirname, resolve } from 'path';
+import { transformModule } from './vite/module-transform';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const renderer = "chipbox-solid-render";
+const renderer = 'chipbox-solid-render';
+
+function info(tag: string, message: string) {
+    console.log(`[${tag}] ${message}`);
+}
+
+function warn(tag: string, message: string) {
+    console.warn(`[${tag}] ${message}`);
+}
+
+function error(tag: string, message: string) {
+    console.error(`[${tag}] ${message}`);
+}
 
 /// Entry point.
 export default defineConfig((configEnv) => {
@@ -132,8 +144,11 @@ function devPlugins(dev: boolean): Plugin[] {
     return dev ? [
         // Externalize chipbox:* native modules for rquickjs runtime.
         chipboxExternalPlugin(),
-        // Stub /@vite/client for QuickJS (no browser WebSocket).
-        viteClientStubPlugin(),
+        // Transform imports for manual module management.
+        // Must run BEFORE viteClientStubPlugin so res.end is wrapped first.
+        transformImportsPlugin(),
+        // Override /@vite/client for QuickJS.
+        viteClientPlugin(),
         // Dump served modules to a JSON file.
         dumpServedPlugin(),
         // Send HMR updates to QuickJS on file change.
@@ -141,32 +156,43 @@ function devPlugins(dev: boolean): Plugin[] {
     ] : [];
 }
 
-function read_local_utf8(path: string): string {
-    return readFileSync(resolve(__dirname, path), 'utf8');
-}
-
 /**
- * Stub /@vite/client for QuickJS runtime.
+ * Override /@vite/client for QuickJS runtime.
  *
- * Vite serves /@vite/client via internal middleware, so we intercept
- * the HTTP request directly and return our stub.
+ * Intercepts the HTTP request for /@vite/client and serves our stub
+ * instead. Uses transformRequest to process the TypeScript file through
+ * Vite's pipeline (compilation, HMR tracking). The transform middleware
+ * then converts it to __qjs_require format.
  *
  * solid-refresh expects the SAME hot context to persist
  * across module reimports. We store contexts globally and return the
  * existing one if it exists.
  */
-function viteClientStubPlugin(): Plugin {
-    const vite_client_stub = read_local_utf8('vite-client-stub.js');
+function viteClientPlugin(): Plugin {
+    // Path relative to project root for Vite's module graph
+    const clientStubUrl = '/vite/client.ts';
     return {
         name: 'vite-client-stub',
-        enforce: 'pre',
         configureServer(server) {
-            // Intercept before Vite's internal middleware
-            server.middlewares.use((req, res, next) => {
+            server.middlewares.use(async (req, res, next) => {
                 if (req.url === '/@vite/client' || req.url?.startsWith('/@vite/client?')) {
-                    res.setHeader('Content-Type', 'application/javascript');
-                    res.end(vite_client_stub);
-                    return;
+                    try {
+                        // Process our stub through Vite's transform pipeline
+                        const result = await server.transformRequest(clientStubUrl);
+                        if (result) {
+                            // Append source map if available
+                            let code = result.code;
+                            if (result.map) {
+                                const mapBase64 = Buffer.from(JSON.stringify(result.map)).toString('base64');
+                                code += `\n//# sourceMappingURL=data:application/json;base64,${mapBase64}`;
+                            }
+                            res.setHeader('Content-Type', 'application/javascript');
+                            res.end(code);
+                            return;
+                        }
+                    } catch (e) {
+                        error('vite-client-stub', `${e} @ ${req.url}`);
+                    }
                 }
                 next();
             });
@@ -174,26 +200,73 @@ function viteClientStubPlugin(): Plugin {
     };
 }
 
-/** Mark `chipbox:*` imports as external so they pass through to rquickjs. */
+/**
+ * Mark `chipbox:*` imports as external so they pass through to rquickjs.
+ * These modules are provided by the Rust runtime, not Vite.
+ */
 function chipboxExternalPlugin(): Plugin {
-    const chipbox_external_stub = read_local_utf8('chipbox-external-stub.ts');
     return {
         name: 'chipbox-external',
         enforce: 'pre',
         resolveId(id) {
             if (id.startsWith('chipbox:')) {
-                return { id, external: true };
+                // Return the id itself so Vite knows we're handling it
+                return id;
             }
         },
         load(id) {
             if (id.startsWith('chipbox:')) {
-                return chipbox_external_stub;
+                // Provide empty exports - actual module comes from rquickjs at runtime
+                return 'export default {}';
             }
         },
     };
 }
 
+/**
+ * Transform served JS modules for QuickJS.
+ *
+ * Intercepts responses by wrapping res.end() BEFORE Vite's middleware runs.
+ * Transforms ALL JavaScript served by Vite (source, deps, internals) to use
+ * __qjs_require instead of ES imports.
+ */
+function transformImportsPlugin(): Plugin {
+    return {
+        name: 'transform-imports',
+        enforce: 'pre',
+        configureServer(server) {
+            // Add middleware BEFORE Vite's (no return) to wrap res.end
+            server.middlewares.use((req, res, next) => {
+                const url = req.url;
+                if (!url) return next();
 
+                const modulePath = url.split('?')[0];
+                const originalEnd = res.end.bind(res);
+
+                // @ts-ignore - overriding end with compatible signature
+                res.end = function (chunk?: any, encoding?: any, callback?: any) {
+                    const isJS = res.getHeader('Content-Type')?.toString().includes('javascript');
+                    if (chunk && isJS) {
+                        try {
+                            const code = typeof chunk === 'string' ? chunk : chunk.toString('utf-8');
+                            const transformed = transformModule(code, modulePath);
+                            return originalEnd(transformed, 'utf-8', callback);
+                        } catch (e) {
+                            error('transform-imports', `${e} @ ${modulePath}`);
+                        }
+                    }
+                    return originalEnd(chunk, encoding, callback);
+                };
+
+                next();
+            });
+        },
+    };
+}
+
+/**
+ * Dump served modules to a JSON file.
+ */
 function dumpServedPlugin(): Plugin {
     return {
         name: 'dump-served',
@@ -212,22 +285,17 @@ function dumpServedPlugin(): Plugin {
     };
 }
 
-function log(tag: string, message: string) {
-    console.log(`[${tag}] ${message}`);
-}
-
-function hmrLog(message: string) {
-    log('HMR', message);
-}
-
+/**
+ * Log HMR connection events.
+ */
 function quickjsHmrPlugin(): Plugin {
     return {
         name: 'quickjs-hmr',
         configureServer(server) {
             server.ws.on('connection', (socket) => {
-                hmrLog('WS client connected');
+                info('hmr', 'WS client connected');
                 socket.on('close', () => {
-                    hmrLog('WS client disconnected');
+                    info('hmr', 'WS client disconnected');
                 });
             });
         },

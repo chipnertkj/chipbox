@@ -22,8 +22,7 @@ specta-typescript = { git = "https://github.com/specta-rs/specta", rev = "f41ac4
 thiserror = "2.0.17"
 
 [build-dependencies]
-chipbox-build = { path = "../chipbox-build", features = ["build-script", "fs"] }
-tokio = { version = "1.48.0", features = ["macros", "rt-multi-thread"] }
+chipbox-build = { workspace = true, features = ["build-script", "fs"] }
 
 [lints]
 workspace = true

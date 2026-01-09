@@ -1,186 +1,50 @@
 use std::path::{Path, PathBuf};
 
-use chipbox_build::miette::{self, Context as _, IntoDiagnostic as _};
+use chipbox_build::{
+    build_script, lockfile,
+    miette::{self, Context as _, IntoDiagnostic as _},
+};
 
 #[cfg(all(windows, feature = "asio"))]
-mod asio {
-    const _ASSERT_WINDOWS: () = assert!(cfg!(windows));
+mod asio;
 
-    use std::path::{Path, PathBuf};
-
-    use chipbox_build::miette::{self, Context as _, IntoDiagnostic as _};
-    use futures::stream::TryStreamExt as _;
-
-    /// Get the `asio` target subdirectory.
-    pub async fn target_subdir() -> miette::Result<PathBuf> {
-        let dir = chipbox_build::fs::cargo_target_subdir("asio")
-            .await
-            .into_diagnostic()
-            .wrap_err("get cargo target subdir")?;
-        Ok(dir)
-    }
-
-    const fn sdk_archive_filename() -> &'static str {
-        "asiosdk.zip"
-    }
-    pub const fn sdk_extracted_dir_name() -> &'static str {
-        "ASIOSDK"
-    }
-
-    #[derive(PartialEq, Eq)]
-    enum SdkCached {
-        Yes,
-        NotDownloaded,
-        NotExtracted,
-    }
-
-    /// Check if the `asiodir` subdirectory exists under the target directory.
-    async fn sdk_cached() -> miette::Result<SdkCached> {
-        use chipbox_build::miette::IntoDiagnostic;
-        let try_exists = |path: &Path| -> miette::Result<bool> {
-            path.try_exists()
-                .into_diagnostic()
-                .wrap_err("check dir exists")
-        };
-        // Get target subdir.
-        let subdir = target_subdir().await.wrap_err("get target subdir")?;
-        // Check if asiosdk dir exists.
-        if !try_exists(&subdir)? {
-            return Ok(SdkCached::NotDownloaded);
-        }
-        // Check if downloaded and/or at least extracted
-        let extracted_path = subdir.join(sdk_extracted_dir_name());
-        let archive_path = subdir.join(sdk_archive_filename());
-        let status = if !try_exists(&extracted_path)? {
-            if !try_exists(&archive_path)? {
-                SdkCached::NotDownloaded
-            } else {
-                SdkCached::NotExtracted
-            }
-        } else {
-            SdkCached::Yes
-        };
-        Ok(status)
-    }
-
-    /// Download the ASIO SDK.
-    async fn download_sdk_archive() -> miette::Result<()> {
-        println!("cargo:warning=ASIO SDK not found, downloading...");
-        // Ensure subdir exists.
-        let subdir = target_subdir().await.wrap_err("get target subdir")?;
-        std::fs::create_dir_all(&subdir)
-            .into_diagnostic()
-            .wrap_err("create subdir")?;
-        // Download file from the url to file.
-        let url = "https://www.steinberg.net/asiosdk";
-        let path = subdir.join(sdk_archive_filename());
-        download_file(url, &path).await.wrap_err("download sdk")?;
-        Ok(())
-    }
-
-    async fn download_file(url: &str, p: impl AsRef<Path>) -> miette::Result<()> {
-        println!("cargo:warning=Downloading ASIO SDK...");
-        let path = p.as_ref();
-        let resp = reqwest::get(url)
-            .await
-            .into_diagnostic()
-            .wrap_err("get request")?
-            .error_for_status()
-            .into_diagnostic()
-            .wrap_err("get status")?;
-        let stream = resp.bytes_stream().map_err(std::io::Error::other);
-        let mut out = tokio::fs::File::create(path)
-            .await
-            .into_diagnostic()
-            .wrap_err("create output file")?;
-        let mut reader = tokio_util::io::StreamReader::new(stream);
-        tokio::io::copy(&mut reader, &mut out)
-            .await
-            .into_diagnostic()
-            .wrap_err("copy contents")?;
-        Ok(())
-    }
-
-    async fn extract_sdk_archive() -> miette::Result<()> {
-        let subdir = target_subdir().await.wrap_err("get target subdir")?;
-        let archive_path = subdir.join(sdk_archive_filename());
-        tokio::task::block_in_place(move || {
-            let file = std::fs::File::open(archive_path)
-                .into_diagnostic()
-                .wrap_err("open archive file")?;
-            let reader = std::io::BufReader::new(file);
-            zip::ZipArchive::new(reader)
-                .into_diagnostic()
-                .wrap_err("open zip archive")?
-                .extract(&subdir)
-                .into_diagnostic()
-                .wrap_err("extract sdk")?;
-            miette::Result::<_>::Ok(())
-        })?;
-        Ok(())
-    }
-
-    /// Download the ASIO SDK if it's not available.
-    pub async fn setup_sdk() -> miette::Result<()> {
-        match sdk_cached().await.wrap_err("check cached asio")? {
-            SdkCached::Yes => {
-                println!("cargo:warning=ASIO SDK seems available, skipping download");
-            }
-            state @ SdkCached::NotDownloaded | state @ SdkCached::NotExtracted => {
-                if state == SdkCached::NotDownloaded {
-                    download_sdk_archive().await.wrap_err("download asio")?;
-                } else {
-                    println!("cargo:warning=Using previously downloaded ASIO SDK...");
-                }
-                println!("cargo:warning=Extracting ASIO SDK...");
-                extract_sdk_archive().await.wrap_err("extract asio")?;
-            }
-        }
-        Ok(())
-    }
-}
-
-#[tokio::main]
-async fn main() -> miette::Result<()> {
-    init().wrap_err("init")?;
+fn main() -> miette::Result<()> {
+    build_init().wrap_err("init")?;
     #[cfg(all(windows, feature = "asio"))]
-    asio::setup_sdk().await.wrap_err("setup asio sdk")?;
+    asio::setup_sdk().wrap_err("setup asio sdk")?;
     let portaudio_path = chipbox_build::fs::portaudio()
-        .await
         .into_diagnostic()
         .wrap_err("portaudio path")?;
     #[cfg(all(windows, feature = "asio"))]
     let asio_path = Some(
         asio::target_subdir()
-            .await
             .wrap_err("asio target subdir")?
             .join(asio::sdk_extracted_dir_name()),
     );
     #[cfg(not(all(windows, feature = "asio")))]
     let asio_path = Option::<&'static Path>::None;
 
-    let build = tokio::task::spawn_blocking({
+    let build = std::thread::spawn({
         let portaudio_path = portaudio_path.clone();
         move || build_portaudio(portaudio_path, asio_path.as_ref())
     });
-    let bindings = tokio::task::spawn_blocking(move || generate_bindings(portaudio_path));
+    let bindings = std::thread::spawn(move || generate_bindings(portaudio_path));
 
     build
-        .await
-        .into_diagnostic()
-        .wrap_err("join build")?
+        .join()
+        .expect("build portaudio panic")
         .wrap_err("build portaudio")?;
     bindings
-        .await
-        .into_diagnostic()
-        .wrap_err("join bindings")?
+        .join()
+        .expect("generate bindings panic")
         .wrap_err("generate bindings")?;
 
     Ok(())
 }
 
-fn init() -> miette::Result<()> {
-    chipbox_build::build_script::rerun_on_script_change();
+fn build_init() -> miette::Result<()> {
+    build_script::rerun_on_script_change();
+    lockfile::assert_deps_consistency(&lockfile::load_workspace()?)?;
     Ok(())
 }
 
@@ -247,7 +111,7 @@ fn build_portaudio(
     // Windows-specific includes.
     #[cfg(windows)]
     let platform_includes = [
-        // gnu only TODO
+        // TODO: gnu only
         //portaudio_path.join("src/hostapi/wasapi/mingw-include"),
     ];
     #[cfg(not(windows))]
@@ -289,7 +153,7 @@ fn build_portaudio(
 
     #[cfg(all(windows, feature = "asio"))]
     {
-        let toolchain = chipbox_build::build_script::toolchain();
+        let toolchain = build_script::toolchain();
         println!("cargo:warning={toolchain}");
         if !toolchain.is_msvc() {
             // panic!("ASIO is only supported on MSVC");

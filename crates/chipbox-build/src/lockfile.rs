@@ -159,6 +159,48 @@ pub fn assert_versions_match<'left, 'right>(
     Ok(())
 }
 
+/// Verify that all immediate dependencies of a crate have consistent versions
+/// with transitive dependencies of other immediate dependencies.
+///
+/// For example, if `chipbox-render` depends on both `wgpu` and `vello`,
+/// and `vello` also depends on `wgpu`, this function verifies that
+/// the `wgpu` version matches `vello`'s `wgpu` dependency.
+///
+/// ## Errors
+/// - Version mismatch found between a direct dependency and a transitive one.
+/// - Unable to find the crate or its dependencies.
+pub fn assert_deps_consistency(lockfile: &Lockfile) -> miette::Result<()> {
+    let crate_path = LockfilePath::this_pkg();
+    let crate_pkg = crate_path.find_pkg(lockfile).wrap_err("find crate")?;
+
+    // Get all immediate dependency names
+    let immediate_dep_names: Vec<&str> = crate_pkg
+        .dependencies
+        .iter()
+        .map(|d| d.name.as_str())
+        .collect();
+
+    // For each immediate dependency, check if any other immediate dependency
+    // also depends on it - if so, verify versions match
+    for dep_name in &immediate_dep_names {
+        for other_dep in &crate_pkg.dependencies {
+            if other_dep.name.as_str() == *dep_name {
+                continue;
+            }
+            let other_pkg = pkg_from(lockfile, other_dep).wrap_err("find other dep pkg")?;
+            // Check if other_pkg has dep_name as a dependency
+            if dep(other_pkg, dep_name).is_ok() {
+                let left = format!("{}/{}", crate_path.display(), dep_name);
+                let right = format!("{}/{}", other_pkg.name, dep_name);
+                assert_versions_match(lockfile, &left, &right)
+                    .wrap_err_with(|| format!("in `{}`", crate_path.display()))?;
+            }
+        }
+    }
+
+    Ok(())
+}
+
 /// Read the lockfile from the workspace directory.
 ///
 /// ## Panics

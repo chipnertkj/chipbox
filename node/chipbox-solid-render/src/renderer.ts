@@ -1,16 +1,29 @@
 import type { JSX } from './jsx-runtime';
 
-
 // TODO: Implement.
 
 /** Create an element with the given tag. */
 export function createElement(tag: string): JSX.Element {
-    throw new Error("TODO");
+    return {
+        type: "box",
+        id: undefined,
+        children: undefined,
+        width: "0su",
+        height: "0su",
+    };
 }
 
 /** Create a text node with the given contents. */
 export function createTextNode(value: string): JSX.Element {
-    throw new Error("TODO");
+    return {
+        type: "text",
+        id: undefined,
+        children: undefined,
+        font: "",
+        weight: 400,
+        size: 16,
+        color: undefined,
+    };
 }
 
 /** Replace the contents of the given text node. */

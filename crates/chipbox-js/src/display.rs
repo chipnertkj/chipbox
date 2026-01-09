@@ -82,7 +82,7 @@ fn format_function(func: &rquickjs::Function<'_>) -> String {
         .unwrap_or_else(|| "<unnamed>".to_string());
     let length = func.get::<_, i32>("length").unwrap_or(0);
     format!(
-        "{name}({}) {{ <native code> }}",
+        "{name}({}) {{ <code> }}",
         (0..length).map(|_| "_").collect::<Vec<_>>().join(", ")
     )
 }

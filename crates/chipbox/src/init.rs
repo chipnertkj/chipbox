@@ -11,6 +11,7 @@ pub fn hooks(env_filter: tracing_subscriber::EnvFilter) -> miette::Result<()> {
         )
     }))
     .wrap_err("set miette hook")?;
+
     // Set up tracing subscriber.
     tracing_subscriber::fmt::SubscriberBuilder::default()
         .with_max_level(tracing::Level::DEBUG)

@@ -6,13 +6,13 @@ use futures::{SinkExt as _, StreamExt as _};
 use miette::{Context as _, IntoDiagnostic as _};
 use tokio_tungstenite::tungstenite;
 
-use super::{EventTx, WsMessage, WsStream, payload::HmrMessage};
+use super::{Send, WsMessage, WsStream, payload::HmrMessage};
 
 /// Await and handle every message from the HMR websocket stream until the connection is closed.
-pub async fn handle_messages(ws_stream: &mut WsStream, event_tx: &EventTx) -> miette::Result<()> {
+pub async fn handle_messages(ws_stream: &mut WsStream, send: &Send) -> miette::Result<()> {
     while let Some(msg) = ws_stream.next().await {
         let msg = msg.into_diagnostic().wrap_err("read message")?;
-        let control_flow = handle_message(msg, ws_stream, event_tx).await?;
+        let control_flow = handle_message(msg, ws_stream, send).await?;
         match control_flow {
             ControlFlow::Continue(()) => (),
             ControlFlow::Break(()) => break,
@@ -25,19 +25,19 @@ pub async fn handle_messages(ws_stream: &mut WsStream, event_tx: &EventTx) -> mi
 async fn handle_message(
     msg: WsMessage,
     ws_stream: &mut WsStream,
-    event_tx: &EventTx,
+    send: &Send,
 ) -> miette::Result<ControlFlow<()>> {
     match msg {
-        WsMessage::Text(utf8_bytes) => handle_text_message(ws_stream, event_tx, utf8_bytes).await?,
+        WsMessage::Text(utf8_bytes) => handle_text_message(ws_stream, send, utf8_bytes).await?,
         WsMessage::Close(frame) => {
             handle_close_frame(frame);
             return Ok(ControlFlow::Break(()));
         }
         WsMessage::Ping(data) => handle_ping(ws_stream, data).await?,
-        WsMessage::Pong(data) => tracing::info!("Received pong ({} bytes).", data.len()),
-        WsMessage::Binary(data) => tracing::info!("Received binary data ({} bytes).", data.len()),
-        WsMessage::Frame(_) => miette::bail!("Received raw frame while reading WS message!"),
-    }
+        WsMessage::Pong(ref data) => handle_pong(data),
+        WsMessage::Binary(ref data) => handle_binary(data),
+        WsMessage::Frame(ref frame) => handle_frame(frame),
+    };
     Ok(ControlFlow::Continue(()))
 }
 
@@ -57,6 +57,18 @@ async fn handle_ping(
     Ok(())
 }
 
+fn handle_pong(data: &tungstenite::Bytes) {
+    tracing::info!("Received pong ({} bytes).", data.len());
+}
+
+fn handle_binary(data: &tungstenite::Bytes) {
+    tracing::info!("Received binary data ({} bytes).", data.len());
+}
+
+fn handle_frame(frame: &tungstenite::protocol::frame::Frame) {
+    tracing::info!("Received frame: {frame:?}");
+}
+
 /// Handle a close frame from the HMR server.
 fn handle_close_frame(frame: Option<tungstenite::protocol::CloseFrame>) {
     use tungstenite::protocol::CloseFrame;
@@ -70,14 +82,14 @@ fn handle_close_frame(frame: Option<tungstenite::protocol::CloseFrame>) {
 /// If the message cannot be parsed, an error is logged. The function still returns `Ok(())` in this case.
 async fn handle_text_message(
     ws_stream: &mut WsStream,
-    event_tx: &EventTx,
+    send: &Send,
     utf8_bytes: tungstenite::Utf8Bytes,
 ) -> miette::Result<()> {
     tracing::trace!("Received text message: {utf8_bytes:?}");
     let parse_result = serde_json::from_str::<HmrMessage>(&utf8_bytes).into_diagnostic();
     match parse_result {
         Ok(hmr_message) => hmr_message
-            .handle(ws_stream, event_tx)
+            .handle(ws_stream, send)
             .await
             .wrap_err("handle hmr message"),
         Err(e) => {

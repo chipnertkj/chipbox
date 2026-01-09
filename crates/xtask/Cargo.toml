@@ -5,9 +5,7 @@ publish = false
 description = "Automation utilities for chipbox."
 
 [dependencies]
-# Affects used `crossterm` version.
 ratatui = "=0.29.0"
-# `crossterm` version must match `ratatui` dependency.
 crossterm = { version = "=0.28.1", features = ["event-stream"] }
 Inflector = { version = "0.11.4" }
 ansi-to-tui = "7.0.0"
