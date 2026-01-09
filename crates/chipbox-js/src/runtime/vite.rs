@@ -41,23 +41,20 @@ fn init_client() -> reqwest::Client {
         .expect("init http client")
 }
 
-fn init_registry<'js>(ctx: &Ctx<'js>, globals: &Object<'js>) -> QjsResult<()> {
+fn set_registry<'js>(ctx: &Ctx<'js>, globals: &Object<'js>) -> QjsResult<()> {
     let registry = Object::new(ctx.clone()).catch(ctx)?;
     globals.set("__qjs_module_registry", registry).catch(ctx)?;
     Ok(())
 }
 
-fn init_require(ctx: &Ctx<'_>) -> QjsResult<()> {
-    let func = Function::new(ctx.clone(), require);
-    ctx.globals().set("__qjs_require", func).catch(ctx)?;
+fn set_require<'js>(ctx: &Ctx<'js>, globals: &Object<'js>) -> QjsResult<()> {
+    let func = Function::new(ctx.clone(), __qjs_require);
+    globals.set("__qjs_require", func).catch(ctx)?;
     Ok(())
 }
 
-#[allow(
-    clippy::needless_pass_by_value,
-    reason = "FromJsFunc requires FromJs types"
-)]
-fn require(ctx: Ctx<'_>, path: String) -> rquickjs::Result<Promise<'_>> {
+#[allow(clippy::needless_pass_by_value, reason = "required by FromJsFunc")]
+fn __qjs_require(ctx: Ctx<'_>, path: String) -> rquickjs::Result<Promise<'_>> {
     let globals = ctx.globals();
     let registry: Object = globals.get("__qjs_module_registry")?;
     let module: Value = registry.get(&path)?;
@@ -89,8 +86,8 @@ fn require(ctx: Ctx<'_>, path: String) -> rquickjs::Result<Promise<'_>> {
 /// Initialize Vite module globals in the given context.
 pub fn init_globals(ctx: &Ctx<'_>) -> RegistryInitResult<()> {
     let globals = ctx.globals();
-    init_registry(ctx, &globals).map_err(RegistryInitError::Registry)?;
-    init_require(ctx).map_err(RegistryInitError::Require)?;
+    set_registry(ctx, &globals).map_err(RegistryInitError::Registry)?;
+    set_require(ctx, &globals).map_err(RegistryInitError::Require)?;
     Ok(())
 }
 
